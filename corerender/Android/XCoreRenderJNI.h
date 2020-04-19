@@ -1,0 +1,9 @@
+//
+// Created by Oogh on 2020/3/19.
+//
+
+#ifndef ANDROIDDEMO_XCORERENDERJNI_H
+#define ANDROIDDEMO_XCORERENDERJNI_H
+
+#include <jni.h>
+#endif //ANDROIDDEMO_XCORERENDERJNI_H
