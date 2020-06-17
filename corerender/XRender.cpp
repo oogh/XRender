@@ -12,28 +12,16 @@ XRender::XRender(): mTextureWidth(720), mTextureHeight(1280) {
 }
 
 XRender::~XRender() {
-    if (mInput) {
-        fclose(mInput);
-        mInput = nullptr;
-    }
 }
 
 void XRender::setInput(const std::string& filename) {
-    mInput = fopen(filename.data(), "rb");
-    if (!mInput) {
-        throw XException("[XViewer] failed to open file");
-    }
+    mProducer = std::make_unique<XFileProducer>();
+    mProducer->setInput(filename);
 }
 
 void XRender::start() {
-    uint8_t* buf = new uint8_t[mTextureWidth * mTextureHeight * 4] { 0 };
-    fread(buf, 1, mTextureWidth * mTextureHeight * 4, mInput);
-    mTexture->update(buf, mTextureWidth, mTextureHeight);
-
-    delete[] buf;
-
-    fclose(mInput);
-    mInput = nullptr;
+    auto image = mProducer->getImage(0);
+    mTexture->update(image->pixels, mTextureWidth, mTextureHeight);
 }
 
 void XRender::onSurfaceCreated() {

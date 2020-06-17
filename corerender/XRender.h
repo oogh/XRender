@@ -8,6 +8,7 @@
 #include "XGLHeader.h"
 #include <memory>
 #include <string>
+#include "XFileProducer.h"
 
 class XTexture;
 
@@ -30,9 +31,9 @@ public:
 private:
     std::unique_ptr<XTexture> mTexture;
 
-    FILE* mInput;
-
     int mTextureWidth;
     int mTextureHeight;
+
+    std::unique_ptr<XFileProducer> mProducer;
 };
 #endif //ANDROIDDEMO_XRENDER_H
