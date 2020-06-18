@@ -70,7 +70,7 @@ private:
     const int S_VIDEO_END = 1 << 1;
     const int S_AUDIO_END = 1 << 2;
 
-    const AVPixelFormat OUT_PIX_FMT = AV_PIX_FMT_RGB24;
+    const AVPixelFormat DST_PIX_FMT = AV_PIX_FMT_RGB24;
 
 private:
     std::unique_ptr<AVFormatContext, InputFormatDeleter> mFormatCtx;

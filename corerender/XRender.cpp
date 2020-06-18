@@ -6,6 +6,7 @@
 #include "XTexture.h"
 #include "XException.h"
 #include "XImageUtil.h"
+#include "XImage.h"
 
 XRender::XRender(): mTextureWidth(720), mTextureHeight(1280) {
     
@@ -15,13 +16,23 @@ XRender::~XRender() {
 }
 
 void XRender::setInput(const std::string& filename) {
+#ifdef USE_FILE_PRODUCER
     mProducer = std::make_unique<XFileProducer>();
+#endif
+
+#ifdef USE_FFMPEG_PRODUCER
+    mProducer = std::make_unique<XFFProducer>();
+#endif
+
     mProducer->setInput(filename);
 }
 
 void XRender::start() {
+    mProducer->start();
     auto image = mProducer->getImage(0);
-    mTexture->update(image->pixels, mTextureWidth, mTextureHeight);
+    if (image) {
+        mTexture->update(image->pixels[0], mTextureWidth, mTextureHeight);
+    }
 }
 
 void XRender::onSurfaceCreated() {

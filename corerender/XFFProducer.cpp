@@ -45,6 +45,12 @@ void XFFProducer::start() {
 }
 
 std::shared_ptr<XImage> XFFProducer::getImage(long clock) {
+    if (!mImageQueue) {
+        return nullptr;
+    }
+
+    mImageQueue->peekReadable();
+
     return XProducable::getImage(clock);
 }
 
@@ -306,14 +312,17 @@ void XFFProducer::videoWorkThread(void *opaque) {
         producer->mImageQueue = std::make_unique<XImageQueue>();
     }
 
+    int ret;
     for (;;) {
         if (producer->mAborted) {
             break;
         }
 
-
+        ret = decodeVideoFrame();
+        if (ret < 0) {
+            break;
+        }
     }
-
 
     av_log(nullptr, AV_LOG_INFO, "[XFFProducer] videoWorkThread ----\n");
 }
@@ -399,27 +408,31 @@ void XFFProducer::queueFrame(AVFrame *frame, long pts, long duration) {
     image->height = frame->height;
     image->pts = pts;
     image->duration = duration;
+    image->format = DST_PIX_FMT;
+    frameConvert(image, frame);
 
+    mImageQueue->push();
 }
 
 int XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
+    SwsContext* sws = nullptr;
     if (!mSwsContext) {
-        SwsContext *sws = sws_getContext(src->width, src->height, static_cast<AVPixelFormat>(src->format),
-                                         dst->width, dst->height, OUT_PIX_FMT,
-                                         SWS_FAST_BILINEAR,
-                                         nullptr, nullptr, nullptr);
+        sws = sws_getContext(src->width, src->height, static_cast<AVPixelFormat>(src->format),
+                             dst->width, dst->height, DST_PIX_FMT,
+                             SWS_FAST_BILINEAR,
+                             nullptr, nullptr, nullptr);
         if (!sws) {
             av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] sws_getContext failed!\n");
             return -1;
         }
-
         mSwsContext = std::unique_ptr<SwsContext, SwsContextDeleter>(sws);
+    } else {
+        sws = mSwsContext.get();
     }
 
+    int result = sws_scale(sws, src->data, src->linesize, 0, src->height, dst->pixels, dst->linesize);
 
-    dst->allocBuffer(dst->width, dst->height, static_cast<int>(OUT_PIX_FMT));
-
-    return 0;
+    return result;
 }
 
 

@@ -10,6 +10,7 @@
 #define XEXPORTER_XIMAGE_H
 
 #include <memory>
+#include "XFFHeader.h"
 
 enum ImageType {
     IMG_TYPE_UNKNOWN = -1,
@@ -19,7 +20,9 @@ enum ImageType {
 };
 
 struct XImage {
-    uint8_t* pixels = nullptr;
+    uint8_t* pixels[4] = {nullptr};
+
+    int linesize[4] = {0};
 
     int width = 0;
 
@@ -31,57 +34,24 @@ struct XImage {
 
     int format = -1;
 
-    XImage(): pixels(nullptr), width(0), height(0), pts(-1), duration(-1) {
-
+    XImage(): width(0), height(0), pts(-1), duration(-1) {
     }
 
     ~XImage() {
-        freeBuffer();
         this->width = 0;
         this->height = 0;
         this->pts = -1;
         this->duration = -1;
-    }
+        if (this->pixels[0] != nullptr) {
+            av_freep(&this->pixels[0]);
+            av_freep(&this->pixels);
+        }
 
-    void allocBuffer(int w, int h, int fmt) {
-        if (this->width != w || this->height != h || !pixels) {
-            freeBuffer();
-            this->width = w;
-            this->height = h;
-            if (fmt == IMG_TYPE_YUV420P) {
-                pixels = pixels = new uint8_t[w * h * 3 / 2];
-            } else if (fmt == IMG_TYPE_RGB24) {
-                pixels = pixels = new uint8_t[w * h * 3];
-            } else if (fmt == IMG_TYPE_RGBA) {
-                pixels = new uint8_t[w * h * 4];
-            }
+        for (int i = 0; i < 4; ++i) {
+            this->linesize[i] = 0;
         }
     }
 
-    void copyPixels(uint8_t* src, int w, int h) {
-        allocBuffer(w, h, IMG_TYPE_RGBA);
-        memcpy(this->pixels, src, w * h * 4);
-    }
-
-    void freeBuffer() {
-        if (this->pixels) {
-            delete[] this->pixels;
-            this->pixels = nullptr;
-        }
-    }
-
-private:
-    int getBufferSize(int w, int h, int fmt) {
-        int result = 0;
-        if (fmt == IMG_TYPE_YUV420P) {
-            result = w * h * 3 / 2;
-        } else if (fmt == IMG_TYPE_RGB24) {
-            result = w * h * 3;
-        } else if (fmt == IMG_TYPE_RGBA) {
-            result = w * h * 4;
-        }
-        return result;
-    }
 };
 
 #endif //XEXPORTER_XIMAGE_H

@@ -38,7 +38,7 @@ void XImageQueue::push() {
 }
 
 std::shared_ptr<XImage> XImageQueue::peekReadable() {
-    return std::shared_ptr<XImage>();
+    return mImageQueue.at(mRindex % mCapacity);
 }
 
 void XImageQueue::next() {

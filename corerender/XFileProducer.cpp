@@ -38,7 +38,7 @@ void XFileProducer::setInput(const std::string& filename) {
 std::shared_ptr<XImage> XFileProducer::getImage(long clock) {
     mFileStream.read(reinterpret_cast<char *>(mRGBABuffer), mRGBABufferSize);
     auto image = std::make_shared<XImage>();
-    image->copyPixels(mRGBABuffer, mWidth, mHeight);
+//    image->copyPixels(mRGBABuffer, mWidth, mHeight);
     return image;
 }
 

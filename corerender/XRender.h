@@ -8,7 +8,17 @@
 #include "XGLHeader.h"
 #include <memory>
 #include <string>
+
+//#define USE_FILE_PRODUCER
+#define USE_FFMPEG_PRODUCER
+
+#ifdef USE_FILE_PRODUCER
 #include "XFileProducer.h"
+#endif
+
+#ifdef USE_FFMPEG_PRODUCER
+#include "XFFProducer.h"
+#endif
 
 class XTexture;
 
@@ -34,6 +44,12 @@ private:
     int mTextureWidth;
     int mTextureHeight;
 
+#ifdef USE_FILE_PRODUCER
     std::unique_ptr<XFileProducer> mProducer;
+#endif
+
+#ifdef USE_FFMPEG_PRODUCER
+    std::unique_ptr<XFFProducer> mProducer;
+#endif
 };
 #endif //ANDROIDDEMO_XRENDER_H

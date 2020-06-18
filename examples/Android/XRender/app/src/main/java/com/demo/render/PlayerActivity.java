@@ -28,7 +28,7 @@ public class PlayerActivity extends AppCompatActivity {
         findViewById(R.id.btn_start).setOnClickListener(v -> {
             // "/sdcard/Android/data/com.demo.render/files/jieqian_720x1280.yuv"
             String path = getPrivateExternalFilesDir(this, "");
-            mDisplayView.setInput(path + "jieqian_720x1280.rgba");
+            mDisplayView.setInput(path + "jieqian_720x1280.mp4");
             mDisplayView.start();
         });
     }
