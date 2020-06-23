@@ -354,6 +354,15 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = R25N9JGHQ4;
+				HEADER_SEARCH_PATHS = (
+					"\"$(PODS_TARGET_SRCROOT)/3rdparty/x264/iOS/include\"",
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/XRender\"",
+					"\"$(PODS_TARGET_SRCROOT)/3rdparty/fdkaac/iOS/include\"",
+					"\"$(PODS_TARGET_SRCROOT)/3rdparty/ffmpeg/iOS/include\"",
+					"\"$(PODS_TARGET_SRCROOT)/3rdparty/lame/iOS/include\"",
+				);
 				INFOPLIST_FILE = XRender/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

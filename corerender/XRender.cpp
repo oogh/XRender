@@ -29,10 +29,7 @@ void XRender::setInput(const std::string& filename) {
 
 void XRender::start() {
     mProducer->start();
-    auto image = mProducer->getImage(0);
-    if (image) {
-        mTexture->update(image->pixels[0], mTextureWidth, mTextureHeight);
-    }
+
 }
 
 void XRender::onSurfaceCreated() {
@@ -52,6 +49,14 @@ void XRender::onDrawFrame() {
     if (!mTexture) {
         mTexture = std::make_unique<XTexture>(mTextureWidth, mTextureHeight);
     }
+
+    if (mProducer) {
+        auto image = mProducer->getImage(0);
+        if (image && image->pixels[0]) {
+            mTexture->update(image->pixels[0], mTextureWidth, mTextureHeight);
+        }
+    }
+
     
     if (mTexture) {
         mTexture->draw();

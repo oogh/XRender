@@ -49,9 +49,9 @@ std::shared_ptr<XImage> XFFProducer::getImage(long clock) {
         return nullptr;
     }
 
-    mImageQueue->peekReadable();
+    auto image = mImageQueue->peekReadable();
 
-    return XProducable::getImage(clock);
+    return image;
 }
 
 std::shared_ptr<XSample> XFFProducer::getSample() {
@@ -412,6 +412,7 @@ void XFFProducer::queueFrame(AVFrame *frame, long pts, long duration) {
     frameConvert(image, frame);
 
     mImageQueue->push();
+    av_log(nullptr, AV_LOG_INFO, "[XFFProducer] queue frame pts: %ld, druation: %ld\n", pts, duration);
 }
 
 int XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {

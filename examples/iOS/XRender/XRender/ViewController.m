@@ -22,7 +22,7 @@
 }
 
 - (IBAction)onStartClick:(id)sender {
-    NSString *filename = [[NSBundle mainBundle] pathForResource:@"jieqian_720x1280" ofType:@"rgba"];
+    NSString *filename = [[NSBundle mainBundle] pathForResource:@"jieqian_720x1280" ofType:@"mp4"];
     [self.displayView setInput:filename];
     [self.displayView start];
 }

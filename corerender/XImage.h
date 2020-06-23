@@ -38,6 +38,10 @@ struct XImage {
     }
 
     ~XImage() {
+        free();
+    }
+
+    void free() {
         this->width = 0;
         this->height = 0;
         this->pts = -1;
