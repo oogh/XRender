@@ -31,10 +31,12 @@ public:
 
     void start() override;
 
-    std::shared_ptr<XImage> getImage(long clock) override;
+    std::shared_ptr<XImage> peekImage(long clock) override;
+    
+    void endCurrentImageUse() override;
 
     std::shared_ptr<XSample> getSample() override;
-
+    
     void stop() override;
 
 private:
@@ -70,7 +72,7 @@ private:
     const int S_VIDEO_END = 1 << 1;
     const int S_AUDIO_END = 1 << 2;
 
-    const AVPixelFormat DST_PIX_FMT = AV_PIX_FMT_RGB24;
+    const AVPixelFormat DST_PIX_FMT = AV_PIX_FMT_RGBA;
 
 private:
     std::unique_ptr<AVFormatContext, InputFormatDeleter> mFormatCtx;

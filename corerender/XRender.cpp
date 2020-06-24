@@ -29,7 +29,6 @@ void XRender::setInput(const std::string& filename) {
 
 void XRender::start() {
     mProducer->start();
-
 }
 
 void XRender::onSurfaceCreated() {
@@ -38,11 +37,14 @@ void XRender::onSurfaceCreated() {
 
 void XRender::onSurfaceChanged(int width, int height) {
     // 居中显示
-    glViewport(width / 4, height / 4, width / 2, height / 2);
+//    glViewport(width / 4, height / 4, width / 2, height / 2);
+    
+    // 全画布显示
+    glViewport(0, 0, width, height);
 }
 
 void XRender::onDrawFrame() {
-
+    
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     
@@ -51,14 +53,18 @@ void XRender::onDrawFrame() {
     }
 
     if (mProducer) {
-        auto image = mProducer->getImage(0);
+        
+        auto image = mProducer->peekImage(0);
+        
         if (image && image->pixels[0]) {
             mTexture->update(image->pixels[0], mTextureWidth, mTextureHeight);
         }
+        mProducer->endCurrentImageUse();
+        
     }
-
     
     if (mTexture) {
         mTexture->draw();
     }
+    
 }

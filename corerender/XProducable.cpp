@@ -9,7 +9,7 @@
 #include "XProducable.h"
 
 XProducable::XProducable()
-        : mDisableVideo(false), mDisableAudio(false) {
+        : mDisableVideo(false), mDisableAudio(true) {
 
 }
 
@@ -33,8 +33,12 @@ void XProducable::start() {
 
 }
 
-std::shared_ptr<XImage> XProducable::getImage(long clock) {
+std::shared_ptr<XImage> XProducable::peekImage(long clock) {
     return nullptr;
+}
+
+void XProducable::endCurrentImageUse() {
+    
 }
 
 std::shared_ptr<XSample> XProducable::getSample() {

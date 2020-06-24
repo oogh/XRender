@@ -44,7 +44,7 @@ void XFFProducer::start() {
     mReadTid = std::make_unique<std::thread>([this] { readWorkThread(this); });
 }
 
-std::shared_ptr<XImage> XFFProducer::getImage(long clock) {
+std::shared_ptr<XImage> XFFProducer::peekImage(long clock) {
     if (!mImageQueue) {
         return nullptr;
     }
@@ -52,6 +52,14 @@ std::shared_ptr<XImage> XFFProducer::getImage(long clock) {
     auto image = mImageQueue->peekReadable();
 
     return image;
+}
+
+void XFFProducer::endCurrentImageUse() {
+    if (!mImageQueue) {
+        return;
+    }
+    
+    mImageQueue->next();
 }
 
 std::shared_ptr<XSample> XFFProducer::getSample() {
@@ -429,6 +437,10 @@ int XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
         mSwsContext = std::unique_ptr<SwsContext, SwsContextDeleter>(sws);
     } else {
         sws = mSwsContext.get();
+    }
+    
+    if (!dst->pixels[0]) {
+        av_image_alloc(dst->pixels, dst->linesize, dst->width, dst->height, static_cast<AVPixelFormat>(dst->format), 1);
     }
 
     int result = sws_scale(sws, src->data, src->linesize, 0, src->height, dst->pixels, dst->linesize);

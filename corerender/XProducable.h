@@ -29,7 +29,9 @@ public:
 
     virtual void start();
 
-    virtual std::shared_ptr<XImage> getImage(long clock);
+    virtual std::shared_ptr<XImage> peekImage(long clock);
+    
+    virtual void endCurrentImageUse();
 
     virtual std::shared_ptr<XSample> getSample();
 

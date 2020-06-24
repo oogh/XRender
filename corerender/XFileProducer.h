@@ -22,7 +22,7 @@ public:
 
     void setInput(const std::string& filename) override;
 
-    std::shared_ptr<XImage> getImage(long clock) override;
+    std::shared_ptr<XImage> peekImage(long clock) override;
 
     std::shared_ptr<XSample> getSample() override;
 

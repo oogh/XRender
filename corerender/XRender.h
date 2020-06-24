@@ -5,9 +5,9 @@
 #ifndef ANDROIDDEMO_XRENDER_H
 #define ANDROIDDEMO_XRENDER_H
 
-#include "XGLHeader.h"
 #include <memory>
 #include <string>
+#include "XGLHeader.h"
 
 //#define USE_FILE_PRODUCER
 #define USE_FFMPEG_PRODUCER
@@ -51,5 +51,6 @@ private:
 #ifdef USE_FFMPEG_PRODUCER
     std::unique_ptr<XFFProducer> mProducer;
 #endif
+    
 };
 #endif //ANDROIDDEMO_XRENDER_H
