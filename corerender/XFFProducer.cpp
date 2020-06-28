@@ -48,10 +48,20 @@ std::shared_ptr<XImage> XFFProducer::peekImage(long clock) {
     if (!mImageQueue) {
         return nullptr;
     }
-
-    auto image = mImageQueue->peekReadable();
-
-    return image;
+    
+    for (;;) {
+        auto image = mImageQueue->peekReadable();
+        if (image->pts > clock) {
+            return nullptr;
+        } else if (image->pts <= clock && clock <= (image->pts + image->duration)) {
+            return image;
+        } else {
+            mImageQueue->next();
+            continue;
+        }
+    }
+    
+    return nullptr;
 }
 
 void XFFProducer::endCurrentImageUse() {
@@ -268,7 +278,7 @@ void XFFProducer::readWorkThread(void *opaque) {
                     videoQ->putNullPacket(producer->mVideoIndex);
                 }
                 if (audioQ) {
-                    videoQ->putNullPacket(producer->mAudioIndex);
+                    audioQ->putNullPacket(producer->mAudioIndex);
                 }
                 producer->mStatus |= S_READ_END;
             }
@@ -283,12 +293,10 @@ void XFFProducer::readWorkThread(void *opaque) {
         if (pkt->avpkt->stream_index == producer->mVideoIndex) {
             if (videoQ) {
                 videoQ->put(pkt);
-                av_log(nullptr, AV_LOG_INFO, "[XFFProducer] put video packet pts: %ld, duration: %ld\n", pts, duration);
             }
         } else if (pkt->avpkt->stream_index == producer->mAudioIndex) {
             if (audioQ) {
                 audioQ->put(pkt);
-                av_log(nullptr, AV_LOG_INFO, "[XFFProducer] put audio packet pts: %ld, duration: %ld\n", pts, duration);
             }
         }
     }
@@ -420,7 +428,6 @@ void XFFProducer::queueFrame(AVFrame *frame, long pts, long duration) {
     frameConvert(image, frame);
 
     mImageQueue->push();
-    av_log(nullptr, AV_LOG_INFO, "[XFFProducer] queue frame pts: %ld, druation: %ld\n", pts, duration);
 }
 
 int XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {

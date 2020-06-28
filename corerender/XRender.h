@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <string>
+#include <mutex>
 #include "XGLHeader.h"
 
 //#define USE_FILE_PRODUCER
@@ -31,12 +32,19 @@ public:
     void setInput(const std::string& filename);
 
     void start();
+    
+    void seekTo(long targetPos);
 
     void onSurfaceCreated();
 
     void onSurfaceChanged(int width, int height);
 
     void onDrawFrame();
+    
+    void stop();
+    
+private:
+    void refreshWorkThread(void* opaque);
 
 private:
     std::unique_ptr<XTexture> mTexture;
@@ -51,6 +59,14 @@ private:
 #ifdef USE_FFMPEG_PRODUCER
     std::unique_ptr<XFFProducer> mProducer;
 #endif
+    
+    long mTargetPos;
+    
+    std::unique_ptr<std::thread> mRefreshTid;
+    
+    bool mAborted;
+    
+    std::mutex mMutex;
     
 };
 #endif //ANDROIDDEMO_XRENDER_H

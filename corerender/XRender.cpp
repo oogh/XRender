@@ -7,12 +7,20 @@
 #include "XException.h"
 #include "XImageUtil.h"
 #include "XImage.h"
+#include "XThreadUtils.h"
+#include "XLogger.h"
+#include "XTimeCounter.h"
+#include <chrono>
 
-XRender::XRender(): mTextureWidth(720), mTextureHeight(1280) {
+XRender::XRender(): mTextureWidth(720), mTextureHeight(1280), mTargetPos(0), mAborted(false) {
     
 }
 
 XRender::~XRender() {
+    if (mRefreshTid && mRefreshTid->joinable()) {
+        mRefreshTid->join();
+    }
+    mRefreshTid.reset();
 }
 
 void XRender::setInput(const std::string& filename) {
@@ -29,6 +37,14 @@ void XRender::setInput(const std::string& filename) {
 
 void XRender::start() {
     mProducer->start();
+    
+    if (!mRefreshTid) {
+        mRefreshTid = std::make_unique<std::thread>([this] { refreshWorkThread(this); });
+    }
+}
+
+void XRender::seekTo(long targetPos) {
+    mTargetPos = targetPos;
 }
 
 void XRender::onSurfaceCreated() {
@@ -37,7 +53,7 @@ void XRender::onSurfaceCreated() {
 
 void XRender::onSurfaceChanged(int width, int height) {
     // 居中显示
-//    glViewport(width / 4, height / 4, width / 2, height / 2);
+    // glViewport(width / 4, height / 4, width / 2, height / 2);
     
     // 全画布显示
     glViewport(0, 0, width, height);
@@ -51,20 +67,45 @@ void XRender::onDrawFrame() {
     if (!mTexture) {
         mTexture = std::make_unique<XTexture>(mTextureWidth, mTextureHeight);
     }
-
-    if (mProducer) {
-        
-        auto image = mProducer->peekImage(0);
-        
-        if (image && image->pixels[0]) {
-            mTexture->update(image->pixels[0], mTextureWidth, mTextureHeight);
-        }
-        mProducer->endCurrentImageUse();
-        
-    }
     
     if (mTexture) {
         mTexture->draw();
     }
     
+}
+
+void XRender::refreshWorkThread(void* opaque) {
+    XThreadUtils::configThreadName("refreshWorkThread");
+    LOGD("[XRender] refreshWorkThread ++++\n");
+    XRender* render = reinterpret_cast<XRender*>(opaque);
+    if (!render) {
+        return;
+    }
+    
+    XTimeCounter peekImageCounter;
+    for (;;) {
+        if (render->mAborted) {
+            break;
+        }
+        
+        if (render->mProducer) {
+            peekImageCounter.markStart();
+            auto image = render->mProducer->peekImage(render->mTargetPos);
+            if (image && image->pixels[0]) {
+                peekImageCounter.markEnd();
+                LOGD("[XRender] peek image duration: %ld\n", peekImageCounter.getRunDuration());
+                render->mTexture->update(image->pixels[0], render->mTextureWidth, render->mTextureHeight);
+                if (image->pts > render->mTargetPos) {
+                    render->mProducer->endCurrentImageUse();
+                }
+                mTargetPos += 33;
+            }
+        }
+    }
+    LOGD("[XRender] refreshWorkThread ----\n");
+}
+
+void XRender::stop() {
+    std::lock_guard<std::mutex> lock(mMutex);
+    mAborted = true;
 }

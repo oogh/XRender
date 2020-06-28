@@ -72,7 +72,7 @@ void XImageQueue::next() {
 
 void XImageQueue::flush() {
     std::lock_guard<std::mutex> lock(mMutex);
-    int imageSize = mImageQueue.size();
+    int imageSize = static_cast<int>(mImageQueue.size());
     for (int i = 0; i < imageSize; ++i) {
         auto image = mImageQueue.at(i);
         image->free();

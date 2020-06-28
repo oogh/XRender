@@ -17,6 +17,8 @@
 
 - (void)start;
 
+- (void)seekTo:(long)targetPos;
+
 @end
 
 #endif /* XView_h */

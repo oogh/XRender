@@ -61,6 +61,10 @@
     _render->start();
 }
 
+- (void)seekTo:(long)targetPos {
+    _render->seekTo(targetPos);
+}
+
 #pragma mark - Private
 - (void)setup {
     // 1. setup layer
