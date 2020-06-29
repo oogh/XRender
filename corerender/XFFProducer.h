@@ -64,7 +64,7 @@ private:
 
     void queueFrame(AVFrame* frame, long pts, long duration);
 
-    int frameConvert(std::shared_ptr<XImage> dst, AVFrame* src);
+    void frameConvert(std::shared_ptr<XImage> dst, AVFrame* src);
 
 private:
     unsigned int mStatus;

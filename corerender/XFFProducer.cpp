@@ -12,6 +12,7 @@
 #include "XPacketQueue.h"
 #include "XFrameQueue.h"
 #include "XImageQueue.h"
+#include "libyuv.h"
 
 XFFProducer::XFFProducer()
         : mVideoIndex(-1), mAudioIndex(-1), mAborted(false) {
@@ -48,7 +49,7 @@ std::shared_ptr<XImage> XFFProducer::peekImage(long clock) {
     if (!mImageQueue) {
         return nullptr;
     }
-    
+
     for (;;) {
         auto image = mImageQueue->peekReadable();
         if (image->pts > clock) {
@@ -60,7 +61,7 @@ std::shared_ptr<XImage> XFFProducer::peekImage(long clock) {
             continue;
         }
     }
-    
+
     return nullptr;
 }
 
@@ -68,7 +69,7 @@ void XFFProducer::endCurrentImageUse() {
     if (!mImageQueue) {
         return;
     }
-    
+
     mImageQueue->next();
 }
 
@@ -100,13 +101,15 @@ int XFFProducer::openInFile() {
 
     int ret = avformat_open_input(&ic, mFilename.data(), nullptr, nullptr);
     if (ret < 0) {
-        av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avformat_open_input failed: %s\n", av_err2str(ret));
+        av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avformat_open_input failed: %s\n",
+               av_err2str(ret));
         return ret;
     }
 
     ret = avformat_find_stream_info(ic, nullptr);
     if (ret < 0) {
-        av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avformat_find_stream_info failed: %s\n", av_err2str(ret));
+        av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avformat_find_stream_info failed: %s\n",
+               av_err2str(ret));
         return ret;
     }
 
@@ -152,15 +155,26 @@ int XFFProducer::openVideoCodec() {
     AVStream *stream = mFormatCtx->streams[mVideoIndex];
     int ret = avcodec_parameters_to_context(avctx, stream->codecpar);
     if (ret < 0) {
-        av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avcodec_parameters_to_context failed: %s\n", av_err2str(ret));
+        av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avcodec_parameters_to_context failed: %s\n",
+               av_err2str(ret));
         return ret;
     }
 
-    AVCodec *codec = avcodec_find_decoder(avctx->codec_id);
+    AVCodec* codec = nullptr;
+    if (avctx->codec_id == AV_CODEC_ID_H264) {
+        codec = avcodec_find_decoder_by_name("h264_mediacodec");
+    } else if (avctx->codec_id == AV_CODEC_ID_HEVC) {
+        codec = avcodec_find_decoder_by_name("hevc_mediacodec");
+    }
+
     if (!codec) {
-        av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avcodec_find_decoder failed: cannot find decoder %s\n",
-               avcodec_get_name(avctx->codec_id));
-        return AVERROR_DECODER_NOT_FOUND;
+        codec = avcodec_find_decoder(avctx->codec_id);
+        if (!codec) {
+            av_log(nullptr, AV_LOG_FATAL,
+                   "[XFFProducer] avcodec_find_decoder failed: cannot find decoder %s\n",
+                   avcodec_get_name(avctx->codec_id));
+            return AVERROR_DECODER_NOT_FOUND;
+        }
     }
 
     ret = avcodec_open2(avctx, codec, nullptr);
@@ -186,13 +200,15 @@ int XFFProducer::openAudioCodec() {
     AVStream *stream = mFormatCtx->streams[mAudioIndex];
     int ret = avcodec_parameters_to_context(avctx, stream->codecpar);
     if (ret < 0) {
-        av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avcodec_parameters_to_context failed: %s\n", av_err2str(ret));
+        av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avcodec_parameters_to_context failed: %s\n",
+               av_err2str(ret));
         return ret;
     }
 
     AVCodec *codec = avcodec_find_decoder(avctx->codec_id);
     if (!codec) {
-        av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avcodec_find_decoder failed: cannot find decoder %s\n",
+        av_log(nullptr, AV_LOG_FATAL,
+               "[XFFProducer] avcodec_find_decoder failed: cannot find decoder %s\n",
                avcodec_get_name(avctx->codec_id));
         return AVERROR_DECODER_NOT_FOUND;
     }
@@ -246,7 +262,8 @@ void XFFProducer::readWorkThread(void *opaque) {
         }
 
         if (!producer->mVideoTid) {
-            producer->mVideoTid = std::make_unique<std::thread>([this, producer] { videoWorkThread(producer); });
+            producer->mVideoTid = std::make_unique<std::thread>(
+                    [this, producer] { videoWorkThread(producer); });
         }
     }
 
@@ -258,7 +275,8 @@ void XFFProducer::readWorkThread(void *opaque) {
         }
 
         if (!producer->mAudioTid) {
-            producer->mAudioTid = std::make_unique<std::thread>([this, producer] { audioWorkThread(producer); });
+            producer->mAudioTid = std::make_unique<std::thread>(
+                    [this, producer] { audioWorkThread(producer); });
         }
     }
 
@@ -287,8 +305,10 @@ void XFFProducer::readWorkThread(void *opaque) {
             continue;
         }
 
-        pts = static_cast<long>(pkt->avpkt->pts * av_q2d(ic->streams[pkt->avpkt->stream_index]->time_base) * 1000);
-        duration = static_cast<long>(pkt->avpkt->duration * av_q2d(ic->streams[pkt->avpkt->stream_index]->time_base) *
+        pts = static_cast<long>(pkt->avpkt->pts *
+                                av_q2d(ic->streams[pkt->avpkt->stream_index]->time_base) * 1000);
+        duration = static_cast<long>(pkt->avpkt->duration *
+                                     av_q2d(ic->streams[pkt->avpkt->stream_index]->time_base) *
                                      1000);
         if (pkt->avpkt->stream_index == producer->mVideoIndex) {
             if (videoQ) {
@@ -383,15 +403,17 @@ int XFFProducer::decodeVideoFrame() {
             }
 
             if (ret >= 0) {
-                AVStream* stream = mFormatCtx->streams[mVideoIndex];
+                AVStream *stream = mFormatCtx->streams[mVideoIndex];
                 pts = static_cast<long>(frame->avframe->pts * av_q2d(stream->time_base) * 1000);
-                duration = static_cast<long>(frame->avframe->pkt_duration * av_q2d(stream->time_base) * 1000);
+                duration = static_cast<long>(frame->avframe->pkt_duration *
+                                             av_q2d(stream->time_base) * 1000);
                 queueFrame(frame->avframe, pts, duration);
                 return 1;
             }
 
             if (ret < 0 && ret != AVERROR(EAGAIN)) {
-                av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avcodec_receive_frame failed: %s\n", av_err2str(ret));
+                av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avcodec_receive_frame failed: %s\n",
+                       av_err2str(ret));
                 return ret;
             }
 
@@ -430,29 +452,75 @@ void XFFProducer::queueFrame(AVFrame *frame, long pts, long duration) {
     mImageQueue->push();
 }
 
-int XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
-    SwsContext* sws = nullptr;
-    if (!mSwsContext) {
-        sws = sws_getContext(src->width, src->height, static_cast<AVPixelFormat>(src->format),
-                             dst->width, dst->height, DST_PIX_FMT,
-                             SWS_FAST_BILINEAR,
-                             nullptr, nullptr, nullptr);
-        if (!sws) {
-            av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] sws_getContext failed!\n");
-            return -1;
-        }
-        mSwsContext = std::unique_ptr<SwsContext, SwsContextDeleter>(sws);
-    } else {
-        sws = mSwsContext.get();
-    }
-    
+void XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
+
     if (!dst->pixels[0]) {
-        av_image_alloc(dst->pixels, dst->linesize, dst->width, dst->height, static_cast<AVPixelFormat>(dst->format), 1);
+        av_image_alloc(dst->pixels, dst->linesize, dst->width, dst->height,
+                       static_cast<AVPixelFormat>(dst->format), 1);
     }
 
-    int result = sws_scale(sws, src->data, src->linesize, 0, src->height, dst->pixels, dst->linesize);
+    switch (src->format) {
+        case AV_PIX_FMT_YUV420P:
+        case AV_PIX_FMT_YUVJ420P: {
+            libyuv::I420ToABGR(src->data[0], src->linesize[0],
+                               src->data[1], src->linesize[1],
+                               src->data[2], src->linesize[2],
+                               dst->pixels[0], dst->linesize[0],
+                               src->width, src->height);
+        } break;
 
-    return result;
+        case AV_PIX_FMT_NV21: {
+            libyuv::NV21ToABGR(src->data[0], src->linesize[0],
+                               src->data[1], src->linesize[1],
+                               dst->pixels[0], dst->linesize[0],
+                               src->width, src->height);
+        } break;
+
+        case AV_PIX_FMT_NV12: {
+            libyuv::NV12ToABGR(src->data[0], src->linesize[0],
+                               src->data[1], src->linesize[1],
+                               dst->pixels[0], dst->linesize[0],
+                               src->width, src->height);
+        } break;
+
+        case AV_PIX_FMT_YUV422P:
+        case AV_PIX_FMT_YUVJ422P: {
+            libyuv::I422ToABGR(src->data[0], src->linesize[0],
+                               src->data[1], src->linesize[1],
+                               src->data[2], src->linesize[2],
+                               dst->pixels[0], dst->linesize[0],
+                               src->width, src->height);
+        } break;
+
+        case AV_PIX_FMT_YUV444P:
+        case AV_PIX_FMT_YUVJ444P: {
+            libyuv::I444ToABGR(src->data[0], src->linesize[0],
+                               src->data[1], src->linesize[1],
+                               src->data[2], src->linesize[2],
+                               dst->pixels[0], dst->linesize[0],
+                               src->width, src->height);
+        } break;
+
+        default: {
+            SwsContext *sws = nullptr;
+            if (!mSwsContext) {
+                sws = sws_getContext(src->width, src->height,
+                                     static_cast<AVPixelFormat>(src->format),
+                                     dst->width, dst->height, DST_PIX_FMT,
+                                     SWS_FAST_BILINEAR,
+                                     nullptr, nullptr, nullptr);
+                if (!sws) {
+                    av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] sws_getContext failed!\n");
+                    return;
+                }
+                mSwsContext = std::unique_ptr<SwsContext, SwsContextDeleter>(sws);
+            } else {
+                sws = mSwsContext.get();
+            }
+
+            sws_scale(sws, src->data, src->linesize, 0, src->height, dst->pixels, dst->linesize);
+        } break;
+    }
 }
 
 

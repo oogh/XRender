@@ -4,6 +4,7 @@
 
 #include "XCoreRenderJNI.h"
 #include "XViewJNI.h"
+#include "XFFHeader.h"
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env = NULL;
@@ -14,6 +15,8 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
 
     JavaVM *javaVm;
     env->GetJavaVM(&javaVm);
+
+    av_jni_set_java_vm(vm, nullptr);
 
     if (!viewRegisterNativeMethods(env)) {
         return -1;
