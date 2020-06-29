@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		546279D3244AE56000054A08 /* jieqian_720x1280.rgba in Resources */ = {isa = PBXBuildFile; fileRef = 546279D2244AE56000054A08 /* jieqian_720x1280.rgba */; };
 		78A509A7C37148AC312D9D7E /* libPods-XRender.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D728692FFDEAADE9538088B4 /* libPods-XRender.a */; };
+		A19457F424A89A4C00387918 /* douyin_700x1240.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = A19457F324A89A4C00387918 /* douyin_700x1240.mp4 */; };
 		A1B80F93243EC5440042705D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B80F92243EC5440042705D /* AppDelegate.m */; };
 		A1B80F96243EC5440042705D /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B80F95243EC5440042705D /* SceneDelegate.m */; };
 		A1B80F99243EC5440042705D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B80F98243EC5440042705D /* ViewController.m */; };
@@ -21,6 +22,7 @@
 
 /* Begin PBXFileReference section */
 		546279D2244AE56000054A08 /* jieqian_720x1280.rgba */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = jieqian_720x1280.rgba; path = ../../../../Resources/jieqian_720x1280.rgba; sourceTree = "<group>"; };
+		A19457F324A89A4C00387918 /* douyin_700x1240.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = douyin_700x1240.mp4; path = ../../../../Resources/douyin_700x1240.mp4; sourceTree = "<group>"; };
 		A1B80F8E243EC5440042705D /* XRender.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XRender.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1B80F91243EC5440042705D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		A1B80F92243EC5440042705D /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -62,6 +64,7 @@
 		54CE26BC243F5EAB00CE518C /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				A19457F324A89A4C00387918 /* douyin_700x1240.mp4 */,
 				A1C3323524A336A700B75B72 /* jieqian_720x1280.mp4 */,
 				546279D2244AE56000054A08 /* jieqian_720x1280.rgba */,
 			);
@@ -173,6 +176,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1B80FA1243EC5460042705D /* LaunchScreen.storyboard in Resources */,
+				A19457F424A89A4C00387918 /* douyin_700x1240.mp4 in Resources */,
 				A1B80F9E243EC5460042705D /* Assets.xcassets in Resources */,
 				A1B80F9C243EC5440042705D /* Main.storyboard in Resources */,
 				A1C3323624A336A700B75B72 /* jieqian_720x1280.mp4 in Resources */,
