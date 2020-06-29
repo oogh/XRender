@@ -29,10 +29,9 @@ Pod::Spec.new do |spec|
     corerender.libraries = "c++", "iconv"
     
     corerender.subspec 'ffmpeg' do |ffmpeg|
-       ffmpeg.preserve_path = '3rdparty/iOS/ffmpeg/include/**/*.h'
-       ffmpeg.libraries = 'z', 'bz2'
        ffmpeg.xcconfig = {"HEADER_SEARCH_PATHS" => '"$(PODS_TARGET_SRCROOT)/3rdparty/iOS/ffmpeg/include"'}
        ffmpeg.vendored_libraries  = '3rdparty/iOS/ffmpeg/lib/*.a'
+       ffmpeg.libraries = 'z', 'bz2'
     end
     
     corerender.subspec 'fdkaac' do |fdkaac|
@@ -48,6 +47,11 @@ Pod::Spec.new do |spec|
     corerender.subspec 'x264' do |x264|
        x264.xcconfig = {"HEADER_SEARCH_PATHS" => '"$(PODS_TARGET_SRCROOT)/3rdparty/iOS/x264/include"'}
        x264.vendored_libraries  = '3rdparty/iOS/x264/lib/*.a'
+    end
+    
+    corerender.subspec 'yuv' do |yuv|
+       yuv.xcconfig = {"HEADER_SEARCH_PATHS" => '"$(PODS_TARGET_SRCROOT)/3rdparty/iOS/libyuv/include"'}
+       yuv.vendored_libraries  = '3rdparty/iOS/libyuv/lib/*.a'
     end
   end
 end

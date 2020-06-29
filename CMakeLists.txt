@@ -19,7 +19,8 @@ aux_source_directory(${DIR_SOURCE} SRC_CORE)
 aux_source_directory(${DIR_SOURCE}/Android SRC_CORE_ANDROID)
 
 # 第三方依赖库
-include_directories(${DIR_DEMO_ANDROID}/corerender/includes/${ANDROID_ABI}/include)
+include_directories(${DIR_DEMO_ANDROID}/corerender/includes/ffmpeg/${ANDROID_ABI}/include)
+include_directories(${DIR_DEMO_ANDROID}/corerender/includes/libyuv/${ANDROID_ABI}/include)
 
 SET(SRC_MEDIA ${SRC_CORE} ${SRC_CORE_ANDROID})
 
@@ -32,9 +33,17 @@ add_library(ffmpeg
 	    SHARED
 	    IMPORTED)
 
+add_library(yuv
+	    STATIC
+	    IMPORTED)
+
 set_target_properties(ffmpeg
         PROPERTIES IMPORTED_LOCATION
         ${CMAKE_CURRENT_SOURCE_DIR}/${DIR_DEMO_ANDROID}/corerender/libs/${ANDROID_ABI}/libffmpeg.so)
+
+set_target_properties(yuv
+        PROPERTIES IMPORTED_LOCATION
+        ${CMAKE_CURRENT_SOURCE_DIR}/${DIR_DEMO_ANDROID}/corerender/libs/${ANDROID_ABI}/libyuv.a)
 
 find_library(
         log-lib
@@ -61,4 +70,5 @@ SET(EXTRAL_LIBRARY
 # 添加链接库
 target_link_libraries(${LibraryName}
 	ffmpeg
+	yuv
         ${EXTRAL_LIBRARY})
