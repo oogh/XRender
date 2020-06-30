@@ -24,11 +24,27 @@
     self.slider.value = 0.0f;
 }
 
-- (IBAction)onStartClick:(id)sender {
+- (IBAction)onOncePressClick:(id)sender {
     NSString *filename = [[NSBundle mainBundle] pathForResource:@"jieqian_720x1280" ofType:@"mp4"];
     [self.displayView setInput:filename];
     [self.displayView start];
     
+}
+- (IBAction)onAddClick:(UIButton *)sender {
+    NSString *filename = [[NSBundle mainBundle] pathForResource:@"jieqian_720x1280" ofType:@"mp4"];
+    [self.displayView setInput:filename];
+}
+
+- (IBAction)onStartClick:(UIButton *)sender {
+    [self.displayView start];
+}
+
+- (IBAction)onPauseClick:(UIButton *)sender {
+    [self.displayView pause];
+}
+
+- (IBAction)onStopClick:(UIButton *)sender {
+    [self.displayView stop];
 }
 
 - (IBAction)onProgressBegin:(UISlider *)sender {

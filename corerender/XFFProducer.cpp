@@ -13,6 +13,7 @@
 #include "XFrameQueue.h"
 #include "XImageQueue.h"
 #include "libyuv.h"
+#include "XTimeCounter.h"
 
 XFFProducer::XFFProducer()
         : mVideoIndex(-1), mAudioIndex(-1), mAborted(false) {
@@ -41,8 +42,10 @@ void XFFProducer::start() {
             return;
         }
     }
-
-    mReadTid = std::make_unique<std::thread>([this] { readWorkThread(this); });
+    
+    if (!mReadTid) {
+        mReadTid = std::make_unique<std::thread>([this] { readWorkThread(this); });
+    }
 }
 
 std::shared_ptr<XImage> XFFProducer::peekImage(long clock) {
@@ -453,12 +456,11 @@ void XFFProducer::queueFrame(AVFrame *frame, long pts, long duration) {
 }
 
 void XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
-
     if (!dst->pixels[0]) {
         av_image_alloc(dst->pixels, dst->linesize, dst->width, dst->height,
                        static_cast<AVPixelFormat>(dst->format), 1);
     }
-
+    
     switch (src->format) {
         case AV_PIX_FMT_YUV420P:
         case AV_PIX_FMT_YUVJ420P: {

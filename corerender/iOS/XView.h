@@ -19,6 +19,10 @@
 
 - (void)seekTo:(long)targetPos;
 
+- (void)pause;
+
+- (void)stop;
+
 @end
 
 #endif /* XView_h */

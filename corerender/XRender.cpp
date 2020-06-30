@@ -12,7 +12,7 @@
 #include "XTimeCounter.h"
 #include <chrono>
 
-XRender::XRender(): mTextureWidth(720), mTextureHeight(1280), mTargetPos(0), mAborted(false) {
+XRender::XRender(): mTextureWidth(720), mTextureHeight(1280), mTargetPos(0), mAbortReq(false), mPauseReq(true) {
     
 }
 
@@ -40,11 +40,20 @@ void XRender::start() {
     
     if (!mRefreshTid) {
         mRefreshTid = std::make_unique<std::thread>([this] { refreshWorkThread(this); });
+    } else {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mPauseReq = false;
+        mContinueRefreshCond.notify_one();
     }
 }
 
 void XRender::seekTo(long targetPos) {
     mTargetPos = targetPos;
+}
+
+void XRender::pause() {
+    std::lock_guard<std::mutex> lock(mMutex);
+    mPauseReq = true;
 }
 
 void XRender::onSurfaceCreated() {
@@ -71,7 +80,6 @@ void XRender::onDrawFrame() {
     if (mTexture) {
         mTexture->draw();
     }
-    
 }
 
 void XRender::refreshWorkThread(void* opaque) {
@@ -84,8 +92,14 @@ void XRender::refreshWorkThread(void* opaque) {
     
     XTimeCounter peekImageCounter;
     for (;;) {
-        if (render->mAborted) {
+        if (render->mAbortReq) {
             break;
+        }
+        
+        if (render->mPauseReq) {
+            std::unique_lock<std::mutex> lock(render->mMutex);
+            render->mContinueRefreshCond.wait(lock);
+            continue;
         }
         
         if (render->mProducer) {
@@ -93,11 +107,14 @@ void XRender::refreshWorkThread(void* opaque) {
             auto image = render->mProducer->peekImage(render->mTargetPos);
             if (image && image->pixels[0]) {
                 peekImageCounter.markEnd();
-                LOGD("[XRender] peek image duration: %ld\n", peekImageCounter.getRunDuration());
-                render->mTexture->update(image->pixels[0], render->mTextureWidth, render->mTextureHeight);
+                LOGD("[XRender] peek clock: %ld image duration: %ld\n", render->mTargetPos, peekImageCounter.getRunDuration());
+                if (render->mTexture) {
+                    render->mTexture->update(image->pixels[0], render->mTextureWidth, render->mTextureHeight);
+                }
                 if (image->pts > render->mTargetPos) {
                     render->mProducer->endCurrentImageUse();
                 }
+                std::this_thread::sleep_for(std::chrono::milliseconds(33));
                 mTargetPos += 33;
             }
         }
@@ -107,5 +124,10 @@ void XRender::refreshWorkThread(void* opaque) {
 
 void XRender::stop() {
     std::lock_guard<std::mutex> lock(mMutex);
-    mAborted = true;
+    mAbortReq = true;
+    mContinueRefreshCond.notify_one();
+    
+    if (mRefreshTid && mRefreshTid->joinable()) {
+        mRefreshTid->join();
+    }
 }

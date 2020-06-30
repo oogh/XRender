@@ -58,11 +58,33 @@
 }
 
 - (void)start {
+    if (!_displayLink) {
+        _displayLink = [CADisplayLink displayLinkWithTarget:[[XWeakProxy alloc] initWithTarget:self]
+                                                       selector:@selector(drawFrame)];
+        [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+    }
+    _displayLink.paused = NO;
     _render->start();
 }
 
 - (void)seekTo:(long)targetPos {
     _render->seekTo(targetPos);
+}
+
+- (void)pause {
+    if (_displayLink) {
+        _displayLink.paused = YES;
+    }
+    
+    _render->pause();
+}
+
+- (void)stop {
+    if (_displayLink) {
+        [_displayLink invalidate];
+        _displayLink = nil;
+    }
+    _render->stop();
 }
 
 #pragma mark - Private
@@ -107,9 +129,11 @@
     
 
     // 6. setup display link
-    _displayLink = [CADisplayLink displayLinkWithTarget:[[XWeakProxy alloc] initWithTarget:self]
-                                                   selector:@selector(drawFrame)];
-    [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+    if (!_displayLink) {
+        _displayLink = [CADisplayLink displayLinkWithTarget:[[XWeakProxy alloc] initWithTarget:self]
+                                                       selector:@selector(drawFrame)];
+        [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+    }
 }
 
 - (void)drawFrame {

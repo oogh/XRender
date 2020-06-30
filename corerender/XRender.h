@@ -34,7 +34,9 @@ public:
     void start();
     
     void seekTo(long targetPos);
-
+    
+    void pause();
+    
     void onSurfaceCreated();
 
     void onSurfaceChanged(int width, int height);
@@ -64,9 +66,12 @@ private:
     
     std::unique_ptr<std::thread> mRefreshTid;
     
-    bool mAborted;
+    bool mPauseReq;
+    
+    bool mAbortReq;
     
     std::mutex mMutex;
+    std::condition_variable mContinueRefreshCond;
     
 };
 #endif //ANDROIDDEMO_XRENDER_H
