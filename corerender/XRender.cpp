@@ -38,11 +38,11 @@ void XRender::setInput(const std::string& filename) {
 void XRender::start() {
     mProducer->start();
     
+    mPauseReq = false;
     if (!mRefreshTid) {
         mRefreshTid = std::make_unique<std::thread>([this] { refreshWorkThread(this); });
     } else {
         std::lock_guard<std::mutex> lock(mMutex);
-        mPauseReq = false;
         mContinueRefreshCond.notify_one();
     }
 }
