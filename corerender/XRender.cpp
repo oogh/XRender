@@ -12,7 +12,7 @@
 #include "XTimeCounter.h"
 #include <chrono>
 
-XRender::XRender(): mTextureWidth(720), mTextureHeight(1280), mTargetPos(0), mAbortReq(false), mPauseReq(true) {
+XRender::XRender(): mTextureWidth(700), mTextureHeight(1240), mTargetPos(0), mAbortReq(false), mPauseReq(true) {
     
 }
 
@@ -114,7 +114,7 @@ void XRender::refreshWorkThread(void* opaque) {
                 if (image->pts > render->mTargetPos) {
                     render->mProducer->endCurrentImageUse();
                 }
-                std::this_thread::sleep_for(std::chrono::milliseconds(33));
+//                std::this_thread::sleep_for(std::chrono::milliseconds(33));
                 mTargetPos += 33;
             }
         }

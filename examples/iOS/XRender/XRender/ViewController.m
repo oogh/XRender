@@ -25,13 +25,13 @@
 }
 
 - (IBAction)onOncePressClick:(id)sender {
-    NSString *filename = [[NSBundle mainBundle] pathForResource:@"jieqian_720x1280" ofType:@"mp4"];
+    NSString *filename = [[NSBundle mainBundle] pathForResource:@"douyin_700x1240" ofType:@"mp4"];
     [self.displayView setInput:filename];
     [self.displayView start];
     
 }
 - (IBAction)onAddClick:(UIButton *)sender {
-    NSString *filename = [[NSBundle mainBundle] pathForResource:@"jieqian_720x1280" ofType:@"mp4"];
+    NSString *filename = [[NSBundle mainBundle] pathForResource:@"douyin_700x1240" ofType:@"mp4"];
     [self.displayView setInput:filename];
 }
 

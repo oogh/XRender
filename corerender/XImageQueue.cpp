@@ -81,7 +81,6 @@ void XImageQueue::flush() {
     mSize = 0;
     mWindex = 0;
     mRindex = 0;
-
     mCond.notify_one();
 }
 

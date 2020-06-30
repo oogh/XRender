@@ -38,6 +38,9 @@ public:
     std::shared_ptr<XSample> getSample() override;
     
     void stop() override;
+    
+private:
+    void seekTo(long targetPos);
 
 private:
     int openInFile();
@@ -90,10 +93,19 @@ private:
     std::unique_ptr<XPacketQueue> mVideoPacketQueue;
     std::unique_ptr<XPacketQueue> mAudioPacketQueue;
 
-    bool mAborted;
+    bool mSeekReq;
+    bool mAVFormatSeeked;
+    
+    long mSeekTargetPos;
+    
+    bool mPauseReq;
+    
+    bool mAbortReq;
 
     std::mutex mMutex;
     std::condition_variable mContinueReadCond;
+    std::condition_variable mContinueVideoCond;
+    std::condition_variable mContinueAudioCond;
 
     std::unique_ptr<XImageQueue> mImageQueue;
     rbuf_t* mSampleQueue;
@@ -105,6 +117,8 @@ private:
     int mPutAudioPacket = 0;
     int mGetVideoPacket = 0;
     int mGetAudioPacket = 0;
+    
+    long mLastReqClock;
 
 };
 

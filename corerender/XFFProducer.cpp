@@ -16,11 +16,11 @@
 #include "XTimeCounter.h"
 
 XFFProducer::XFFProducer()
-        : mVideoIndex(-1), mAudioIndex(-1), mAborted(false) {
+        : mVideoIndex(-1), mAudioIndex(-1), mAbortReq(false), mSeekReq(false), mSeekTargetPos(-1), mLastReqClock(INT64_MAX), mAVFormatSeeked(false), mPauseReq(false) {
 }
 
 XFFProducer::~XFFProducer() {
-    if (!mAborted) {
+    if (!mAbortReq) {
         stop();
     }
 }
@@ -48,13 +48,57 @@ void XFFProducer::start() {
     }
 }
 
+void XFFProducer::seekTo(long targetPos) {
+    
+    mPauseReq = true;
+    if (mVideoPacketQueue) {
+        mVideoPacketQueue->flush();
+    }
+    if (mAudioPacketQueue) {
+        mAudioPacketQueue->flush();
+    }
+    
+    if (mImageQueue) {
+        mImageQueue->flush();
+    }
+    
+    mStatus &= ~(S_READ_END | S_VIDEO_END | S_AUDIO_END);
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mContinueReadCond.notify_one();
+        mContinueVideoCond.notify_one();
+        mContinueAudioCond.notify_one();
+    }
+    
+    mAVFormatSeeked = false;
+    mSeekReq = true;
+    mSeekTargetPos = targetPos;
+    
+    mPauseReq = false;
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mContinueReadCond.notify_one();
+        mContinueVideoCond.notify_one();
+        mContinueAudioCond.notify_one();
+    }
+    
+}
+
 std::shared_ptr<XImage> XFFProducer::peekImage(long clock) {
     if (!mImageQueue) {
         return nullptr;
     }
-
+    
+    if (mLastReqClock > clock || (mLastReqClock == INT64_MAX && clock > 0)) {
+//        seekTo(clock);
+    }
+    mLastReqClock = clock;
+    
     for (;;) {
         auto image = mImageQueue->peekReadable();
+        if (mSeekReq) {
+            mSeekReq = false;
+        }
         if (image->pts > clock) {
             return nullptr;
         } else if (image->pts <= clock && clock <= (image->pts + image->duration)) {
@@ -85,7 +129,7 @@ void XFFProducer::stop() {
 
     {
         std::lock_guard<std::mutex> lock(mMutex);
-        mAborted = true;
+        mAbortReq = true;
         mContinueReadCond.notify_one();
     }
 
@@ -287,8 +331,24 @@ void XFFProducer::readWorkThread(void *opaque) {
     long pts = 0;
     long duration = 0;
     for (;;) {
-        if (producer->mAborted) {
+        if (producer->mAbortReq) {
             break;
+        }
+        
+        if (producer->mPauseReq) {
+            std::unique_lock<std::mutex> lock(mMutex);
+            producer->mContinueReadCond.wait(lock);
+            continue;
+        }
+        
+        if (producer->mSeekReq && !producer->mAVFormatSeeked) {
+            long ts = static_cast<long>(av_rescale(producer->mSeekTargetPos, AV_TIME_BASE, 1000));
+            ret = avformat_seek_file(ic, -1, INT64_MIN, ts, INT64_MAX, 0);
+            if (ret < 0) {
+                av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avformat_seek_file failed: %s\n", av_err2str(ret));
+                break;
+            }
+            producer->mAVFormatSeeked = true;
         }
 
         auto pkt = std::make_shared<Packet>();
@@ -353,12 +413,26 @@ void XFFProducer::videoWorkThread(void *opaque) {
 
     int ret;
     for (;;) {
-        if (producer->mAborted) {
+        if (producer->mAbortReq) {
             break;
         }
-
+        
+        if (producer->mPauseReq) {
+            std::unique_lock<std::mutex> lock(mMutex);
+            producer->mContinueVideoCond.wait(lock);
+            continue;
+        }
+        
         ret = decodeVideoFrame();
         if (ret < 0) {
+            if (ret == AVERROR_EOF) {
+                if ((producer->mStatus & S_READ_END) && !(producer->mStatus & S_VIDEO_END)) {
+                    producer->mStatus |= S_VIDEO_END;
+                }
+                std::unique_lock<std::mutex> lock(producer->mMutex);
+                mContinueVideoCond.wait(lock);
+                continue;
+            }
             break;
         }
     }
@@ -410,6 +484,11 @@ int XFFProducer::decodeVideoFrame() {
                 pts = static_cast<long>(frame->avframe->pts * av_q2d(stream->time_base) * 1000);
                 duration = static_cast<long>(frame->avframe->pkt_duration *
                                              av_q2d(stream->time_base) * 1000);
+                if (mSeekReq) {
+                    if (!(pts <= mSeekTargetPos && mSeekTargetPos < pts + duration)) {
+                        continue;
+                    }
+                }
                 queueFrame(frame->avframe, pts, duration);
                 return 1;
             }
@@ -453,6 +532,7 @@ void XFFProducer::queueFrame(AVFrame *frame, long pts, long duration) {
     frameConvert(image, frame);
 
     mImageQueue->push();
+//    av_log(nullptr, AV_LOG_INFO, "[XFFProducer] queue frame pts: %ld\n", pts);
 }
 
 void XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
