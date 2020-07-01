@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		546279D3244AE56000054A08 /* jieqian_720x1280.rgba in Resources */ = {isa = PBXBuildFile; fileRef = 546279D2244AE56000054A08 /* jieqian_720x1280.rgba */; };
 		78A509A7C37148AC312D9D7E /* libPods-XRender.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D728692FFDEAADE9538088B4 /* libPods-XRender.a */; };
+		A19457F424A89A4C00387918 /* douyin_700x1240.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = A19457F324A89A4C00387918 /* douyin_700x1240.mp4 */; };
 		A1B80F93243EC5440042705D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B80F92243EC5440042705D /* AppDelegate.m */; };
 		A1B80F96243EC5440042705D /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B80F95243EC5440042705D /* SceneDelegate.m */; };
 		A1B80F99243EC5440042705D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B80F98243EC5440042705D /* ViewController.m */; };
@@ -16,10 +17,12 @@
 		A1B80F9E243EC5460042705D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1B80F9D243EC5460042705D /* Assets.xcassets */; };
 		A1B80FA1243EC5460042705D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A1B80F9F243EC5460042705D /* LaunchScreen.storyboard */; };
 		A1B80FA4243EC5460042705D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B80FA3243EC5460042705D /* main.m */; };
+		A1C3323624A336A700B75B72 /* jieqian_720x1280.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = A1C3323524A336A700B75B72 /* jieqian_720x1280.mp4 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		546279D2244AE56000054A08 /* jieqian_720x1280.rgba */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = jieqian_720x1280.rgba; path = ../../../../Resources/jieqian_720x1280.rgba; sourceTree = "<group>"; };
+		A19457F324A89A4C00387918 /* douyin_700x1240.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = douyin_700x1240.mp4; path = ../../../../Resources/douyin_700x1240.mp4; sourceTree = "<group>"; };
 		A1B80F8E243EC5440042705D /* XRender.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XRender.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1B80F91243EC5440042705D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		A1B80F92243EC5440042705D /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -32,6 +35,7 @@
 		A1B80FA0243EC5460042705D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		A1B80FA2243EC5460042705D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1B80FA3243EC5460042705D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		A1C3323524A336A700B75B72 /* jieqian_720x1280.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = jieqian_720x1280.mp4; path = ../../../../Resources/jieqian_720x1280.mp4; sourceTree = "<group>"; };
 		AF12E9C4655CE79889DBC249 /* Pods-XRender.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XRender.release.xcconfig"; path = "Target Support Files/Pods-XRender/Pods-XRender.release.xcconfig"; sourceTree = "<group>"; };
 		C3A88173315AA88098B9D0E9 /* Pods-XRender.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XRender.debug.xcconfig"; path = "Target Support Files/Pods-XRender/Pods-XRender.debug.xcconfig"; sourceTree = "<group>"; };
 		D728692FFDEAADE9538088B4 /* libPods-XRender.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-XRender.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -60,6 +64,8 @@
 		54CE26BC243F5EAB00CE518C /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				A19457F324A89A4C00387918 /* douyin_700x1240.mp4 */,
+				A1C3323524A336A700B75B72 /* jieqian_720x1280.mp4 */,
 				546279D2244AE56000054A08 /* jieqian_720x1280.rgba */,
 			);
 			path = Resources;
@@ -170,8 +176,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1B80FA1243EC5460042705D /* LaunchScreen.storyboard in Resources */,
+				A19457F424A89A4C00387918 /* douyin_700x1240.mp4 in Resources */,
 				A1B80F9E243EC5460042705D /* Assets.xcassets in Resources */,
 				A1B80F9C243EC5440042705D /* Main.storyboard in Resources */,
+				A1C3323624A336A700B75B72 /* jieqian_720x1280.mp4 in Resources */,
 				546279D3244AE56000054A08 /* jieqian_720x1280.rgba in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -354,6 +362,15 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = R25N9JGHQ4;
+				HEADER_SEARCH_PATHS = (
+					"\"$(PODS_TARGET_SRCROOT)/3rdparty/x264/iOS/include\"",
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/XRender\"",
+					"\"$(PODS_TARGET_SRCROOT)/3rdparty/fdkaac/iOS/include\"",
+					"\"$(PODS_TARGET_SRCROOT)/3rdparty/ffmpeg/iOS/include\"",
+					"\"$(PODS_TARGET_SRCROOT)/3rdparty/lame/iOS/include\"",
+				);
 				INFOPLIST_FILE = XRender/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

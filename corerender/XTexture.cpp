@@ -123,7 +123,5 @@ void XTexture::draw() {
 }
 
 void XTexture::update(uint8_t* pixels, int width, int height) {
-    LOGD("[XTexture] update width: %d, height: %d\n", width, height);
-
     memcpy(mPixels, pixels, width * height * 4);
 }

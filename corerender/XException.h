@@ -1,9 +1,13 @@
 //
-// Created by Oogh on 2020/3/19.
+//  XException.h
+//  XExporter
+//
+//  Created by Oogh on 2020/3/19.
+//  Copyright © 2020 Oogh. All rights reserved.
 //
 
-#ifndef ANDROIDDEMO_XEXCEPTION_H
-#define ANDROIDDEMO_XEXCEPTION_H
+#ifndef XException_h
+#define XException_h
 
 #include <stdexcept>
 
@@ -20,4 +24,5 @@ public:
 private:
     const char* mWhat;
 };
-#endif //ANDROIDDEMO_XEXCEPTION_H
+
+#endif /* XException_h */
