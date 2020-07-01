@@ -196,11 +196,14 @@ int XFFProducer::openVideoCodec() {
     
     AVStream *stream = mFormatCtx->streams[mVideoIndex];
     AVCodec* codec = avcodec_find_decoder(stream->codecpar->codec_id);
+    
+#if __ANDROID__
     if (codec->id == AV_CODEC_ID_H264) {
         codec = avcodec_find_decoder_by_name("h264_mediacodec");
     } else if (codec->id == AV_CODEC_ID_HEVC) {
         codec = avcodec_find_decoder_by_name("hevc_mediacodec");
     }
+#endif
 
     if (!codec) {
         codec = avcodec_find_decoder(stream->codecpar->codec_id);
@@ -211,7 +214,8 @@ int XFFProducer::openVideoCodec() {
             return AVERROR_DECODER_NOT_FOUND;
         }
     }
-
+    
+#if __APPLE__
     AVHWDeviceType type = av_hwdevice_find_type_by_name("videotoolbox");
     if (type == AV_HWDEVICE_TYPE_NONE) {
         av_log(nullptr, AV_LOG_WARNING, "[XFFProducer] Available device types: ");
@@ -233,6 +237,7 @@ int XFFProducer::openVideoCodec() {
             break;
         }
     }
+#endif
     
     AVCodecContext *avctx = avcodec_alloc_context3(codec);
     if (!avctx) {
@@ -247,7 +252,8 @@ int XFFProducer::openVideoCodec() {
                av_err2str(ret));
         return ret;
     }
-    
+
+#if __APPLE__
     avctx->get_format = [](AVCodecContext *ctx, const enum AVPixelFormat *pix_fmts) -> AVPixelFormat {
         return gHWPixelFormat;
     };
@@ -260,7 +266,8 @@ int XFFProducer::openVideoCodec() {
     }
     // TODO(oogh): 2020/07/01 需要通过 av_buffer_unref 释放
     avctx->hw_device_ctx = av_buffer_ref(deviceCtx);
-
+#endif
+    
     ret = avcodec_open2(avctx, nullptr, nullptr);
     if (ret < 0) {
         av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avcodec_open2 failed: %s\n", av_err2str(ret));
