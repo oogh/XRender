@@ -127,6 +127,8 @@
     CGFloat scale = [UIScreen mainScreen].scale;
     _render->onSurfaceChanged([self bounds].size.width * scale, [self bounds].size.height * scale);
     
+    [self setupCallback];
+    
 
     // 6. setup display link
     if (!_displayLink) {
@@ -134,6 +136,16 @@
                                                        selector:@selector(drawFrame)];
         [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
     }
+}
+
+- (void)setupCallback {
+    __weak typeof(self) weakSelf = self;
+    _render->setOnProgressChangeCallback(^(long current, long duration) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            strongSelf.progressChangeCallback(current, duration);
+        });
+    });
 }
 
 - (void)drawFrame {

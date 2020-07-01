@@ -36,6 +36,9 @@ public:
     virtual std::shared_ptr<XSample> getSample();
 
     virtual void stop();
+    
+public:
+    virtual long getOriginalDuration() const;
 
 protected:
     std::string mFilename;

@@ -24,10 +24,13 @@
 class XTexture;
 
 class XRender {
+    using OnProgressChangeCallback = std::function<void(long current, long duration)>;
 public:
     XRender();
 
     ~XRender();
+    
+    void setOnProgressChangeCallback(OnProgressChangeCallback callback = nullptr);
     
     void setInput(const std::string& filename);
 
@@ -72,6 +75,8 @@ private:
     
     std::mutex mMutex;
     std::condition_variable mContinueRefreshCond;
+    
+    OnProgressChangeCallback mProgressChangeCallback;
     
 };
 #endif //ANDROIDDEMO_XRENDER_H

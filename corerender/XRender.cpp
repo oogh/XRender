@@ -35,6 +35,10 @@ void XRender::setInput(const std::string& filename) {
     mProducer->setInput(filename);
 }
 
+void XRender::setOnProgressChangeCallback(OnProgressChangeCallback callback) {
+    mProgressChangeCallback = callback;
+}
+
 void XRender::start() {
     mProducer->start();
     
@@ -114,7 +118,11 @@ void XRender::refreshWorkThread(void* opaque) {
                 if (image->pts > render->mTargetPos) {
                     render->mProducer->endCurrentImageUse();
                 }
-//                std::this_thread::sleep_for(std::chrono::milliseconds(33));
+                
+                if (mProgressChangeCallback) {
+                    mProgressChangeCallback(render->mTargetPos, render->mProducer->getOriginalDuration());
+                }
+                std::this_thread::sleep_for(std::chrono::milliseconds(33));
                 mTargetPos += 33;
             }
         }

@@ -19,9 +19,16 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.slider.minimumValue = 0.0f;
-    self.slider.maximumValue = 15000.0f;
-    self.slider.value = 0.0f;
+    self.slider.value = 0;
+    __weak typeof(self) weakSelf = self;
+    self.displayView.progressChangeCallback = ^(long current, long duration) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        dispatch_async(dispatch_get_main_queue(), ^{
+            strongSelf.slider.minimumValue = 0;
+            strongSelf.slider.maximumValue = duration;
+            strongSelf.slider.value = current;
+        });
+    };
 }
 
 - (IBAction)onOncePressClick:(id)sender {

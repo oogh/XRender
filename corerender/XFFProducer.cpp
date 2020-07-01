@@ -605,6 +605,15 @@ void XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
     }
 }
 
+long XFFProducer::getOriginalDuration() const {
+    long duration = 0;
+    if (mFormatCtx && mFormatCtx->duration != AV_NOPTS_VALUE) {
+        duration = static_cast<long>((mFormatCtx->duration + (mFormatCtx->duration <= INT64_MAX - 5000 ? 5000 : 0)) / 1000);
+    }
+
+    return duration;
+}
+
 
 
 

@@ -48,3 +48,7 @@ std::shared_ptr<XSample> XProducable::getSample() {
 void XProducable::stop() {
 
 }
+
+long XProducable::getOriginalDuration() const {
+    return 0;
+}

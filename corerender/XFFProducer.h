@@ -39,6 +39,9 @@ public:
     
     void stop() override;
     
+public:
+    long getOriginalDuration() const override;
+    
 private:
     void seekTo(long targetPos);
 
