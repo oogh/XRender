@@ -610,8 +610,29 @@ long XFFProducer::getOriginalDuration() const {
     if (mFormatCtx && mFormatCtx->duration != AV_NOPTS_VALUE) {
         duration = static_cast<long>((mFormatCtx->duration + (mFormatCtx->duration <= INT64_MAX - 5000 ? 5000 : 0)) / 1000);
     }
-
     return duration;
+}
+
+int XFFProducer::getOriginalWidth() const {
+    int width = 0;
+    if (mFormatCtx) {
+        int index = av_find_best_stream(mFormatCtx.get(), AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
+        if (index >= 0) {
+            width = mFormatCtx->streams[index]->codecpar->width;
+        }
+    }
+    return width;
+}
+
+int XFFProducer::getOriginalHeight() const {
+    int height = 0;
+    if (mFormatCtx) {
+        int index = av_find_best_stream(mFormatCtx.get(), AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
+        if (index >= 0) {
+            height = mFormatCtx->streams[index]->codecpar->height;
+        }
+    }
+    return height;
 }
 
 

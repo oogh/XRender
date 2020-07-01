@@ -52,3 +52,11 @@ void XProducable::stop() {
 long XProducable::getOriginalDuration() const {
     return 0;
 }
+
+int XProducable::getOriginalWidth() const {
+    return 0;
+}
+
+int XProducable::getOriginalHeight() const {
+    return 0;
+}

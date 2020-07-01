@@ -12,7 +12,7 @@
 #include "XTimeCounter.h"
 #include <chrono>
 
-XRender::XRender(): mTextureWidth(700), mTextureHeight(1240), mTargetPos(0), mAbortReq(false), mPauseReq(true) {
+XRender::XRender(): mTextureWidth(0), mTextureHeight(0), mTargetPos(0), mAbortReq(false), mPauseReq(true) {
     
 }
 
@@ -78,7 +78,11 @@ void XRender::onDrawFrame() {
     glClear(GL_COLOR_BUFFER_BIT);
     
     if (!mTexture) {
-        mTexture = std::make_unique<XTexture>(mTextureWidth, mTextureHeight);
+        if (mProducer) {
+            mTextureWidth = mProducer->getOriginalWidth();
+            mTextureHeight = mProducer->getOriginalHeight();
+            mTexture = std::make_unique<XTexture>(mTextureWidth, mTextureHeight);
+        }
     }
     
     if (mTexture) {

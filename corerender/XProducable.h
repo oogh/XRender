@@ -39,6 +39,10 @@ public:
     
 public:
     virtual long getOriginalDuration() const;
+    
+    virtual int getOriginalWidth() const;
+    
+    virtual int getOriginalHeight() const;
 
 protected:
     std::string mFilename;
