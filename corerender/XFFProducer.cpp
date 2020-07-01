@@ -15,6 +15,8 @@
 #include "libyuv.h"
 #include "XTimeCounter.h"
 
+AVPixelFormat gHWPixelFormat = AV_PIX_FMT_NONE;
+
 XFFProducer::XFFProducer()
         : mVideoIndex(-1), mAudioIndex(-1), mAbortReq(false), mSeekReq(false), mSeekTargetPos(-1), mLastReqClock(INT64_MAX), mAVFormatSeeked(false), mPauseReq(false) {
 }
@@ -191,40 +193,75 @@ int XFFProducer::openVideoCodec() {
     if (mDisableVideo || mVideoIndex < 0 || !mFormatCtx) {
         return -1;
     }
+    
+    AVStream *stream = mFormatCtx->streams[mVideoIndex];
+    AVCodec* codec = avcodec_find_decoder(stream->codecpar->codec_id);
+    if (codec->id == AV_CODEC_ID_H264) {
+        codec = avcodec_find_decoder_by_name("h264_mediacodec");
+    } else if (codec->id == AV_CODEC_ID_HEVC) {
+        codec = avcodec_find_decoder_by_name("hevc_mediacodec");
+    }
 
-    AVCodecContext *avctx = avcodec_alloc_context3(nullptr);
+    if (!codec) {
+        codec = avcodec_find_decoder(stream->codecpar->codec_id);
+        if (!codec) {
+            av_log(nullptr, AV_LOG_FATAL,
+                   "[XFFProducer] avcodec_find_decoder failed: cannot find decoder %s\n",
+                   avcodec_get_name(codec->id));
+            return AVERROR_DECODER_NOT_FOUND;
+        }
+    }
+
+    AVHWDeviceType type = av_hwdevice_find_type_by_name("videotoolbox");
+    if (type == AV_HWDEVICE_TYPE_NONE) {
+        av_log(nullptr, AV_LOG_WARNING, "[XFFProducer] Available device types: ");
+        while((type = av_hwdevice_iterate_types(type)) != AV_HWDEVICE_TYPE_NONE) {
+            av_log(nullptr, AV_LOG_WARNING, " %s", av_hwdevice_get_type_name(type));
+        }
+        av_log(nullptr, AV_LOG_WARNING, "\n");
+        return -1;
+    }
+    
+    for (int i = 0;; ++i) {
+        const AVCodecHWConfig *config = avcodec_get_hw_config(codec, i);
+        if (!config) {
+            av_log(nullptr, AV_LOG_ERROR, "Decoder %s does not support device type %s.\n", codec->name, av_hwdevice_get_type_name(type));
+            return -1;
+        }
+        if (config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX && config->device_type == type) {
+            gHWPixelFormat = config->pix_fmt;
+            break;
+        }
+    }
+    
+    AVCodecContext *avctx = avcodec_alloc_context3(codec);
     if (!avctx) {
         av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avcodec_alloc_context3 failed!\n");
         return AVERROR(ENOMEM);
     }
     mVideoCodecCtx = std::unique_ptr<AVCodecContext, CodecDeleter>(avctx);
 
-    AVStream *stream = mFormatCtx->streams[mVideoIndex];
     int ret = avcodec_parameters_to_context(avctx, stream->codecpar);
     if (ret < 0) {
         av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avcodec_parameters_to_context failed: %s\n",
                av_err2str(ret));
         return ret;
     }
-
-    AVCodec* codec = nullptr;
-    if (avctx->codec_id == AV_CODEC_ID_H264) {
-        codec = avcodec_find_decoder_by_name("h264_mediacodec");
-    } else if (avctx->codec_id == AV_CODEC_ID_HEVC) {
-        codec = avcodec_find_decoder_by_name("hevc_mediacodec");
+    
+    avctx->get_format = [](AVCodecContext *ctx, const enum AVPixelFormat *pix_fmts) -> AVPixelFormat {
+        return gHWPixelFormat;
+    };
+    
+    AVBufferRef* deviceCtx = nullptr;
+    ret = av_hwdevice_ctx_create(&deviceCtx, type, nullptr, nullptr, 0);
+    if (ret < 0) {
+        av_log(nullptr, AV_LOG_ERROR, "[XFFProducer] av_hwdevice_ctx_create failed: %s\n", av_err2str(ret));
+        return ret;
     }
+    // TODO(oogh): 2020/07/01 需要通过 av_buffer_unref 释放
+    avctx->hw_device_ctx = av_buffer_ref(deviceCtx);
 
-    if (!codec) {
-        codec = avcodec_find_decoder(avctx->codec_id);
-        if (!codec) {
-            av_log(nullptr, AV_LOG_FATAL,
-                   "[XFFProducer] avcodec_find_decoder failed: cannot find decoder %s\n",
-                   avcodec_get_name(avctx->codec_id));
-            return AVERROR_DECODER_NOT_FOUND;
-        }
-    }
-
-    ret = avcodec_open2(avctx, codec, nullptr);
+    ret = avcodec_open2(avctx, nullptr, nullptr);
     if (ret < 0) {
         av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avcodec_open2 failed: %s\n", av_err2str(ret));
         return ret;
@@ -489,7 +526,17 @@ int XFFProducer::decodeVideoFrame() {
                         continue;
                     }
                 }
-                queueFrame(frame->avframe, pts, duration);
+                if (frame->avframe->format == gHWPixelFormat) {
+                    auto cpuFrame = std::make_shared<Frame>();
+                    ret = av_hwframe_transfer_data(cpuFrame->avframe, frame->avframe, 0);
+                    if (ret < 0) {
+                        av_log(nullptr, AV_LOG_ERROR, "[XFFProducer] av_hwframe_transfer_data failed: %s\n", av_err2str(ret));
+                        return ret;
+                    }
+                    queueFrame(cpuFrame->avframe, pts, duration);
+                } else {
+                    queueFrame(frame->avframe, pts, duration);
+                }
                 return 1;
             }
 
