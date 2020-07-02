@@ -130,9 +130,9 @@ void XRender::refreshWorkThread(void* opaque) {
                 if (mProgressChangeCallback) {
                     mProgressChangeCallback(render->mTargetPos, render->mProducer->getOriginalDuration());
                 }
-                std::this_thread::sleep_for(std::chrono::milliseconds(33));
-                mTargetPos += 33;
             }
+            std::this_thread::sleep_for(std::chrono::milliseconds(33));
+            mTargetPos += 33;
         }
     }
     LOGD("[XRender] refreshWorkThread ----\n");
