@@ -20,6 +20,8 @@ typedef void (^OnProgressChangeCallback)(long current, long duration);
 
 - (void)setInput:(NSString*)filename;
 
+- (void)prepare:(long)timestamp;
+
 - (void)start;
 
 - (void)seekTo:(long)targetPos;

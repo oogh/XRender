@@ -42,9 +42,24 @@ void viewSetInput(JNIEnv* env, jobject, jlong viewPtr, jstring filename) {
     env->ReleaseStringUTFChars(filename, path);
 }
 
+void viewPrepare(JNIEnv*, jobject, jlong viewPtr, jlong timestamp) {
+    std::shared_ptr<XRender>* render = reinterpret_cast<std::shared_ptr<XRender> *>(viewPtr);
+    (*render)->prepare(timestamp);
+}
+
 void viewStart(JNIEnv*, jobject, jlong viewPtr) {
     std::shared_ptr<XRender>* render = reinterpret_cast<std::shared_ptr<XRender> *>(viewPtr);
     (*render)->start();
+}
+
+void viewPause(JNIEnv*, jobject, jlong viewPtr) {
+    std::shared_ptr<XRender>* render = reinterpret_cast<std::shared_ptr<XRender> *>(viewPtr);
+    (*render)->pause();
+}
+
+void viewStop(JNIEnv*, jobject, jlong viewPtr) {
+    std::shared_ptr<XRender>* render = reinterpret_cast<std::shared_ptr<XRender> *>(viewPtr);
+    (*render)->stop();
 }
 
 static JNINativeMethod gMethods[] = {
@@ -54,7 +69,10 @@ static JNINativeMethod gMethods[] = {
         {"nativeDrawFrame", "(J)V", reinterpret_cast<void*>(viewDrawFrame)},
         {"nativeDestroyView", "(J)V", reinterpret_cast<void*>(viewDestroy)},
         {"nativeSetInput", "(JLjava/lang/String;)V", reinterpret_cast<void*>(viewSetInput)},
+        {"nativePrepare", "(JJ)V", reinterpret_cast<void*>(viewPrepare)},
         {"nativeStart", "(J)V", reinterpret_cast<void*>(viewStart)},
+        {"nativePause", "(J)V", reinterpret_cast<void*>(viewPause)},
+        {"nativeStop", "(J)V", reinterpret_cast<void*>(viewStop)},
 };
 
 int viewRegisterNativeMethods(JNIEnv* env) {

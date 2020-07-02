@@ -16,7 +16,9 @@
 #include "XTimeCounter.h"
 #include "XLogger.h"
 
-AVPixelFormat gHWPixelFormat = AV_PIX_FMT_NONE;
+#if __APPLE__
+//AVPixelFormat gHWPixelFormat = AV_PIX_FMT_NONE;
+#endif
 
 XFFProducer::XFFProducer()
         : mVideoIndex(-1), mAudioIndex(-1), mAbortReq(false), mSeekReq(false), mSeekTargetPos(-1), mLastReqClock(INT64_MAX), mAVFormatSeeked(false), mPauseReq(false) {
@@ -199,11 +201,11 @@ int XFFProducer::openVideoCodec() {
     AVCodec* codec = avcodec_find_decoder(stream->codecpar->codec_id);
     
 #if __ANDROID__
-    if (codec->id == AV_CODEC_ID_H264) {
-        codec = avcodec_find_decoder_by_name("h264_mediacodec");
-    } else if (codec->id == AV_CODEC_ID_HEVC) {
-        codec = avcodec_find_decoder_by_name("hevc_mediacodec");
-    }
+//    if (codec->id == AV_CODEC_ID_H264) {
+//        codec = avcodec_find_decoder_by_name("h264_mediacodec");
+//    } else if (codec->id == AV_CODEC_ID_HEVC) {
+//        codec = avcodec_find_decoder_by_name("hevc_mediacodec");
+//    }
 #endif
 
     if (!codec) {
@@ -215,27 +217,27 @@ int XFFProducer::openVideoCodec() {
     }
     
 #if __APPLE__
-    AVHWDeviceType type = av_hwdevice_find_type_by_name("videotoolbox");
-    if (type == AV_HWDEVICE_TYPE_NONE) {
-        LOGW("[XFFProducer] Available device types: ");
-        while((type = av_hwdevice_iterate_types(type)) != AV_HWDEVICE_TYPE_NONE) {
-            LOGW(" %s", av_hwdevice_get_type_name(type));
-        }
-        LOGW("\n");
-        return -1;
-    }
-    
-    for (int i = 0;; ++i) {
-        const AVCodecHWConfig *config = avcodec_get_hw_config(codec, i);
-        if (!config) {
-            LOGE("Decoder %s does not support device type %s.\n", codec->name, av_hwdevice_get_type_name(type));
-            return -1;
-        }
-        if (config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX && config->device_type == type) {
-            gHWPixelFormat = config->pix_fmt;
-            break;
-        }
-    }
+//    AVHWDeviceType type = av_hwdevice_find_type_by_name("videotoolbox");
+//    if (type == AV_HWDEVICE_TYPE_NONE) {
+//        LOGW("[XFFProducer] Available device types: ");
+//        while((type = av_hwdevice_iterate_types(type)) != AV_HWDEVICE_TYPE_NONE) {
+//            LOGW(" %s", av_hwdevice_get_type_name(type));
+//        }
+//        LOGW("\n");
+//        return -1;
+//    }
+//
+//    for (int i = 0;; ++i) {
+//        const AVCodecHWConfig *config = avcodec_get_hw_config(codec, i);
+//        if (!config) {
+//            LOGE("Decoder %s does not support device type %s.\n", codec->name, av_hwdevice_get_type_name(type));
+//            return -1;
+//        }
+//        if (config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX && config->device_type == type) {
+//            gHWPixelFormat = config->pix_fmt;
+//            break;
+//        }
+//    }
 #endif
     
     AVCodecContext *avctx = avcodec_alloc_context3(codec);
@@ -253,18 +255,18 @@ int XFFProducer::openVideoCodec() {
     }
 
 #if __APPLE__
-    avctx->get_format = [](AVCodecContext *ctx, const enum AVPixelFormat *pix_fmts) -> AVPixelFormat {
-        return gHWPixelFormat;
-    };
-    
-    AVBufferRef* deviceCtx = nullptr;
-    ret = av_hwdevice_ctx_create(&deviceCtx, type, nullptr, nullptr, 0);
-    if (ret < 0) {
-        LOGE("[XFFProducer] av_hwdevice_ctx_create failed: %s\n", av_err2str(ret));
-        return ret;
-    }
-    // TODO(oogh): 2020/07/01 需要通过 av_buffer_unref 释放
-    avctx->hw_device_ctx = av_buffer_ref(deviceCtx);
+//    avctx->get_format = [](AVCodecContext *ctx, const enum AVPixelFormat *pix_fmts) -> AVPixelFormat {
+//        return gHWPixelFormat;
+//    };
+//
+//    AVBufferRef* deviceCtx = nullptr;
+//    ret = av_hwdevice_ctx_create(&deviceCtx, type, nullptr, nullptr, 0);
+//    if (ret < 0) {
+//        LOGE("[XFFProducer] av_hwdevice_ctx_create failed: %s\n", av_err2str(ret));
+//        return ret;
+//    }
+//    // TODO(oogh): 2020/07/01 需要通过 av_buffer_unref 释放
+//    avctx->hw_device_ctx = av_buffer_ref(deviceCtx);
 #endif
     
     ret = avcodec_open2(avctx, nullptr, nullptr);
@@ -530,17 +532,21 @@ int XFFProducer::decodeVideoFrame() {
                         continue;
                     }
                 }
-                if (frame->avframe->format == gHWPixelFormat) {
-                    auto cpuFrame = std::make_shared<Frame>();
-                    ret = av_hwframe_transfer_data(cpuFrame->avframe, frame->avframe, 0);
-                    if (ret < 0) {
-                        LOGE("[XFFProducer] av_hwframe_transfer_data failed: %s\n", av_err2str(ret));
-                        return ret;
-                    }
-                    queueFrame(cpuFrame->avframe, pts, duration);
-                } else {
+#if __APPLE__
+//                if (frame->avframe->format == gHWPixelFormat) {
+//                    auto cpuFrame = std::make_shared<Frame>();
+//                    ret = av_hwframe_transfer_data(cpuFrame->avframe, frame->avframe, 0);
+//                    if (ret < 0) {
+//                        LOGE("[XFFProducer] av_hwframe_transfer_data failed: %s\n", av_err2str(ret));
+//                        return ret;
+//                    }
+//                    queueFrame(cpuFrame->avframe, pts, duration);
+//                } else {
+#endif
                     queueFrame(frame->avframe, pts, duration);
-                }
+#if __APPLE__
+//                }
+#endif
                 return 1;
             }
 

@@ -39,6 +39,10 @@ void XRender::setOnProgressChangeCallback(OnProgressChangeCallback callback) {
     mProgressChangeCallback = callback;
 }
 
+void XRender::prepare(long timestamp) {
+    mTargetPos = timestamp;
+}
+
 void XRender::start() {
     mProducer->start();
     

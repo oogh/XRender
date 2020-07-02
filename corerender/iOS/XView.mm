@@ -57,6 +57,10 @@
     _render->setInput(filename.UTF8String);
 }
 
+- (void)prepare:(long)timestamp {
+    _render->prepare(timestamp);
+}
+
 - (void)start {
     if (!_displayLink) {
         _displayLink = [CADisplayLink displayLinkWithTarget:[[XWeakProxy alloc] initWithTarget:self]

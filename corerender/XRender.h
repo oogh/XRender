@@ -34,6 +34,8 @@ public:
     
     void setInput(const std::string& filename);
 
+    void prepare(long timestamp);
+
     void start();
     
     void seekTo(long targetPos);
