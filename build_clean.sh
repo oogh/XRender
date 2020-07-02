@@ -15,6 +15,11 @@ if [ -d "$PROJ_ANDROID/.idea" ]; then
     echo "[CLEANing] $PROJ_ANDROID/.idea"
 fi
 
+if [ -d "$PROJ_ANDROID/build" ]; then
+    rm -rf $PROJ_ANDROID/build
+    echo "[CLEANing] $PROJ_ANDROID/build"
+fi
+
 if [ -f "$PROJ_ANDROID/*.iml" ]; then
     rm -rf $PROJ_ANDROID/*.iml
     echo "[CLEANing] $PROJ_ANDROID/*.iml"
