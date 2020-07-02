@@ -42,6 +42,10 @@ public:
 public:
     long getOriginalDuration() const override;
     
+    int getOriginalWidth() const override;
+    
+    int getOriginalHeight() const override;
+    
 private:
     void seekTo(long targetPos);
 
