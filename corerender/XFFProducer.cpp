@@ -14,6 +14,7 @@
 #include "XImageQueue.h"
 #include "libyuv.h"
 #include "XTimeCounter.h"
+#include "XLogger.h"
 
 AVPixelFormat gHWPixelFormat = AV_PIX_FMT_NONE;
 
@@ -143,21 +144,21 @@ void XFFProducer::stop() {
 int XFFProducer::openInFile() {
     AVFormatContext *ic = avformat_alloc_context();
     if (!ic) {
-        av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avformat_alloc_context failed!\n");
+        LOGE("[XFFProducer] avformat_alloc_context failed!\n");
         return AVERROR(ENOMEM);
     }
     mFormatCtx = std::unique_ptr<AVFormatContext, InputFormatDeleter>(ic);
 
     int ret = avformat_open_input(&ic, mFilename.data(), nullptr, nullptr);
     if (ret < 0) {
-        av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avformat_open_input failed: %s\n",
+        LOGE("[XFFProducer] avformat_open_input failed: %s\n",
                av_err2str(ret));
         return ret;
     }
 
     ret = avformat_find_stream_info(ic, nullptr);
     if (ret < 0) {
-        av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avformat_find_stream_info failed: %s\n",
+        LOGE("[XFFProducer] avformat_find_stream_info failed: %s\n",
                av_err2str(ret));
         return ret;
     }
@@ -208,9 +209,7 @@ int XFFProducer::openVideoCodec() {
     if (!codec) {
         codec = avcodec_find_decoder(stream->codecpar->codec_id);
         if (!codec) {
-            av_log(nullptr, AV_LOG_FATAL,
-                   "[XFFProducer] avcodec_find_decoder failed: cannot find decoder %s\n",
-                   avcodec_get_name(codec->id));
+            LOGE("[XFFProducer] avcodec_find_decoder failed: cannot find decoder %s\n", avcodec_get_name(codec->id));
             return AVERROR_DECODER_NOT_FOUND;
         }
     }
@@ -218,18 +217,18 @@ int XFFProducer::openVideoCodec() {
 #if __APPLE__
     AVHWDeviceType type = av_hwdevice_find_type_by_name("videotoolbox");
     if (type == AV_HWDEVICE_TYPE_NONE) {
-        av_log(nullptr, AV_LOG_WARNING, "[XFFProducer] Available device types: ");
+        LOGW("[XFFProducer] Available device types: ");
         while((type = av_hwdevice_iterate_types(type)) != AV_HWDEVICE_TYPE_NONE) {
-            av_log(nullptr, AV_LOG_WARNING, " %s", av_hwdevice_get_type_name(type));
+            LOGW(" %s", av_hwdevice_get_type_name(type));
         }
-        av_log(nullptr, AV_LOG_WARNING, "\n");
+        LOGW("\n");
         return -1;
     }
     
     for (int i = 0;; ++i) {
         const AVCodecHWConfig *config = avcodec_get_hw_config(codec, i);
         if (!config) {
-            av_log(nullptr, AV_LOG_ERROR, "Decoder %s does not support device type %s.\n", codec->name, av_hwdevice_get_type_name(type));
+            LOGE("Decoder %s does not support device type %s.\n", codec->name, av_hwdevice_get_type_name(type));
             return -1;
         }
         if (config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX && config->device_type == type) {
@@ -241,14 +240,14 @@ int XFFProducer::openVideoCodec() {
     
     AVCodecContext *avctx = avcodec_alloc_context3(codec);
     if (!avctx) {
-        av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avcodec_alloc_context3 failed!\n");
+        LOGE("[XFFProducer] avcodec_alloc_context3 failed!\n");
         return AVERROR(ENOMEM);
     }
     mVideoCodecCtx = std::unique_ptr<AVCodecContext, CodecDeleter>(avctx);
 
     int ret = avcodec_parameters_to_context(avctx, stream->codecpar);
     if (ret < 0) {
-        av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avcodec_parameters_to_context failed: %s\n",
+        LOGE("[XFFProducer] avcodec_parameters_to_context failed: %s\n",
                av_err2str(ret));
         return ret;
     }
@@ -261,7 +260,7 @@ int XFFProducer::openVideoCodec() {
     AVBufferRef* deviceCtx = nullptr;
     ret = av_hwdevice_ctx_create(&deviceCtx, type, nullptr, nullptr, 0);
     if (ret < 0) {
-        av_log(nullptr, AV_LOG_ERROR, "[XFFProducer] av_hwdevice_ctx_create failed: %s\n", av_err2str(ret));
+        LOGE("[XFFProducer] av_hwdevice_ctx_create failed: %s\n", av_err2str(ret));
         return ret;
     }
     // TODO(oogh): 2020/07/01 需要通过 av_buffer_unref 释放
@@ -270,7 +269,7 @@ int XFFProducer::openVideoCodec() {
     
     ret = avcodec_open2(avctx, nullptr, nullptr);
     if (ret < 0) {
-        av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avcodec_open2 failed: %s\n", av_err2str(ret));
+        LOGE("[XFFProducer] avcodec_open2 failed: %s\n", av_err2str(ret));
         return ret;
     }
     return 0;
@@ -283,7 +282,7 @@ int XFFProducer::openAudioCodec() {
 
     AVCodecContext *avctx = avcodec_alloc_context3(nullptr);
     if (!avctx) {
-        av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avcodec_alloc_context3 failed!\n");
+        LOGE("[XFFProducer] avcodec_alloc_context3 failed!\n");
         return AVERROR(ENOMEM);
     }
     mAudioCodecCtx = std::unique_ptr<AVCodecContext, CodecDeleter>(avctx);
@@ -291,22 +290,20 @@ int XFFProducer::openAudioCodec() {
     AVStream *stream = mFormatCtx->streams[mAudioIndex];
     int ret = avcodec_parameters_to_context(avctx, stream->codecpar);
     if (ret < 0) {
-        av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avcodec_parameters_to_context failed: %s\n",
+        LOGE("[XFFProducer] avcodec_parameters_to_context failed: %s\n",
                av_err2str(ret));
         return ret;
     }
 
     AVCodec *codec = avcodec_find_decoder(avctx->codec_id);
     if (!codec) {
-        av_log(nullptr, AV_LOG_FATAL,
-               "[XFFProducer] avcodec_find_decoder failed: cannot find decoder %s\n",
-               avcodec_get_name(avctx->codec_id));
+        LOGE("[XFFProducer] avcodec_find_decoder failed: cannot find decoder %s\n", avcodec_get_name(avctx->codec_id));
         return AVERROR_DECODER_NOT_FOUND;
     }
 
     ret = avcodec_open2(avctx, codec, nullptr);
     if (ret < 0) {
-        av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avcodec_open2 failed: %s\n", av_err2str(ret));
+        LOGE("[XFFProducer] avcodec_open2 failed: %s\n", av_err2str(ret));
         return ret;
     }
 
@@ -335,7 +332,7 @@ void XFFProducer::closeInFile() {
 
 void XFFProducer::readWorkThread(void *opaque) {
     XThreadUtils::configThreadName("readWorkThread");
-    av_log(nullptr, AV_LOG_INFO, "[XFFProducer] readWorkThread ++++\n");
+    LOGI("[XFFProducer] readWorkThread ++++\n");
     XFFProducer *producer = reinterpret_cast<XFFProducer *>(opaque);
     if (!producer || !mFormatCtx) {
         return;
@@ -389,7 +386,7 @@ void XFFProducer::readWorkThread(void *opaque) {
             long ts = static_cast<long>(av_rescale(producer->mSeekTargetPos, AV_TIME_BASE, 1000));
             ret = avformat_seek_file(ic, -1, INT64_MIN, ts, INT64_MAX, 0);
             if (ret < 0) {
-                av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avformat_seek_file failed: %s\n", av_err2str(ret));
+                LOGE("[XFFProducer] avformat_seek_file failed: %s\n", av_err2str(ret));
                 break;
             }
             producer->mAVFormatSeeked = true;
@@ -436,12 +433,12 @@ void XFFProducer::readWorkThread(void *opaque) {
         producer->mAudioTid->join();
     }
 
-    av_log(nullptr, AV_LOG_INFO, "[XFFProducer] readWorkThread ----\n");
+    LOGI("[XFFProducer] readWorkThread ----\n");
 }
 
 void XFFProducer::videoWorkThread(void *opaque) {
     XThreadUtils::configThreadName("videoWorkThread");
-    av_log(nullptr, AV_LOG_INFO, "[XFFProducer] videoWorkThread ++++\n");
+    LOGI("[XFFProducer] videoWorkThread ++++\n");
     XFFProducer *producer = reinterpret_cast<XFFProducer *>(opaque);
     if (!producer) {
         return;
@@ -481,18 +478,18 @@ void XFFProducer::videoWorkThread(void *opaque) {
         }
     }
 
-    av_log(nullptr, AV_LOG_INFO, "[XFFProducer] videoWorkThread ----\n");
+    LOGI("[XFFProducer] videoWorkThread ----\n");
 }
 
 void XFFProducer::audioWorkThread(void *opaque) {
     XThreadUtils::configThreadName("audioWorkThread");
-    av_log(nullptr, AV_LOG_INFO, "[XFFProducer] audioWorkThread ++++\n");
+    LOGI("[XFFProducer] audioWorkThread ++++\n");
     XFFProducer *producer = reinterpret_cast<XFFProducer *>(opaque);
     if (!producer) {
         return;
     }
 
-    av_log(nullptr, AV_LOG_INFO, "[XFFProducer] audioWorkThread ----\n");
+    LOGI("[XFFProducer] audioWorkThread ----\n");
 }
 
 int XFFProducer::decodeVideoFrame() {
@@ -537,7 +534,7 @@ int XFFProducer::decodeVideoFrame() {
                     auto cpuFrame = std::make_shared<Frame>();
                     ret = av_hwframe_transfer_data(cpuFrame->avframe, frame->avframe, 0);
                     if (ret < 0) {
-                        av_log(nullptr, AV_LOG_ERROR, "[XFFProducer] av_hwframe_transfer_data failed: %s\n", av_err2str(ret));
+                        LOGE("[XFFProducer] av_hwframe_transfer_data failed: %s\n", av_err2str(ret));
                         return ret;
                     }
                     queueFrame(cpuFrame->avframe, pts, duration);
@@ -548,8 +545,7 @@ int XFFProducer::decodeVideoFrame() {
             }
 
             if (ret < 0 && ret != AVERROR(EAGAIN)) {
-                av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] avcodec_receive_frame failed: %s\n",
-                       av_err2str(ret));
+                LOGE("[XFFProducer] avcodec_receive_frame failed: %s\n", av_err2str(ret));
                 return ret;
             }
 
@@ -586,7 +582,7 @@ void XFFProducer::queueFrame(AVFrame *frame, long pts, long duration) {
     frameConvert(image, frame);
 
     mImageQueue->push();
-//    av_log(nullptr, AV_LOG_INFO, "[XFFProducer] queue frame pts: %ld\n", pts);
+    LOGI("[XFFProducer] queue frame pts: %ld\n", pts);
 }
 
 void XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
@@ -646,7 +642,7 @@ void XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
                                      SWS_FAST_BILINEAR,
                                      nullptr, nullptr, nullptr);
                 if (!sws) {
-                    av_log(nullptr, AV_LOG_FATAL, "[XFFProducer] sws_getContext failed!\n");
+                    LOGE("[XFFProducer] sws_getContext failed!\n");
                     return;
                 }
                 mSwsContext = std::unique_ptr<SwsContext, SwsContextDeleter>(sws);
