@@ -25,11 +25,31 @@ public class PlayerActivity extends AppCompatActivity {
     private void initView() {
         mDisplayView = findViewById(R.id.xv_display);
 
-        findViewById(R.id.btn_start).setOnClickListener(v -> {
+        findViewById(R.id.btn_once_press).setOnClickListener(v -> {
             // "/sdcard/Android/data/com.demo.render/files/jieqian_720x1280.yuv"
             String path = getPrivateExternalFilesDir(this, "");
-            mDisplayView.setInput(path + "jieqian_720x1280.mp4");
+            mDisplayView.setInput(path + "hechengkazhen.mp4");
             mDisplayView.start();
+        });
+
+        findViewById(R.id.btn_prepare).setOnClickListener(v -> {
+            mDisplayView.prepare(0);
+        });
+
+        findViewById(R.id.btn_start).setOnClickListener(v -> {
+            mDisplayView.start();
+        });
+
+        findViewById(R.id.btn_pause).setOnClickListener(v -> {
+            mDisplayView.pause();
+        });
+
+        findViewById(R.id.btn_stop).setOnClickListener(v -> {
+            mDisplayView.stop();
+        });
+
+        findViewById(R.id.btn_add_input).setOnClickListener(v -> {
+
         });
     }
 

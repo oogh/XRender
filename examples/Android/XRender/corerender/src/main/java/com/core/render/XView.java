@@ -32,11 +32,33 @@ public class XView extends GLSurfaceView implements GLSurfaceView.Renderer {
     }
 
     public void setInput(String filename) {
-        nativeSetInput(mNativePtr, filename);
+        if (mNativePtr != -1L) {
+            nativeSetInput(mNativePtr, filename);
+        }
+    }
+
+    public void prepare(long timestamp) {
+        if (mNativePtr != -1L) {
+            nativePrepare(mNativePtr, timestamp);
+        }
     }
 
     public void start() {
-        nativeStart(mNativePtr);
+        if (mNativePtr != -1L) {
+            nativeStart(mNativePtr);
+        }
+    }
+
+    public void pause() {
+        if (mNativePtr != -1L) {
+            nativePause(mNativePtr);
+        }
+    }
+
+    public void stop() {
+        if (mNativePtr != -1L) {
+            nativeStop(mNativePtr);
+        }
     }
 
     @Override
@@ -79,5 +101,11 @@ public class XView extends GLSurfaceView implements GLSurfaceView.Renderer {
 
     private native void nativeSetInput(long nativePtr, String filename);
 
+    private native void nativePrepare(long nativePtr, long timestamp);
+
     private native void nativeStart(long nativePtr);
+
+    private native void nativePause(long nativePtr);
+
+    private native void nativeStop(long nativePtr);
 }

@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">XRender</string>
-    <string name="name_btn_set_input">添加素材</string>
-    <string name="name_btn_start">一键测试</string>
+    <string name="name_btn_add_input">添加素材</string>
+    <string name="name_btn_once_press">一键测试</string>
+    <string name="name_btn_prepare">准备</string>
+    <string name="name_btn_start">启动</string>
+    <string name="name_btn_pause">暂停</string>
+    <string name="name_btn_stop">停止</string>
     <string name="name_btn_to_player_activity">ToPlayerActivity</string>
 </resources>
