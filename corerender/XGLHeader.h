@@ -5,9 +5,11 @@
 #ifndef ANDROIDDEMO_XGLHEADER_H
 #define ANDROIDDEMO_XGLHEADER_H
 
-#if __ANDROID__
+#include "XPlatform.h"
+
+#if PLATFORM_ANDROID
     #include <GLES2/gl2.h>
-#elif __APPLE__
+#elif PLATFORM_IOS
     #import <OpenGLES/ES2/gl.h>
 #endif
 

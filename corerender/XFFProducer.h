@@ -126,7 +126,6 @@ private:
     int mGetAudioPacket = 0;
     
     long mLastReqClock;
-
 };
 
 

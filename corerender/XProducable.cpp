@@ -9,7 +9,7 @@
 #include "XProducable.h"
 
 XProducable::XProducable()
-        : mDisableVideo(false), mDisableAudio(true) {
+        : mDisableVideo(false), mDisableAudio(true), mProduceMode(PRODUCE_MODE_SOFTWARE) {
 
 }
 
@@ -29,6 +29,10 @@ void XProducable::setInput(const std::string &filename) {
     mFilename = filename;
 }
 
+void XProducable::setProduceMode(ProduceMode mode) {
+    mProduceMode = mode;
+}
+
 void XProducable::start() {
 
 }
@@ -38,7 +42,7 @@ std::shared_ptr<XImage> XProducable::peekImage(long clock) {
 }
 
 void XProducable::endCurrentImageUse() {
-    
+
 }
 
 std::shared_ptr<XSample> XProducable::getSample() {

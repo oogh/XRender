@@ -2,6 +2,8 @@
 // Created by Oogh on 2020/3/19.
 //
 
+#ifndef MAC
+
 #include "XShader.h"
 #include "XLogger.h"
 
@@ -88,3 +90,5 @@ GLuint createProgram(const char* vertex, const char* fragment) {
     }
     return program;
 }
+
+#endif

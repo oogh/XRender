@@ -2,6 +2,8 @@
 // Created by Oogh on 2020/3/19.
 //
 
+#ifndef MAC
+
 #ifndef ANDROIDDEMO_XRENDER_H
 #define ANDROIDDEMO_XRENDER_H
 
@@ -82,3 +84,5 @@ private:
     
 };
 #endif //ANDROIDDEMO_XRENDER_H
+
+#endif

@@ -15,6 +15,15 @@
 class XImage;
 class XSample;
 
+///< 生产模式
+enum ProduceMode {
+    ///< 软解码（默认值）
+    PRODUCE_MODE_SOFTWARE = 0,
+
+    ///< 硬解码
+    PRODUCE_MODE_HARDWARE
+};
+
 class XProducable {
 public:
     XProducable();
@@ -26,6 +35,8 @@ public:
     virtual void setDisableAudio(bool disabled);
 
     virtual void setInput(const std::string& filename);
+
+    virtual void setProduceMode(ProduceMode mode);
 
     virtual void start();
 
@@ -50,6 +61,8 @@ protected:
     bool mDisableVideo;
 
     bool mDisableAudio;
+
+    ProduceMode mProduceMode;
 };
 
 

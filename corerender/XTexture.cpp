@@ -2,6 +2,8 @@
 // Created by Oogh on 2020/3/19.
 //
 
+#ifndef MAC
+
 #include "XTexture.h"
 #include "XShader.h"
 #include "XLogger.h"
@@ -125,3 +127,5 @@ void XTexture::draw() {
 void XTexture::update(uint8_t* pixels, int width, int height) {
     memcpy(mPixels, pixels, width * height * 4);
 }
+
+#endif

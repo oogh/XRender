@@ -2,6 +2,8 @@
 // Created by Oogh on 2020/3/19.
 //
 
+#ifndef MAC
+
 #include "XRender.h"
 #include "XTexture.h"
 #include "XException.h"
@@ -147,3 +149,5 @@ void XRender::stop() {
         mRefreshTid->join();
     }
 }
+
+#endif

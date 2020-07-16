@@ -12,16 +12,24 @@
 #include "XPacketQueue.h"
 #include "XFrameQueue.h"
 #include "XImageQueue.h"
+#include "XPlatform.h"
+
+#if PLATFORM_ANDROID || PLATFORM_IOS
+
 #include "libyuv.h"
+
+#endif
+
 #include "XTimeCounter.h"
 #include "XLogger.h"
 
-#if __APPLE__
-//AVPixelFormat gHWPixelFormat = AV_PIX_FMT_NONE;
+#ifdef USE_HARDWARE_DECODER
+AVPixelFormat gHWPixelFormat = AV_PIX_FMT_NONE;
 #endif
 
 XFFProducer::XFFProducer()
-        : mVideoIndex(-1), mAudioIndex(-1), mAbortReq(false), mSeekReq(false), mSeekTargetPos(-1), mLastReqClock(INT64_MAX), mAVFormatSeeked(false), mPauseReq(false) {
+        : mVideoIndex(-1), mAudioIndex(-1), mAbortReq(false), mSeekReq(false), mSeekTargetPos(-1),
+          mLastReqClock(INT64_MAX), mAVFormatSeeked(false), mPauseReq(false) {
 }
 
 XFFProducer::~XFFProducer() {
@@ -47,14 +55,14 @@ void XFFProducer::start() {
             return;
         }
     }
-    
+
     if (!mReadTid) {
         mReadTid = std::make_unique<std::thread>([this] { readWorkThread(this); });
     }
 }
 
 void XFFProducer::seekTo(long targetPos) {
-    
+
     mPauseReq = true;
     if (mVideoPacketQueue) {
         mVideoPacketQueue->flush();
@@ -62,11 +70,11 @@ void XFFProducer::seekTo(long targetPos) {
     if (mAudioPacketQueue) {
         mAudioPacketQueue->flush();
     }
-    
+
     if (mImageQueue) {
         mImageQueue->flush();
     }
-    
+
     mStatus &= ~(S_READ_END | S_VIDEO_END | S_AUDIO_END);
     {
         std::lock_guard<std::mutex> lock(mMutex);
@@ -74,11 +82,11 @@ void XFFProducer::seekTo(long targetPos) {
         mContinueVideoCond.notify_one();
         mContinueAudioCond.notify_one();
     }
-    
+
     mAVFormatSeeked = false;
     mSeekReq = true;
     mSeekTargetPos = targetPos;
-    
+
     mPauseReq = false;
     {
         std::lock_guard<std::mutex> lock(mMutex);
@@ -86,19 +94,19 @@ void XFFProducer::seekTo(long targetPos) {
         mContinueVideoCond.notify_one();
         mContinueAudioCond.notify_one();
     }
-    
+
 }
 
 std::shared_ptr<XImage> XFFProducer::peekImage(long clock) {
     if (!mImageQueue) {
         return nullptr;
     }
-    
+
     if (mLastReqClock > clock || (mLastReqClock == INT64_MAX && clock > 0)) {
 //        seekTo(clock);
     }
     mLastReqClock = clock;
-    
+
     for (;;) {
         auto image = mImageQueue->peekReadable();
         if (mSeekReq) {
@@ -154,14 +162,14 @@ int XFFProducer::openInFile() {
     int ret = avformat_open_input(&ic, mFilename.data(), nullptr, nullptr);
     if (ret < 0) {
         LOGE("[XFFProducer] avformat_open_input failed: %s\n",
-               av_err2str(ret));
+             av_err2str(ret));
         return ret;
     }
 
     ret = avformat_find_stream_info(ic, nullptr);
     if (ret < 0) {
         LOGE("[XFFProducer] avformat_find_stream_info failed: %s\n",
-               av_err2str(ret));
+             av_err2str(ret));
         return ret;
     }
 
@@ -196,50 +204,62 @@ int XFFProducer::openVideoCodec() {
     if (mDisableVideo || mVideoIndex < 0 || !mFormatCtx) {
         return -1;
     }
-    
+
     AVStream *stream = mFormatCtx->streams[mVideoIndex];
-    AVCodec* codec = avcodec_find_decoder(stream->codecpar->codec_id);
-    
-#if __ANDROID__
-//    if (codec->id == AV_CODEC_ID_H264) {
-//        codec = avcodec_find_decoder_by_name("h264_mediacodec");
-//    } else if (codec->id == AV_CODEC_ID_HEVC) {
-//        codec = avcodec_find_decoder_by_name("hevc_mediacodec");
-//    }
+    AVCodec *codec = avcodec_find_decoder(stream->codecpar->codec_id);
+
+#if PLATFORM_ANDROID && defined(USE_HARDWARE_DECODER)
+    if (mProduceMode == PRODUCE_MODE_HARDWARE) {
+        if (codec->id == AV_CODEC_ID_H264) {
+            codec = avcodec_find_decoder_by_name("h264_mediacodec");
+        } else if (codec->id == AV_CODEC_ID_HEVC) {
+            codec = avcodec_find_decoder_by_name("hevc_mediacodec");
+        }
+    }
 #endif
 
     if (!codec) {
         codec = avcodec_find_decoder(stream->codecpar->codec_id);
         if (!codec) {
-            LOGE("[XFFProducer] avcodec_find_decoder failed: cannot find decoder %s\n", avcodec_get_name(codec->id));
+            LOGE("[XFFProducer] avcodec_find_decoder failed: cannot find decoder %s\n",
+                 avcodec_get_name(codec->id));
             return AVERROR_DECODER_NOT_FOUND;
         }
     }
-    
-#if __APPLE__
-//    AVHWDeviceType type = av_hwdevice_find_type_by_name("videotoolbox");
-//    if (type == AV_HWDEVICE_TYPE_NONE) {
-//        LOGW("[XFFProducer] Available device types: ");
-//        while((type = av_hwdevice_iterate_types(type)) != AV_HWDEVICE_TYPE_NONE) {
-//            LOGW(" %s", av_hwdevice_get_type_name(type));
-//        }
-//        LOGW("\n");
-//        return -1;
-//    }
-//
-//    for (int i = 0;; ++i) {
-//        const AVCodecHWConfig *config = avcodec_get_hw_config(codec, i);
-//        if (!config) {
-//            LOGE("Decoder %s does not support device type %s.\n", codec->name, av_hwdevice_get_type_name(type));
-//            return -1;
-//        }
-//        if (config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX && config->device_type == type) {
-//            gHWPixelFormat = config->pix_fmt;
-//            break;
-//        }
-//    }
+
+#if USE_HARDWARE_DECODER
+    AVHWDeviceType type = AV_HWDEVICE_TYPE_NONE;
+    if (mProduceMode == PRODUCE_MODE_HARDWARE) {
+#if PLATFORM_ANDROID
+        type = av_hwdevice_find_type_by_name("mediacodec");
+#elif PLATFORM_IOS
+        type = av_hwdevice_find_type_by_name("videotoolbox");
 #endif
-    
+        if (type == AV_HWDEVICE_TYPE_NONE) {
+            LOGW("[XFFProducer] Available device types: ");
+            while ((type = av_hwdevice_iterate_types(type)) != AV_HWDEVICE_TYPE_NONE) {
+                LOGW(" %s", av_hwdevice_get_type_name(type));
+            }
+            LOGW("\n");
+            return -1;
+        }
+
+        for (int i = 0;; ++i) {
+            const AVCodecHWConfig *config = avcodec_get_hw_config(codec, i);
+            if (!config) {
+                LOGE("Decoder %s does not support device type %s.\n", codec->name,
+                     av_hwdevice_get_type_name(type));
+                return -1;
+            }
+            if (config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX &&
+                config->device_type == type) {
+                gHWPixelFormat = config->pix_fmt;
+                break;
+            }
+        }
+    }
+#endif
+
     AVCodecContext *avctx = avcodec_alloc_context3(codec);
     if (!avctx) {
         LOGE("[XFFProducer] avcodec_alloc_context3 failed!\n");
@@ -250,25 +270,28 @@ int XFFProducer::openVideoCodec() {
     int ret = avcodec_parameters_to_context(avctx, stream->codecpar);
     if (ret < 0) {
         LOGE("[XFFProducer] avcodec_parameters_to_context failed: %s\n",
-               av_err2str(ret));
+             av_err2str(ret));
         return ret;
     }
 
-#if __APPLE__
-//    avctx->get_format = [](AVCodecContext *ctx, const enum AVPixelFormat *pix_fmts) -> AVPixelFormat {
-//        return gHWPixelFormat;
-//    };
-//
-//    AVBufferRef* deviceCtx = nullptr;
-//    ret = av_hwdevice_ctx_create(&deviceCtx, type, nullptr, nullptr, 0);
-//    if (ret < 0) {
-//        LOGE("[XFFProducer] av_hwdevice_ctx_create failed: %s\n", av_err2str(ret));
-//        return ret;
-//    }
-//    // TODO(oogh): 2020/07/01 需要通过 av_buffer_unref 释放
-//    avctx->hw_device_ctx = av_buffer_ref(deviceCtx);
+#ifdef USE_HARDWARE_DECODER
+    if (mProduceMode == PRODUCE_MODE_HARDWARE) {
+        avctx->get_format = [](AVCodecContext *ctx,
+                               const enum AVPixelFormat *pix_fmts) -> AVPixelFormat {
+            return gHWPixelFormat;
+        };
+
+        AVBufferRef *deviceCtx = nullptr;
+        ret = av_hwdevice_ctx_create(&deviceCtx, type, nullptr, nullptr, 0);
+        if (ret < 0) {
+            LOGE("[XFFProducer] av_hwdevice_ctx_create failed: %s\n", av_err2str(ret));
+            return ret;
+        }
+        // TODO(oogh): 2020/07/01 需要通过 av_buffer_unref 释放
+        avctx->hw_device_ctx = av_buffer_ref(deviceCtx);
+    }
 #endif
-    
+
     ret = avcodec_open2(avctx, nullptr, nullptr);
     if (ret < 0) {
         LOGE("[XFFProducer] avcodec_open2 failed: %s\n", av_err2str(ret));
@@ -293,13 +316,14 @@ int XFFProducer::openAudioCodec() {
     int ret = avcodec_parameters_to_context(avctx, stream->codecpar);
     if (ret < 0) {
         LOGE("[XFFProducer] avcodec_parameters_to_context failed: %s\n",
-               av_err2str(ret));
+             av_err2str(ret));
         return ret;
     }
 
     AVCodec *codec = avcodec_find_decoder(avctx->codec_id);
     if (!codec) {
-        LOGE("[XFFProducer] avcodec_find_decoder failed: cannot find decoder %s\n", avcodec_get_name(avctx->codec_id));
+        LOGE("[XFFProducer] avcodec_find_decoder failed: cannot find decoder %s\n",
+             avcodec_get_name(avctx->codec_id));
         return AVERROR_DECODER_NOT_FOUND;
     }
 
@@ -377,13 +401,13 @@ void XFFProducer::readWorkThread(void *opaque) {
         if (producer->mAbortReq) {
             break;
         }
-        
+
         if (producer->mPauseReq) {
             std::unique_lock<std::mutex> lock(mMutex);
             producer->mContinueReadCond.wait(lock);
             continue;
         }
-        
+
         if (producer->mSeekReq && !producer->mAVFormatSeeked) {
             long ts = static_cast<long>(av_rescale(producer->mSeekTargetPos, AV_TIME_BASE, 1000));
             ret = avformat_seek_file(ic, -1, INT64_MIN, ts, INT64_MAX, 0);
@@ -459,13 +483,13 @@ void XFFProducer::videoWorkThread(void *opaque) {
         if (producer->mAbortReq) {
             break;
         }
-        
+
         if (producer->mPauseReq) {
             std::unique_lock<std::mutex> lock(mMutex);
             producer->mContinueVideoCond.wait(lock);
             continue;
         }
-        
+
         ret = decodeVideoFrame();
         if (ret < 0) {
             if (ret == AVERROR_EOF) {
@@ -532,20 +556,21 @@ int XFFProducer::decodeVideoFrame() {
                         continue;
                     }
                 }
-#if __APPLE__
-//                if (frame->avframe->format == gHWPixelFormat) {
-//                    auto cpuFrame = std::make_shared<Frame>();
-//                    ret = av_hwframe_transfer_data(cpuFrame->avframe, frame->avframe, 0);
-//                    if (ret < 0) {
-//                        LOGE("[XFFProducer] av_hwframe_transfer_data failed: %s\n", av_err2str(ret));
-//                        return ret;
-//                    }
-//                    queueFrame(cpuFrame->avframe, pts, duration);
-//                } else {
+#ifdef USE_HARDWARE_DECODER
+                if (frame->avframe->format == gHWPixelFormat) {
+                    auto cpuFrame = std::make_shared<Frame>();
+                    ret = av_hwframe_transfer_data(cpuFrame->avframe, frame->avframe, 0);
+                    if (ret < 0) {
+                        LOGE("[XFFProducer] av_hwframe_transfer_data failed: %s\n",
+                             av_err2str(ret));
+                        return ret;
+                    }
+                    queueFrame(cpuFrame->avframe, pts, duration);
+                } else {
 #endif
                     queueFrame(frame->avframe, pts, duration);
-#if __APPLE__
-//                }
+#ifdef USE_HARDWARE_DECODER
+                }
 #endif
                 return 1;
             }
@@ -596,7 +621,7 @@ void XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
         av_image_alloc(dst->pixels, dst->linesize, dst->width, dst->height,
                        static_cast<AVPixelFormat>(dst->format), 1);
     }
-    
+#if PLATFORM_ANDROID || PLATFORM_IOS
     switch (src->format) {
         case AV_PIX_FMT_YUV420P:
         case AV_PIX_FMT_YUVJ420P: {
@@ -605,21 +630,24 @@ void XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
                                src->data[2], src->linesize[2],
                                dst->pixels[0], dst->linesize[0],
                                src->width, src->height);
-        } break;
+        }
+            break;
 
         case AV_PIX_FMT_NV21: {
             libyuv::NV21ToABGR(src->data[0], src->linesize[0],
                                src->data[1], src->linesize[1],
                                dst->pixels[0], dst->linesize[0],
                                src->width, src->height);
-        } break;
+        }
+            break;
 
         case AV_PIX_FMT_NV12: {
             libyuv::NV12ToABGR(src->data[0], src->linesize[0],
                                src->data[1], src->linesize[1],
                                dst->pixels[0], dst->linesize[0],
                                src->width, src->height);
-        } break;
+        }
+            break;
 
         case AV_PIX_FMT_YUV422P:
         case AV_PIX_FMT_YUVJ422P: {
@@ -628,7 +656,8 @@ void XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
                                src->data[2], src->linesize[2],
                                dst->pixels[0], dst->linesize[0],
                                src->width, src->height);
-        } break;
+        }
+            break;
 
         case AV_PIX_FMT_YUV444P:
         case AV_PIX_FMT_YUVJ444P: {
@@ -637,9 +666,11 @@ void XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
                                src->data[2], src->linesize[2],
                                dst->pixels[0], dst->linesize[0],
                                src->width, src->height);
-        } break;
+        }
+            break;
 
         default: {
+#endif
             SwsContext *sws = nullptr;
             if (!mSwsContext) {
                 sws = sws_getContext(src->width, src->height,
@@ -657,14 +688,19 @@ void XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
             }
 
             sws_scale(sws, src->data, src->linesize, 0, src->height, dst->pixels, dst->linesize);
-        } break;
+#if PLATFORM_ANDROID || PLATFORM_IOS
+        }
+            break;
     }
+#endif
 }
 
 long XFFProducer::getOriginalDuration() const {
     long duration = 0;
     if (mFormatCtx && mFormatCtx->duration != AV_NOPTS_VALUE) {
-        duration = static_cast<long>((mFormatCtx->duration + (mFormatCtx->duration <= INT64_MAX - 5000 ? 5000 : 0)) / 1000);
+        duration = static_cast<long>(
+                (mFormatCtx->duration + (mFormatCtx->duration <= INT64_MAX - 5000 ? 5000 : 0)) /
+                1000);
     }
     return duration;
 }
