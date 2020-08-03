@@ -7,7 +7,7 @@
 #include "XFFHeader.h"
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
-    JNIEnv *env = NULL;
+    JNIEnv *env = nullptr;
     jint result = -1;
     if (vm->GetEnv(reinterpret_cast<void **>(&env), JNI_VERSION_1_6) != JNI_OK) {
         return -1;

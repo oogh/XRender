@@ -126,6 +126,8 @@ private:
     int mGetAudioPacket = 0;
     
     long mLastReqClock;
+
+    std::shared_ptr<Packet> mLastPacket;
 };
 
 

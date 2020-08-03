@@ -277,8 +277,15 @@ int XFFProducer::openVideoCodec() {
 #ifdef USE_HARDWARE_DECODER
     if (mProduceMode == PRODUCE_MODE_HARDWARE) {
         avctx->get_format = [](AVCodecContext *ctx,
-                               const enum AVPixelFormat *pix_fmts) -> AVPixelFormat {
-            return gHWPixelFormat;
+                               const enum AVPixelFormat *pixelFormat) -> AVPixelFormat {
+            const enum AVPixelFormat *p;
+            for (p = pixelFormat; *p != AV_PIX_FMT_NONE; p++) {
+                if (*p == gHWPixelFormat) {
+                    return *p;
+                }
+            }
+            LOGE("[XFFProducer] Cannot get HW surface format\n");
+            return AV_PIX_FMT_NONE;
         };
 
         AVBufferRef *deviceCtx = nullptr;
@@ -583,8 +590,24 @@ int XFFProducer::decodeVideoFrame() {
         } while (ret != AVERROR(EAGAIN));
 
         // get packet
+        std::shared_ptr<Packet> pkt;
+        if (mLastPacket) {
+            /* mLastPacket 是针对FFmpeg4.x版本的MediaCodec解码添加的逻辑。
+             * 使用MediaCodec解码时，如果 avcodec_send_packet() 返回 AVERROR(EAGAIN)，则需要把这个
+             * AVPacket给缓存起来，否则该AVPacket可能会被丢弃，从而因为丢帧导致花屏等异常问题
+             */
+            if (mLastPacket->avpkt->data != nullptr && mLastPacket->avpkt->size != 0) {
+                pkt = std::make_shared<Packet>();
+                ret = av_packet_ref(pkt->avpkt, mLastPacket->avpkt);
+                if (ret < 0) {
+                    LOGE("[XFFProducer] av_packet_ref failed: %s\n", av_err2str(ret));
+                    break;
+                }
+            }
+        } else {
+            pkt = mVideoPacketQueue->get();
+        }
 
-        auto pkt = mVideoPacketQueue->get();
         if (!pkt) {
             return -1;
         }
@@ -592,7 +615,23 @@ int XFFProducer::decodeVideoFrame() {
         // send packet
         ret = avcodec_send_packet(mVideoCodecCtx.get(), pkt->avpkt);
         if (ret == AVERROR(EAGAIN)) {
+            if (pkt->avpkt->data != nullptr && pkt->avpkt->size != 0) {
+                if (!mLastPacket) {
+                    mLastPacket = std::make_shared<Packet>();
+                }
+                ret = av_packet_ref(mLastPacket->avpkt, pkt->avpkt);
+                if (ret < 0) {
+                    LOGE("[XFFProducer] av_packet_ref failed: %s\n", av_err2str(ret));
+                    break;
+                }
+            }
             continue;
+        }
+
+        if (ret >= 0) {
+            if (mLastPacket) {
+                mLastPacket.reset();
+            }
         }
     }
     return 0;
@@ -613,7 +652,6 @@ void XFFProducer::queueFrame(AVFrame *frame, long pts, long duration) {
     frameConvert(image, frame);
 
     mImageQueue->push();
-    LOGI("[XFFProducer] queue frame pts: %ld\n", pts);
 }
 
 void XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
