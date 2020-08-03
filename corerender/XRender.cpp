@@ -34,6 +34,7 @@ void XRender::setInput(const std::string& filename) {
     mProducer = std::make_unique<XFFProducer>();
 #endif
 
+    mProducer->setProduceMode(PRODUCE_MODE_HARDWARE);
     mProducer->setInput(filename);
 }
 
