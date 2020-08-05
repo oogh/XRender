@@ -227,7 +227,7 @@ int XFFProducer::openVideoCodec() {
         }
     }
 
-#if USE_HARDWARE_DECODER
+#ifdef USE_HARDWARE_DECODER
     AVHWDeviceType type = AV_HWDEVICE_TYPE_NONE;
     if (mProduceMode == PRODUCE_MODE_HARDWARE) {
 #if PLATFORM_ANDROID
