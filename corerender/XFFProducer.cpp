@@ -478,7 +478,10 @@ void XFFProducer::videoWorkThread(void *opaque) {
     }
 
     if (!producer->mVideoCodecCtx) {
-        producer->openVideoCodec();
+        int ret = producer->openVideoCodec();
+        if (ret < 0) {
+            return;
+        }
     }
 
     if (!producer->mImageQueue) {
@@ -521,11 +524,54 @@ void XFFProducer::audioWorkThread(void *opaque) {
     if (!producer) {
         return;
     }
+    
+    if (!producer->mAudioCodecCtx) {
+        int ret = producer->openAudioCodec();
+        if (ret < 0) {
+            return;
+        }
+    }
+
+    if (!producer->mSampleQueue) {
+        producer->mSampleQueue = rbuf_create(SAMPLE_QUEUE_SIZE);
+        rbuf_set_mode(producer->mSampleQueue, RBUF_MODE_BLOCKING);
+    }
+
+    int ret;
+    for (;;) {
+        if (producer->mAbortReq) {
+            break;
+        }
+
+        if (producer->mPauseReq) {
+            std::unique_lock<std::mutex> lock(mMutex);
+            producer->mContinueAudioCond.wait(lock);
+            continue;
+        }
+
+        ret = decodeAudioFrame();
+        if (ret < 0) {
+            if (ret == AVERROR_EOF) {
+                if ((producer->mStatus & S_READ_END) && !(producer->mStatus & S_AUDIO_END)) {
+                    producer->mStatus |= S_AUDIO_END;
+                }
+                std::unique_lock<std::mutex> lock(producer->mMutex);
+                mContinueAudioCond.wait(lock);
+                continue;
+            }
+            break;
+        }
+    }
 
     LOGI("[XFFProducer] audioWorkThread ----\n");
 }
 
 int XFFProducer::decodeVideoFrame() {
+    
+    if (!mFormatCtx || mVideoIndex < 0) {
+        return -1;
+    }
+    
     int ret;
 
     if (!mVideoCodecCtx) {
@@ -637,6 +683,54 @@ int XFFProducer::decodeVideoFrame() {
     return 0;
 }
 
+int XFFProducer::decodeAudioFrame() {
+    if (!mFormatCtx || mAudioIndex < 0) {
+        return -1;
+    }
+    
+    int ret;
+    
+    if (!mAudioCodecCtx) {
+        ret = openAudioCodec();
+        if (ret < 0) {
+            return ret;
+        }
+    }
+    
+    for (;;) {
+        
+        auto frame = std::make_shared<Frame>();
+        ret = avcodec_receive_frame(mAudioCodecCtx.get(), frame->avframe);
+        if (ret < 0 && ret != AVERROR(EAGAIN) && ret != AVERROR_EOF) {
+            LOGE("[XFFProducer] avcodec_receive_frame failed: %s\n", av_err2str(ret));
+            return ret;
+        }
+        
+        if (ret == AVERROR_EOF) {
+            return ret;
+        }
+        
+        if (ret >= 0) {
+            queueSample(frame->avframe);
+//            TODO(oogh): 从这里开始继续工作...
+            return 1;
+        }
+        
+        auto pkt = mAudioPacketQueue->get();
+        if (!pkt) {
+            return -1;
+        }
+        
+        ret = avcodec_send_packet(mAudioCodecCtx.get(), pkt->avpkt);
+        if (ret < 0 && ret != AVERROR(EAGAIN) && ret != AVERROR_EOF) {
+            LOGE("[XFFProducer] avcodec_send_packet failed: %s\n", av_err2str(ret));
+            return ret;
+        }
+    }
+    
+    return 0;
+}
+
 void XFFProducer::queueFrame(AVFrame *frame, long pts, long duration) {
 
     auto image = mImageQueue->peekWritable();
@@ -652,6 +746,70 @@ void XFFProducer::queueFrame(AVFrame *frame, long pts, long duration) {
     frameConvert(image, frame);
 
     mImageQueue->push();
+}
+
+int XFFProducer::queueSample(AVFrame* frame) {
+    if (!mSwrContext) {
+        SwrContext* swr = swr_alloc();
+        if (!swr) {
+            return AVERROR(ENOMEM);
+        }
+        mSwrContext = std::unique_ptr<SwrContext,SwrContextDeleter>(swr);
+    }
+    
+    av_opt_set_int(mSwrContext.get(), "in_channel_layout", frame->channel_layout, 0);
+    av_opt_set_int(mSwrContext.get(), "in_sample_rate", frame->sample_rate, 0);
+    av_opt_set_sample_fmt(mSwrContext.get(), "in_sample_fmt", static_cast<AVSampleFormat>(frame->format), 0);
+    
+    av_opt_set_int(mSwrContext.get(), "out_channel_layout", DST_CHANNEL_LAYOUT, 0);
+    av_opt_set_int(mSwrContext.get(), "out_sample_rate", DST_SAMPLE_RATE, 0);
+    av_opt_set_sample_fmt(mSwrContext.get(), "out_sample_fmt", DST_SAMPLE_FMT, 0);
+    
+    int ret = swr_init(mSwrContext.get());
+    if (ret < 0) {
+        LOGE("[XFFProducer] swr_init failed: %s\n", av_err2str(ret));
+        return ret;
+    }
+    
+    int dstSampleCount, dstSampleCountMax;
+    dstSampleCount = av_rescale_rnd(frame->nb_samples, DST_SAMPLE_RATE, frame->sample_rate, AV_ROUND_UP);
+    dstSampleCountMax = dstSampleCount;
+    
+    uint8_t** data = nullptr;
+    int linesize = 0;
+    int dstChannels = av_get_channel_layout_nb_channels(DST_CHANNEL_LAYOUT);
+    ret = av_samples_alloc_array_and_samples(&data, &linesize, dstChannels, dstSampleCount, DST_SAMPLE_FMT, 0);
+    if (ret < 0) {
+        LOGE("[XFFProducer] av_samples_alloc_array_and_samples failed!");
+        return AVERROR(ENOMEM);
+    }
+    
+    dstSampleCount = av_rescale_rnd(swr_get_delay(mSwrContext.get(), frame->sample_rate) + frame->nb_samples, DST_SAMPLE_RATE, frame->sample_rate, AV_ROUND_UP);
+    if (dstSampleCount > dstSampleCountMax) {
+        av_freep(&data[0]);
+        ret = av_samples_alloc(data, &linesize, dstChannels, dstSampleCount, DST_SAMPLE_FMT, 1);
+        if (ret < 0) {
+            LOGE("[XFFProducer] av_samples_alloc failed!");
+            return AVERROR(ENOMEM);
+        }
+        dstSampleCountMax = dstSampleCount;
+    }
+    
+    ret = swr_convert(mSwrContext.get(), data, dstSampleCount, (const uint8_t **)frame->data, frame->nb_samples);
+    if (ret < 0) {
+        LOGE("[XFFProducer] swr_convert failed: %s\n", av_err2str(ret));
+        return ret;
+    }
+    
+    int dstBufferSize = av_samples_get_buffer_size(&linesize, dstChannels, ret, DST_SAMPLE_FMT, 1);
+    if (dstBufferSize < 0) {
+        LOGE("[XFFProducer] av_samples_get_buffer_size failed: %s\n", av_err2str(dstBufferSize));
+        return dstBufferSize;
+    }
+    
+    rbuf_write(mSampleQueue, data[0], dstBufferSize);
+    
+    return dstBufferSize;
 }
 
 void XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
@@ -731,6 +889,10 @@ void XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
             break;
     }
 #endif
+}
+
+int XFFProducer::sampleConvert(AVFrame* src) {
+    return 0;
 }
 
 long XFFProducer::getOriginalDuration() const {

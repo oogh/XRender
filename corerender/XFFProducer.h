@@ -71,10 +71,16 @@ private:
 
 private:
     int decodeVideoFrame();
+    
+    int decodeAudioFrame();
 
     void queueFrame(AVFrame* frame, long pts, long duration);
+    
+    int queueSample(AVFrame* frame);
 
     void frameConvert(std::shared_ptr<XImage> dst, AVFrame* src);
+    
+    int sampleConvert(AVFrame* src);
 
 private:
     unsigned int mStatus;
@@ -83,6 +89,13 @@ private:
     const int S_AUDIO_END = 1 << 2;
 
     const AVPixelFormat DST_PIX_FMT = AV_PIX_FMT_RGBA;
+    
+    const uint64_t DST_CHANNEL_LAYOUT = AV_CH_LAYOUT_STEREO;
+    const int DST_SAMPLE_RATE = 44100;
+    const int DST_CHANNELS = 2;
+    const AVSampleFormat DST_SAMPLE_FMT = AV_SAMPLE_FMT_S16;
+    
+    const int SAMPLE_QUEUE_SIZE = 4096;
 
 private:
     std::unique_ptr<AVFormatContext, InputFormatDeleter> mFormatCtx;
