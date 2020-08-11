@@ -25,7 +25,7 @@ if (APPLE)
 
     aux_source_directory(${DIR_DEMO_MAC} SRC_EXSAMPLE_MAC)
 
-    # 第三方依赖库
+    # FFmpeg
     find_path(AVFORMAT_INCLUDE_DIR libavformat/avformat.h)
     find_library(AVFORMAT_LIBRARY avformat)
 
@@ -67,7 +67,7 @@ if (APPLE)
     add_executable(${ExecuteName} ${SRC_MEDIA})
 
     # 添加链接库
-    target_link_libraries(${ExecuteName} ${EXTRAL_LIBRARY})
+    target_link_libraries(${ExecuteName} ${EXTRAL_LIBRARY} "-framework OpenAL")
 
 #### （Android 平台） ###############################################################################
 elseif (ANDROID)
