@@ -18,7 +18,7 @@
 #define LOGD(...) printf(__VA_ARGS__)
 #define LOGW(...) printf(__VA_ARGS__)
 #define LOGI(...) printf(__VA_ARGS__)
-#define LOGE(...) printf(__VA_ARGS__)
+#define LOGE(...) fprintf(stderr, __VA_ARGS__)
 #endif
 
 #endif //ANDROIDDEMO_LOGGER_H
