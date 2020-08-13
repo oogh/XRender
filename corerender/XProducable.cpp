@@ -9,7 +9,7 @@
 #include "XProducable.h"
 
 XProducable::XProducable()
-        : mDisableVideo(false), mDisableAudio(true), mProduceMode(PRODUCE_MODE_SOFTWARE) {
+        : mDisableVideo(false), mDisableAudio(false), mProduceMode(PRODUCE_MODE_SOFTWARE) {
 
 }
 
@@ -45,8 +45,8 @@ void XProducable::endCurrentImageUse() {
 
 }
 
-std::shared_ptr<XSample> XProducable::getSample() {
-    return nullptr;
+int XProducable::readSamples(uint8_t* buffer, int length) {
+    return -1;
 }
 
 void XProducable::stop() {

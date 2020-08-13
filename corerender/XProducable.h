@@ -44,7 +44,7 @@ public:
     
     virtual void endCurrentImageUse();
 
-    virtual std::shared_ptr<XSample> getSample();
+    virtual int readSamples(uint8_t* buffer, int length);
 
     virtual void stop();
     
