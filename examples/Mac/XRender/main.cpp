@@ -5,9 +5,10 @@
 #include "XTimeCounter.h"
 #include <vector>
 #include <string>
+#include "XSounder.h"
+#include "XLogger.h"
 
-int main(int argc, char* argv[]) {
-    
+void testRender() {
     std::vector<std::string> filenames = {
 //        "/Users/andy/Movies/ok.gif",
 //        "/Users/andy/Movies/feiqi.gif",
@@ -24,7 +25,7 @@ int main(int argc, char* argv[]) {
 //        "/Users/andy/Workspace/Gaoding/resources/videoEditTest/testData/apng0.png",
 //        "/Users/andy/Workspace/Gaoding/resources/videoEditTest/testData/apng1.png",
 //        "/Users/andy/Workspace/Gaoding/resources/videoEditTest/testData/apng2.png",
-        "/Users/andy/Movies/jieqian_720x1280.mp4",
+            "/Users/andy/Movies/jieqian_720x1280.mp4",
 //        "/Users/andy/Movies/lianche.mp4",
 //        "/Users/andy/Movies/douyin.mp4",
 //        "/Users/andy/Movies/720.mp4",
@@ -40,11 +41,11 @@ int main(int argc, char* argv[]) {
         auto producer = std::make_shared<XFFProducer>();
         producer->setInput(filenames[i]);
         producerList.emplace_back(producer);
-        
+
         producer->start();
     }
-    
-    
+
+
     long duration = 2000;
     int fps = 25;
     long offset = static_cast<long>(1000.0 / fps);
@@ -72,7 +73,74 @@ int main(int argc, char* argv[]) {
     }
 
     std::vector<std::shared_ptr<XFFProducer>>().swap(producerList);
+}
 
+void testSounder() {
+    std::string filename = "/Users/andy/Movies/jieqian_720x1280.mp4";
+    auto producer = std::make_unique<XFFProducer>();
+    producer->setInput(filename);
+    producer->setDisableVideo(true);
+    producer->start();
+
+    int len;
+
+//    FILE *outFile = fopen("/Users/andy/output.pcm", "wb+");
+//    if (!outFile) {
+//        LOGE("[main] open file failed: /Users/andy/output.pcm\n");
+//        return;
+//    }
+
+    int total = 0;
+    do {
+        int bufferSize = 4096;
+        uint8_t* buffer = reinterpret_cast<uint8_t*>(malloc(bufferSize));
+        memset(buffer, '\0', bufferSize);
+        len = producer->readSamples(buffer, bufferSize);
+        if (len > 0) {
+            total += len;
+            LOGI("[main] write length: %d total: %d\n", len, total);
+//            fwrite(buffer, 1, len, outFile);
+        }
+        free(buffer);
+    } while (len >= 0);
+
+//    fclose(outFile);
+    LOGI("[main] close\n");
+
+//    auto sounder = std::make_unique<XSounder>();
+//    bool success = sounder->init();
+//    if (!success) {
+//        LOGE("[main] sounder init failed!\n");
+//        return;
+//    }
+//
+//    int bufferSize = 4096 * 4;
+//    uint8_t* buffer = reinterpret_cast<uint8_t*>(malloc(bufferSize));
+//    int len = producer->readSamples(&buffer, bufferSize);
+//
+//    sounder->open(buffer, len);
+//
+//    while (len > 0) {
+//        int processd = sounder->getProcessedCount();
+//        if (processd <= 0) {
+//            continue;
+//        }
+//
+//        while (processd--) {
+//            len = producer->readSamples(&buffer, bufferSize);
+//            sounder->open(buffer, len);
+//        }
+//    }
+//
+//    sounder->deinit();
+
+//    getchar();
+}
+
+int main(int argc, char* argv[]) {
+    
+    testSounder();
+    
     return 0;
 }
 
