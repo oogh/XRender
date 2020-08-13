@@ -13,15 +13,15 @@
 #include "XFrameQueue.h"
 #include "XImageQueue.h"
 #include "XPlatform.h"
-
-#if PLATFORM_ANDROID || PLATFORM_IOS
-
-#include "libyuv.h"
-
-#endif
-
 #include "XTimeCounter.h"
 #include "XLogger.h"
+
+#if PLATFORM_ANDROID || PLATFORM_IOS
+#include "libyuv.h"
+#endif
+
+FILE* readFile = nullptr;
+FILE* writeFile = nullptr;
 
 #ifdef USE_HARDWARE_DECODER
 AVPixelFormat gHWPixelFormat = AV_PIX_FMT_NONE;
@@ -29,7 +29,9 @@ AVPixelFormat gHWPixelFormat = AV_PIX_FMT_NONE;
 
 XFFProducer::XFFProducer()
         : mVideoIndex(-1), mAudioIndex(-1), mAbortReq(false), mSeekReq(false), mSeekTargetPos(-1),
-          mLastReqClock(INT64_MAX), mAVFormatSeeked(false), mPauseReq(false) {
+          mLastReqClock(INT64_MAX), mAVFormatSeeked(false), mPauseReq(false), mStatus(0) {
+//              readFile = fopen("/Users/andy/read.pcm", "wb+");
+//              writeFile = fopen("/Users/andy/write.pcm", "wb+");
 }
 
 XFFProducer::~XFFProducer() {
@@ -133,8 +135,23 @@ void XFFProducer::endCurrentImageUse() {
     mImageQueue->next();
 }
 
-std::shared_ptr<XSample> XFFProducer::getSample() {
-    return XProducable::getSample();
+int XFFProducer::readSamples(uint8_t* buffer, int length) {
+    if (!mSampleQueue) {
+        return 0;
+    }
+    
+    if (mStatus & S_AUDIO_END) {
+//        fclose(readFile);
+        mSampleQueue.reset();
+        return -1;
+    }
+    
+    int len = mSampleQueue->read(buffer, length);
+    if (len > 0) {
+//        fwrite(buffer, 1, len, readFile);
+    }
+    
+    return len;
 }
 
 void XFFProducer::stop() {
@@ -340,6 +357,40 @@ int XFFProducer::openAudioCodec() {
         return ret;
     }
 
+    // 重采样环境配置
+    if (!mSwrContext) {
+        SwrContext* swr = swr_alloc();
+        if (!swr) {
+            return AVERROR(ENOMEM);
+        }
+        mSwrContext = std::unique_ptr<SwrContext,SwrContextDeleter>(swr);
+    }
+
+    av_opt_set_int(mSwrContext.get(), "in_channel_layout", avctx->channel_layout, 0);
+    av_opt_set_int(mSwrContext.get(), "in_sample_rate", avctx->sample_rate, 0);
+    av_opt_set_sample_fmt(mSwrContext.get(), "in_sample_fmt", avctx->sample_fmt, 0);
+
+    av_opt_set_int(mSwrContext.get(), "out_channel_layout", DST_CHANNEL_LAYOUT, 0);
+    av_opt_set_int(mSwrContext.get(), "out_sample_rate", DST_SAMPLE_RATE, 0);
+    av_opt_set_sample_fmt(mSwrContext.get(), "out_sample_fmt", DST_SAMPLE_FMT, 0);
+
+    ret = swr_init(mSwrContext.get());
+    if (ret < 0) {
+        LOGE("[XFFProducer] swr_init failed: %s\n", av_err2str(ret));
+        return ret;
+    }
+
+    // 申请目标缓冲区内存空间
+    int dstSampleCount = av_rescale_rnd(avctx->frame_size, DST_SAMPLE_RATE, avctx->sample_rate, AV_ROUND_UP);
+    mDstSampleCountMax = dstSampleCount;
+
+    int dstChannels = av_get_channel_layout_nb_channels(DST_CHANNEL_LAYOUT);
+    mSampleBufferSize = av_samples_alloc(&mSampleBuffer, nullptr, dstChannels, dstSampleCount, DST_SAMPLE_FMT, 0);
+    if (mSampleBufferSize < 0) {
+        LOGE("[XFFProducer] av_samples_alloc_array_and_samples failed!");
+        return AVERROR(ENOMEM);
+    }
+
     return 0;
 }
 
@@ -495,12 +546,12 @@ void XFFProducer::videoWorkThread(void *opaque) {
         }
 
         if (producer->mPauseReq) {
-            std::unique_lock<std::mutex> lock(mMutex);
+            std::unique_lock<std::mutex> lock(producer->mMutex);
             producer->mContinueVideoCond.wait(lock);
             continue;
         }
 
-        ret = decodeVideoFrame();
+        ret = producer->decodeVideoFrame();
         if (ret < 0) {
             if (ret == AVERROR_EOF) {
                 if ((producer->mStatus & S_READ_END) && !(producer->mStatus & S_VIDEO_END)) {
@@ -533,33 +584,53 @@ void XFFProducer::audioWorkThread(void *opaque) {
     }
 
     if (!producer->mSampleQueue) {
-        producer->mSampleQueue = rbuf_create(SAMPLE_QUEUE_SIZE);
-        rbuf_set_mode(producer->mSampleQueue, RBUF_MODE_BLOCKING);
+        producer->mSampleQueue = std::make_unique<XSampleQueue>(SAMPLE_QUEUE_SIZE);
     }
 
-    int ret;
+    int total = 0;
+    int ret, available, writeSize, min;
     for (;;) {
         if (producer->mAbortReq) {
             break;
         }
 
         if (producer->mPauseReq) {
-            std::unique_lock<std::mutex> lock(mMutex);
+            std::unique_lock<std::mutex> lock(producer->mMutex);
             producer->mContinueAudioCond.wait(lock);
             continue;
         }
 
-        ret = decodeAudioFrame();
-        if (ret < 0) {
-            if (ret == AVERROR_EOF) {
-                if ((producer->mStatus & S_READ_END) && !(producer->mStatus & S_AUDIO_END)) {
-                    producer->mStatus |= S_AUDIO_END;
+        // 判断SampleQueue中剩余的可用内存空间大小
+        available = producer->mSampleQueue->available();
+        if (available > 0) {
+            min = std::min(producer->mSampleBufferSize, available);
+
+            writeSize = producer->mSampleQueue->write(producer->mSampleBuffer, min);
+            total += writeSize;
+//            fwrite(producer->mSampleBuffer, 1, writeSize, writeFile);
+//            LOGI("[XFFProducer] rbuf_write length %d total %d\n", writeSize, total);
+
+            producer->mSampleBuffer += writeSize;
+            producer->mSampleBufferSize -= writeSize;
+        }
+
+        // 当且仅当SampleQueue中没有任何数据的时候，才去进行解码操作
+        if (producer->mSampleBufferSize <= 0) {
+            producer->mSampleBuffer -= producer->mLastSampleBufferSize;
+            ret = producer->decodeAudioFrame();
+            if (ret < 0) {
+                if (ret == AVERROR_EOF) {
+                    if ((producer->mStatus & S_READ_END) && !(producer->mStatus & S_AUDIO_END)) {
+                        producer->mStatus |= S_AUDIO_END;
+                        producer->mSampleQueue->signal();
+//                        fclose(writeFile);
+                    }
+                    std::unique_lock<std::mutex> lock(producer->mMutex);
+                    producer->mContinueAudioCond.wait(lock);
+                    continue;
                 }
-                std::unique_lock<std::mutex> lock(producer->mMutex);
-                mContinueAudioCond.wait(lock);
-                continue;
+                break;
             }
-            break;
         }
     }
 
@@ -711,9 +782,8 @@ int XFFProducer::decodeAudioFrame() {
         }
         
         if (ret >= 0) {
-            queueSample(frame->avframe);
-//            TODO(oogh): 从这里开始继续工作...
-            return 1;
+            int len = sampleConvert(frame->avframe);
+            return len;
         }
         
         auto pkt = mAudioPacketQueue->get();
@@ -746,70 +816,6 @@ void XFFProducer::queueFrame(AVFrame *frame, long pts, long duration) {
     frameConvert(image, frame);
 
     mImageQueue->push();
-}
-
-int XFFProducer::queueSample(AVFrame* frame) {
-    if (!mSwrContext) {
-        SwrContext* swr = swr_alloc();
-        if (!swr) {
-            return AVERROR(ENOMEM);
-        }
-        mSwrContext = std::unique_ptr<SwrContext,SwrContextDeleter>(swr);
-    }
-    
-    av_opt_set_int(mSwrContext.get(), "in_channel_layout", frame->channel_layout, 0);
-    av_opt_set_int(mSwrContext.get(), "in_sample_rate", frame->sample_rate, 0);
-    av_opt_set_sample_fmt(mSwrContext.get(), "in_sample_fmt", static_cast<AVSampleFormat>(frame->format), 0);
-    
-    av_opt_set_int(mSwrContext.get(), "out_channel_layout", DST_CHANNEL_LAYOUT, 0);
-    av_opt_set_int(mSwrContext.get(), "out_sample_rate", DST_SAMPLE_RATE, 0);
-    av_opt_set_sample_fmt(mSwrContext.get(), "out_sample_fmt", DST_SAMPLE_FMT, 0);
-    
-    int ret = swr_init(mSwrContext.get());
-    if (ret < 0) {
-        LOGE("[XFFProducer] swr_init failed: %s\n", av_err2str(ret));
-        return ret;
-    }
-    
-    int dstSampleCount, dstSampleCountMax;
-    dstSampleCount = av_rescale_rnd(frame->nb_samples, DST_SAMPLE_RATE, frame->sample_rate, AV_ROUND_UP);
-    dstSampleCountMax = dstSampleCount;
-    
-    uint8_t** data = nullptr;
-    int linesize = 0;
-    int dstChannels = av_get_channel_layout_nb_channels(DST_CHANNEL_LAYOUT);
-    ret = av_samples_alloc_array_and_samples(&data, &linesize, dstChannels, dstSampleCount, DST_SAMPLE_FMT, 0);
-    if (ret < 0) {
-        LOGE("[XFFProducer] av_samples_alloc_array_and_samples failed!");
-        return AVERROR(ENOMEM);
-    }
-    
-    dstSampleCount = av_rescale_rnd(swr_get_delay(mSwrContext.get(), frame->sample_rate) + frame->nb_samples, DST_SAMPLE_RATE, frame->sample_rate, AV_ROUND_UP);
-    if (dstSampleCount > dstSampleCountMax) {
-        av_freep(&data[0]);
-        ret = av_samples_alloc(data, &linesize, dstChannels, dstSampleCount, DST_SAMPLE_FMT, 1);
-        if (ret < 0) {
-            LOGE("[XFFProducer] av_samples_alloc failed!");
-            return AVERROR(ENOMEM);
-        }
-        dstSampleCountMax = dstSampleCount;
-    }
-    
-    ret = swr_convert(mSwrContext.get(), data, dstSampleCount, (const uint8_t **)frame->data, frame->nb_samples);
-    if (ret < 0) {
-        LOGE("[XFFProducer] swr_convert failed: %s\n", av_err2str(ret));
-        return ret;
-    }
-    
-    int dstBufferSize = av_samples_get_buffer_size(&linesize, dstChannels, ret, DST_SAMPLE_FMT, 1);
-    if (dstBufferSize < 0) {
-        LOGE("[XFFProducer] av_samples_get_buffer_size failed: %s\n", av_err2str(dstBufferSize));
-        return dstBufferSize;
-    }
-    
-    rbuf_write(mSampleQueue, data[0], dstBufferSize);
-    
-    return dstBufferSize;
 }
 
 void XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
@@ -891,8 +897,36 @@ void XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
 #endif
 }
 
-int XFFProducer::sampleConvert(AVFrame* src) {
-    return 0;
+int XFFProducer::sampleConvert(AVFrame* frame) {
+    // 1. 分配目标缓冲区内存空间
+    int dstChannels = av_get_channel_layout_nb_channels(DST_CHANNEL_LAYOUT);
+    int dstSampleCount = av_rescale_rnd(swr_get_delay(mSwrContext.get(), frame->sample_rate) + frame->nb_samples, DST_SAMPLE_RATE, frame->sample_rate, AV_ROUND_UP);
+    if (dstSampleCount > mDstSampleCountMax) {
+        av_freep(&mSampleBuffer);
+        mSampleBufferSize = av_samples_alloc(&mSampleBuffer, nullptr, dstChannels, dstSampleCount, DST_SAMPLE_FMT, 1);
+        if (mSampleBufferSize < 0) {
+            LOGE("[XFFProducer] av_samples_alloc failed!");
+            return AVERROR(ENOMEM);
+        }
+        mDstSampleCountMax = dstSampleCount;
+    }
+
+    // 2. 执行重采样
+    int ret = swr_convert(mSwrContext.get(), &mSampleBuffer, dstSampleCount, (const uint8_t **)frame->data, frame->nb_samples);
+    if (ret < 0) {
+        LOGE("[XFFProducer] swr_convert failed: %s\n", av_err2str(ret));
+        return ret;
+    }
+
+    // 3. 重采样完成后，计算重采样后的数据大小
+    mSampleBufferSize = av_samples_get_buffer_size(nullptr, dstChannels, ret, DST_SAMPLE_FMT, 1);
+    if (mSampleBufferSize < 0) {
+        LOGE("[XFFProducer] av_samples_get_buffer_size failed: %s\n", av_err2str(mSampleBufferSize));
+        return mSampleBufferSize;
+    }
+    mLastSampleBufferSize = mSampleBufferSize;
+
+    return mSampleBufferSize;
 }
 
 long XFFProducer::getOriginalDuration() const {

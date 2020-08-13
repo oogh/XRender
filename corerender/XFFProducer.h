@@ -35,7 +35,7 @@ public:
     
     void endCurrentImageUse() override;
 
-    std::shared_ptr<XSample> getSample() override;
+    int readSamples(uint8_t* buffer, int length) override;
     
     void stop() override;
     
@@ -76,8 +76,6 @@ private:
 
     void queueFrame(AVFrame* frame, long pts, long duration);
     
-    int queueSample(AVFrame* frame);
-
     void frameConvert(std::shared_ptr<XImage> dst, AVFrame* src);
     
     int sampleConvert(AVFrame* src);
@@ -128,7 +126,12 @@ private:
     std::condition_variable mContinueAudioCond;
 
     std::unique_ptr<XImageQueue> mImageQueue;
-    rbuf_t* mSampleQueue;
+    std::unique_ptr<XSampleQueue> mSampleQueue;
+
+    uint8_t* mSampleBuffer;
+    int mSampleBufferSize;
+    int mLastSampleBufferSize;
+    int mDstSampleCountMax;
 
     std::unique_ptr<SwsContext, SwsContextDeleter> mSwsContext;
     std::unique_ptr<SwrContext, SwrContextDeleter> mSwrContext;
