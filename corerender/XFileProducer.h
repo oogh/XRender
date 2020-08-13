@@ -24,8 +24,6 @@ public:
 
     std::shared_ptr<XImage> peekImage(long clock) override;
 
-    std::shared_ptr<XSample> getSample() override;
-
 private:
     std::ifstream mFileStream;
     uint8_t* mRGBABuffer;

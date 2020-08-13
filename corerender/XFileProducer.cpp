@@ -41,7 +41,3 @@ std::shared_ptr<XImage> XFileProducer::peekImage(long clock) {
 //    image->copyPixels(mRGBABuffer, mWidth, mHeight);
     return image;
 }
-
-std::shared_ptr<XSample> XFileProducer::getSample() {
-    return nullptr;
-}
