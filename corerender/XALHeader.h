@@ -1,0 +1,15 @@
+//
+// Created by Andy on 2020/8/14.
+//
+
+#ifndef XRENDER_XALHEADER_H
+#define XRENDER_XALHEADER_H
+
+#if __APPLE__
+#include <OpenAL/OpenAL.h>
+#elif __ANDROID__
+#include <AL/al.h>
+#include <AL/alc.h>
+#endif
+
+#endif //XRENDER_XALHEADER_H
