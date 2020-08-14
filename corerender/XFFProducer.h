@@ -128,9 +128,10 @@ private:
     std::unique_ptr<XImageQueue> mImageQueue;
     std::unique_ptr<XSampleQueue> mSampleQueue;
 
-    uint8_t* mSampleBuffer;
+    uint8_t* mSampleData;
+    int mSampleDataIndex;
     int mSampleBufferSize;
-    int mLastSampleBufferSize;
+    int mSampleBufferSizeMax;
     int mDstSampleCountMax;
 
     std::unique_ptr<SwsContext, SwsContextDeleter> mSwsContext;

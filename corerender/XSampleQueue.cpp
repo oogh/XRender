@@ -14,29 +14,16 @@
 
 #include <sys/types.h>
 
-#define RBUF_DEFAULT_SIZE 4096
-
 XSampleQueue::XSampleQueue(int capacity)
 : mCapacity(capacity), mSize(0), mWindex(0), mRindex(0), mSignaled(false) {
     mBuffer = reinterpret_cast<uint8_t*>(malloc(capacity));
     memset(mBuffer, '\0', capacity);
-    
-    mReadFile = fopen("/Users/andy/read.pcm", "wb+");
-    mWriteFile = fopen("/Users/andy/write.pcm", "wb+");
 }
 
 XSampleQueue::~XSampleQueue() {
     if (mBuffer) {
         free(mBuffer);
         mBuffer = nullptr;
-    }
-    
-    if (mReadFile) {
-        fclose(mReadFile);
-    }
-    
-    if (mWriteFile) {
-        fclose(mWriteFile);
     }
 }
 
@@ -80,8 +67,6 @@ int XSampleQueue::write(uint8_t* in, int size) {
                 mWindex = 0;
             }
         }
-        
-        fwrite(in, 1, writeSize, mWriteFile);
     }
     
     mCond.notify_one();
@@ -132,7 +117,6 @@ int XSampleQueue::read(uint8_t* out, int size) {
                 }
             }
         }
-        fwrite(out, 1, readSize, mReadFile);
     }
     
     mCond.notify_one();

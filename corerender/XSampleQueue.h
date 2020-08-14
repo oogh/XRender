@@ -47,9 +47,6 @@ private:
     std::condition_variable mCond;
     
     bool mSignaled;
-    
-    FILE* mReadFile;
-    FILE* mWriteFile;
 };
 
 #endif //MIXER_XSAMPLEQUEUE_H
