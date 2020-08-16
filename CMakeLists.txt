@@ -44,13 +44,18 @@ if (APPLE)
     find_path(SWRESAMPLE_INCLUDE_DIR libswresample/swresample.h)
     find_library(SWRESAMPLE_LIBRARY swresample)
 
+    # soundtouch
+    set(SOUNDTOUCH_INCLUDE_DIR 3rdparty/Mac/soundtouch/include)
+    find_library(SOUNDTOUCH_LIBRARY NAME SoundTouch PATHS 3rdparty/Mac/soundtouch/lib)
+  
     set(EXTRAL_INCLUDE
             ${AVFORMAT_INCLUDE_DIR}
             ${AVCODEC_INCLUDE_DIR}
             ${AVUTIL_INCLUDE_DIR}
             ${AVFILTER_INCLUDE_DIR}
             ${SWSCALE_INCLUDE_DIR}
-            ${SWRESAMPLE_INCLUDE_DIR})
+            ${SWRESAMPLE_INCLUDE_DIR}
+	        ${SOUNDTOUCH_INCLUDE_DIR})
     include_directories(${EXTRAL_INCLUDE})
 
     set(EXTRAL_LIBRARY
@@ -59,7 +64,8 @@ if (APPLE)
             ${AVUTIL_LIBRARY}
             ${AVFILTER_LIBRARY}
             ${SWSCALE_LIBRARY}
-            ${SWRESAMPLE_LIBRARY})
+            ${SWRESAMPLE_LIBRARY}
+	        ${SOUNDTOUCH_LIBRARY})
 
     SET(SRC_MEDIA ${SRC_CORE} ${SRC_EXSAMPLE_MAC})
 
