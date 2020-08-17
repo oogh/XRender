@@ -1,9 +1,24 @@
+echo "[CLEAN] Begin!"
+# mac example clean
+if [ -d ".idea" ]; then
+    rm -rf .idea
+    echo "[CLEANing] .idea"
+fi
+
+if [ -d "cmake-build-debug" ]; then
+    rm -rf cmake-build-debug
+    echo "[CLEANing] cmake-build-debug"
+fi
+
+if [ -d "cmake-build-xcode" ]; then
+    rm -rf cmake-build-xcode
+    echo "[CLEANing] cmake-build-xcode"
+fi
+
 # andorid example clean
 PROJ_ANDROID=./examples/Android/XRender
 APP=$PROJ_ANDROID/app
 CORERENDER=$PROJ_ANDROID/corerender
-
-echo "[CLEAN] Begin!"
 
 if [ -d "$PROJ_ANDROID/.gradle" ]; then
     rm -rf $PROJ_ANDROID/.gradle
