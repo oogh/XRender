@@ -15,6 +15,7 @@
 #include "XPlatform.h"
 #include "XTimeCounter.h"
 #include "XLogger.h"
+#include "XSTHelper.h"
 
 #if PLATFORM_ANDROID || PLATFORM_IOS
 #include "libyuv.h"
@@ -912,19 +913,39 @@ int XFFProducer::sampleConvert(AVFrame* frame) {
     }
 
     // 2. 执行重采样
-    int ret = swr_convert(mSwrContext.get(), &mSampleData, dstSampleCount, (const uint8_t **)frame->data, frame->nb_samples);
-    if (ret < 0) {
-        LOGE("[XFFProducer] swr_convert failed: %s\n", av_err2str(ret));
-        return ret;
+    int count = swr_convert(mSwrContext.get(), &mSampleData, dstSampleCount, (const uint8_t **)frame->data, frame->nb_samples);
+    if (count < 0) {
+        LOGE("[XFFProducer] swr_convert failed: %s\n", av_err2str(count));
+        return count;
     }
 
     // 3. 重采样完成后，计算重采样后的数据大小
-    mSampleBufferSize = av_samples_get_buffer_size(nullptr, dstChannels, ret, DST_SAMPLE_FMT, 1);
-    if (mSampleBufferSize < 0) {
-        LOGE("[XFFProducer] av_samples_get_buffer_size failed: %s\n", av_err2str(mSampleBufferSize));
-        return mSampleBufferSize;
+    int size = av_samples_get_buffer_size(nullptr, dstChannels, count, DST_SAMPLE_FMT, 1);
+    if (size < 0) {
+        LOGE("[XFFProducer] av_samples_get_buffer_size failed: %s\n", av_err2str(size));
+        return size;
     }
-    mSampleBufferSizeMax = mSampleBufferSize;
+
+    // 4. 音频特效处理
+//    LOGI("[XFFProducer] 处理前: %d\n", count);
+    if (1) {
+        XSTHelper helper(DST_SAMPLE_RATE, DST_CHANNELS);
+//        helper.setTempo(1);
+
+        uint8_t* data = reinterpret_cast<uint8_t*>(av_malloc(size));
+        
+        count = helper.process(data, mSampleData, count);
+        
+        av_freep(&mSampleData);
+        size = av_samples_get_buffer_size(nullptr, dstChannels, count, DST_SAMPLE_FMT, 1);
+        mSampleData = reinterpret_cast<uint8_t*>(av_malloc(size));
+        memcpy(mSampleData, data, size);
+        av_freep(&data);
+    }
+//    LOGE("[XFFProducer] 处理后: %d\n", count);
+
+    mSampleBufferSize = size;
+    mSampleBufferSizeMax = size;
 
     return mSampleBufferSize;
 }
