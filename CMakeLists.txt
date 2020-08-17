@@ -46,8 +46,13 @@ if (APPLE)
 
     # soundtouch
     set(SOUNDTOUCH_INCLUDE_DIR 3rdparty/Mac/soundtouch/include)
-    find_library(SOUNDTOUCH_LIBRARY NAME SoundTouch PATHS 3rdparty/Mac/soundtouch/lib)
-  
+    # 使用dylib运行时报错: https://www.jianshu.com/p/5bf7795db50d
+    # find_library(SOUNDTOUCH_LIBRARY NAME SoundTouch PATHS 3rdparty/Mac/soundtouch/lib)
+    add_library(soundtouch STATIC IMPORTED)
+    set_target_properties(soundtouch
+            PROPERTIES IMPORTED_LOCATION
+            ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/Mac/soundtouch/lib/libSoundTouch.a)
+
     set(EXTRAL_INCLUDE
             ${AVFORMAT_INCLUDE_DIR}
             ${AVCODEC_INCLUDE_DIR}
@@ -65,7 +70,7 @@ if (APPLE)
             ${AVFILTER_LIBRARY}
             ${SWSCALE_LIBRARY}
             ${SWRESAMPLE_LIBRARY}
-	        ${SOUNDTOUCH_LIBRARY})
+            soundtouch)
 
     SET(SRC_MEDIA ${SRC_CORE} ${SRC_EXSAMPLE_MAC})
 
