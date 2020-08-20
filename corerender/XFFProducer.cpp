@@ -15,7 +15,6 @@
 #include "XPlatform.h"
 #include "XTimeCounter.h"
 #include "XLogger.h"
-#include "XSTHelper.h"
 
 #if PLATFORM_ANDROID || PLATFORM_IOS
 #include "libyuv.h"
@@ -24,6 +23,8 @@
 #ifdef USE_HARDWARE_DECODER
 AVPixelFormat gHWPixelFormat = AV_PIX_FMT_NONE;
 #endif
+
+FILE* fp = nullptr;
 
 XFFProducer::XFFProducer()
         : mVideoIndex(-1), mAudioIndex(-1), mAbortReq(false), mSeekReq(false), mSeekTargetPos(-1),
@@ -620,6 +621,9 @@ void XFFProducer::audioWorkThread(void *opaque) {
                 ret = producer->decodeAudioFrame();
                 if (ret < 0) {
                     if (ret == AVERROR_EOF) {
+                        if (fp) {
+                            fclose(fp);
+                        }
                         if ((producer->mStatus & S_READ_END) && !(producer->mStatus & S_AUDIO_END)) {
                             producer->mStatus |= S_AUDIO_END;
                             producer->mSampleQueue->signal();
@@ -898,18 +902,22 @@ void XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
 }
 
 int XFFProducer::sampleConvert(AVFrame* frame) {
+    
+    if (!fp) {
+        fp = fopen("/Users/andy/output.pcm", "wb+");
+    }
+    
+    if (mSampleData) {
+        av_freep(&mSampleData);
+    }
+    
     // 1. 分配目标缓冲区内存空间
     int dstChannels = av_get_channel_layout_nb_channels(DST_CHANNEL_LAYOUT);
     int dstSampleCount = av_rescale_rnd(swr_get_delay(mSwrContext.get(), frame->sample_rate) + frame->nb_samples, DST_SAMPLE_RATE, frame->sample_rate, AV_ROUND_UP);
-    if (dstSampleCount > mDstSampleCountMax) {
-        mSampleData -= mSampleDataIndex;
-        av_freep(&mSampleData);
-        mSampleBufferSize = av_samples_alloc(&mSampleData, nullptr, dstChannels, dstSampleCount, DST_SAMPLE_FMT, 1);
-        if (mSampleBufferSize < 0) {
-            LOGE("[XFFProducer] av_samples_alloc failed!");
-            return AVERROR(ENOMEM);
-        }
-        mDstSampleCountMax = dstSampleCount;
+    mSampleBufferSize = av_samples_alloc(&mSampleData, nullptr, dstChannels, dstSampleCount, DST_SAMPLE_FMT, 1);
+    if (mSampleBufferSize < 0) {
+        LOGE("[XFFProducer] av_samples_alloc failed!");
+        return AVERROR(ENOMEM);
     }
 
     // 2. 执行重采样
@@ -927,22 +935,38 @@ int XFFProducer::sampleConvert(AVFrame* frame) {
     }
 
     // 4. 音频特效处理
-//    LOGI("[XFFProducer] 处理前: %d\n", count);
+    LOGI("[XFFProducer] 处理前: %d\n", count);
     if (1) {
-        XSTHelper helper(DST_SAMPLE_RATE, DST_CHANNELS);
-//        helper.setTempo(1);
+        if (!mSTHelper) {
+            mSTHelper = std::make_unique<XSTHelper>(DST_SAMPLE_RATE, DST_CHANNELS);
+        }
+        if (mSTHelper && fp){
+            mSTHelper->setOutputFile(fp);
+        }
+        
+//        mSTHelper->setTempo(2.0);
+        
+        mSTHelper->setRateChange(50);
+        
+        int mRobot[4] = {12, 6, -6, 12};
+//        mSTHelper->setPitchSemiTones(mRobot[mRobotIndex]);
+        mRobotIndex++;
+        if (mRobotIndex == 4) {
+            mRobotIndex = 0;
+        }
 
-        uint8_t* data = reinterpret_cast<uint8_t*>(av_malloc(size));
-        
-        count = helper.process(data, mSampleData, count);
-        
+        uint8_t* data = nullptr;
+        count = mSTHelper->process(&data, mSampleData, count);
         av_freep(&mSampleData);
         size = av_samples_get_buffer_size(nullptr, dstChannels, count, DST_SAMPLE_FMT, 1);
         mSampleData = reinterpret_cast<uint8_t*>(av_malloc(size));
         memcpy(mSampleData, data, size);
-        av_freep(&data);
+        if (data) {
+            free(data);
+            data = nullptr;
+        }
     }
-//    LOGE("[XFFProducer] 处理后: %d\n", count);
+    LOGE("[XFFProducer] 处理后: %d\n", count);
 
     mSampleBufferSize = size;
     mSampleBufferSizeMax = size;
@@ -981,27 +1005,3 @@ int XFFProducer::getOriginalHeight() const {
     }
     return height;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

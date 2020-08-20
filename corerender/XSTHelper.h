@@ -13,6 +13,8 @@ public:
     XSTHelper(int sampleRate, int channels);
 
     ~XSTHelper();
+    
+    void setOutputFile(FILE* fp);
 
     /**
      * @brief 执行音频特效处理
@@ -21,7 +23,10 @@ public:
      * @param srcLen 采样个数
      * @return 实际输出的采样个数
      */
-    int process(uint8_t* dst, uint8_t* src, int srcLen);
+    int process(uint8_t** dst, uint8_t* src, int srcLen);
+    
+private:
+    FILE *mOutFile = nullptr;
 };
 
 

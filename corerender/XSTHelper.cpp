@@ -20,46 +20,55 @@ XSTHelper::~XSTHelper() {
 
 }
 
-int XSTHelper::process(uint8_t *dst, uint8_t *src, int srcLen) {
+int XSTHelper::process(uint8_t **dst, uint8_t *src, int srcLen) {
+    // srcLen * channels * sizeof(S16)
+    int srcSize = srcLen * 2 * 2;
+    soundtouch::SAMPLETYPE* srcBuffer = reinterpret_cast<soundtouch::SAMPLETYPE*>(malloc(srcSize));
     
-    int a = sizeof(uint8_t);
-    int b = sizeof(short);
-
-    short* dstBuffer = reinterpret_cast<short*>(dst);
-    short* srcBuffer = reinterpret_cast<short*>(src);
-
-    putSamples(srcBuffer, srcLen);
+    for (int i = 0; i < srcSize / 2 + 1; i++) {
+        srcBuffer[i] = (src[i * 2] | (src[i * 2 + 1] << 8));
+    }
     
-    int dstLen = srcLen;
-    // nb_samples * channels * sizeof(short);
-    int cacheSize = dstLen * 2 * sizeof(short);
-    short* cache = reinterpret_cast<short*>(malloc(cacheSize));
+    putSamples((const soundtouch::SAMPLETYPE *)src, srcLen);
+    
+    *dst = reinterpret_cast<uint8_t*>(malloc(srcSize));
+    short* dstBuffer = reinterpret_cast<short*>(*dst);
+    
 
-    LOGE("[XSTHelper] srcLen: %d, cacheSize: %d\n", srcLen, cacheSize);
-    int len, size, total = 0, offset = 0;
+    int len, offset = 0, result = 0;
     do {
-        len = receiveSamples(cache, dstLen);
-        size = len * 2 * sizeof(short);
-        memcpy(dstBuffer + offset, cache, len);
-        offset += size;
-        total += len;
+        len = receiveSamples(srcBuffer, srcLen);
+        if (len > 0) {
+            if (mOutFile) {
+                fwrite(srcBuffer, 1, len * 4, mOutFile);
+            }
+            memcpy(dstBuffer + offset, srcBuffer, len * 4);
+            offset += len * 4;
+            result += len;
+        }
     } while (len > 0);
 
     flush();
 
     do {
-        len = receiveSamples(cache, dstLen);
-        size = len * 2 * sizeof(short);
-        memcpy(dstBuffer + offset, cache, len);
-        offset += size;
-        total += len;
+        len = receiveSamples(srcBuffer, srcLen);
+        if (len > 0) {
+            if (mOutFile) {
+                fwrite(srcBuffer, 1, len * 4, mOutFile);
+            }
+            memcpy(dstBuffer + offset, srcBuffer + offset, len * 4);
+            offset += len * 4;
+            result += len;
+        }
     } while (len > 0);
-
-    if (cache) {
-        free(cache);
-    }
     
-    LOGE("[XSTHelper] total: %d, offset: %d\n", total, offset);
+    clear();
+    
+    return result;
+}
 
-    return total;
+void XSTHelper::setOutputFile(FILE* fp) {
+    if (!mOutFile) {
+        mOutFile = fp;
+    }
 }
