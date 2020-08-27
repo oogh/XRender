@@ -5,3 +5,6 @@ examples/Android/XRender/.idea
 examples/iOS/XRender/Podfile.lock
 examples/iOS/XRender/Pods
 examples/iOS/XRender/XRender.xcworkspace
+
+cmake-build-xcode
+cmake-build-debug
