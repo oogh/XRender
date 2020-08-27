@@ -25,7 +25,8 @@ void testRender() {
 //        "/Users/andy/Workspace/Gaoding/resources/videoEditTest/testData/apng0.png",
 //        "/Users/andy/Workspace/Gaoding/resources/videoEditTest/testData/apng1.png",
 //        "/Users/andy/Workspace/Gaoding/resources/videoEditTest/testData/apng2.png",
-            "/Users/andy/Movies/jieqian_720x1280.mp4",
+//        "/Users/andy/Movies/jieqian_720x1280.mp4",
+        "/Users/andy/Movies/xinwenlianbo.mp4",
 //        "/Users/andy/Movies/lianche.mp4",
 //        "/Users/andy/Movies/douyin.mp4",
 //        "/Users/andy/Movies/720.mp4",
@@ -76,7 +77,7 @@ void testRender() {
 }
 
 void testSounder() {
-    std::string filename = "/Users/andy/Movies/jieqian_720x1280.mp4";
+    std::string filename = "/Users/andy/Movies/xinwenlianbo.mp4";
     auto producer = std::make_unique<XFFProducer>();
     producer->setInput(filename);
     producer->setDisableVideo(true);
@@ -138,7 +139,7 @@ void testSounder() {
 }
 
 void testOpenAL() {
-    std::string filename = "/Users/andy/Movies/jieqian_48000.mp4";
+    std::string filename = "/Users/oogh/Movies/xinwenlianbo.mp4";
     auto producer = std::make_unique<XFFProducer>();
     producer->setInput(filename);
     producer->setDisableVideo(true);

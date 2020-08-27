@@ -15,6 +15,7 @@
 #include "XPlatform.h"
 #include "XTimeCounter.h"
 #include "XLogger.h"
+#include "XSoxHelper.h"
 
 #if PLATFORM_ANDROID || PLATFORM_IOS
 #include "libyuv.h"
@@ -937,34 +938,21 @@ int XFFProducer::sampleConvert(AVFrame* frame) {
     // 4. 音频特效处理
     LOGI("[XFFProducer] 处理前: %d\n", count);
     if (1) {
-        if (!mSTHelper) {
-            mSTHelper = std::make_unique<XSTHelper>(DST_SAMPLE_RATE, DST_CHANNELS);
-        }
-        if (mSTHelper && fp){
-            mSTHelper->setOutputFile(fp);
-        }
+        int precision = av_get_bytes_per_sample(DST_SAMPLE_FMT) * 8;
+        XSoxHelper helper;
+        helper.setSampleCount(count);
+        helper.setChannels(dstChannels);
+        helper.setPrecision(precision);
+        helper.setSampleRate(DST_SAMPLE_RATE);
         
-//        mSTHelper->setTempo(2.0);
-        
-        mSTHelper->setRateChange(50);
-        
-        int mRobot[4] = {12, 6, -6, 12};
-//        mSTHelper->setPitchSemiTones(mRobot[mRobotIndex]);
-        mRobotIndex++;
-        if (mRobotIndex == 4) {
-            mRobotIndex = 0;
-        }
-
         uint8_t* data = nullptr;
-        count = mSTHelper->process(&data, mSampleData, count);
-        av_freep(&mSampleData);
-        size = av_samples_get_buffer_size(nullptr, dstChannels, count, DST_SAMPLE_FMT, 1);
-        mSampleData = reinterpret_cast<uint8_t*>(av_malloc(size));
-        memcpy(mSampleData, data, size);
-        if (data) {
-            free(data);
-            data = nullptr;
+        int newSize = helper.process(&data, mSampleData, size);
+        if (data && newSize > 0) {
+            av_freep(&mSampleData);
+            mSampleData = reinterpret_cast<uint8_t*>(av_malloc(newSize));
+            memcpy(mSampleData, data, newSize);
         }
+        size = newSize;
     }
     LOGE("[XFFProducer] 处理后: %d\n", count);
 

@@ -44,6 +44,10 @@ if (APPLE)
     find_path(SWRESAMPLE_INCLUDE_DIR libswresample/swresample.h)
     find_library(SWRESAMPLE_LIBRARY swresample)
 
+    # sox
+    find_path(SOX_INCLUDE_DIR sox.h)
+    find_library(SOX_LIBRARY sox)
+
     # soundtouch
     set(SOUNDTOUCH_INCLUDE_DIR 3rdparty/Mac/soundtouch/include)
     # 使用dylib运行时报错: https://www.jianshu.com/p/5bf7795db50d
@@ -60,7 +64,8 @@ if (APPLE)
             ${AVFILTER_INCLUDE_DIR}
             ${SWSCALE_INCLUDE_DIR}
             ${SWRESAMPLE_INCLUDE_DIR}
-	        ${SOUNDTOUCH_INCLUDE_DIR})
+	    ${SOUNDTOUCH_INCLUDE_DIR}
+	    ${SOX_INCLUDE_DIR})
     include_directories(${EXTRAL_INCLUDE})
 
     set(EXTRAL_LIBRARY
@@ -70,6 +75,7 @@ if (APPLE)
             ${AVFILTER_LIBRARY}
             ${SWSCALE_LIBRARY}
             ${SWRESAMPLE_LIBRARY}
+	    ${SOX_LIBRARY}
             soundtouch)
 
     SET(SRC_MEDIA ${SRC_CORE} ${SRC_EXSAMPLE_MAC})
