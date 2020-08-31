@@ -1,0 +1,46 @@
+//
+// Created by Andy on 2020/8/30.
+//
+
+#ifndef XRENDER_XAUDIOPLAYER_H
+#define XRENDER_XAUDIOPLAYER_H
+
+#include <cinttypes>
+#include "XALHeader.h"
+
+class XAudioPlayer {
+public:
+    XAudioPlayer();
+
+    ~XAudioPlayer();
+
+    void start();
+
+    void pause();
+
+    void stop();
+
+public:
+    int updateAudio(uint8_t* data, int size);
+
+private:
+    bool init();
+
+    void deinit();
+
+private:
+    static const int NUM_BUFFERS = 4;
+    static const int BYTES_PRE_BUFFER = 8192;
+
+private:
+    ALCdevice* mDevice;
+    ALCcontext* mContext;
+
+    ALuint mBuffers[NUM_BUFFERS];
+    ALuint mSource00;
+
+
+};
+
+
+#endif //XRENDER_XAUDIOPLAYER_H
