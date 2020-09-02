@@ -5,7 +5,7 @@
 #include "XTimeCounter.h"
 #include <vector>
 #include <string>
-#include "XALPlayer.h"
+#include "XAudioPlayer.h"
 #include "XLogger.h"
 
 void testRender() {
@@ -139,30 +139,25 @@ void testSounder() {
 }
 
 void testOpenAL() {
-    std::string filename = "/Users/oogh/Movies/xinwenlianbo.mp4";
+    std::string filename = "/Users/andy/Movies/jieqian_48000.mp4";
     auto producer = std::make_unique<XFFProducer>();
     producer->setInput(filename);
     producer->setDisableVideo(true);
     producer->start();
 
-    auto sounder = std::make_unique<XALPlayer>();
-    sounder->init();
+    auto sounder = std::make_unique<XAudioPlayer>();
+    sounder->start();
 
-    int len;
+    int len, ret;
     int size = 4096;
     uint8_t* data = reinterpret_cast<uint8_t*>(malloc(size));
     do {
         memset(data, '\0', size);
         len = producer->readSamples(data, size);
         if (len > 0) {
-            //LOGE("[main] update data: %p, len: %d\n", data, len);
-            sounder->updateData(data, len);
+            sounder->updateAudio(data, len);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds (10));
     } while (len >= 0);
-
-
-    sounder->deinit();
 }
 
 int main(int argc, char* argv[]) {

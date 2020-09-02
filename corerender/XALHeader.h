@@ -12,4 +12,7 @@
 #include <AL/alc.h>
 #endif
 
+extern const char* alError2Str(ALenum error);
+
+
 #endif //XRENDER_XALHEADER_H
