@@ -5,14 +5,34 @@
 #include "XAudioPlayer.h"
 #include "XLogger.h"
 #include <cstdlib>
+#include <cstring>
+#include <thread>
+
+const char *alError2Str(ALenum error) {
+    switch (error) {
+        case AL_INVALID_NAME:
+            return "AL_INVALID_NAME : Invalid Name parameter passed to AL call";
+        case AL_INVALID_ENUM:
+            return "AL_INVALID_ENUM : Invalid parameter passed to AL call";
+        case AL_INVALID_VALUE:
+            return "AL_INVALID_VALUE : Invalid enum parameter value";
+        case AL_INVALID_OPERATION:
+            return "AL_INVALID_OPERATION : Illegal call";
+        case AL_OUT_OF_MEMORY:
+            return "AL_OUT_OF_MEMORY : No mojo";
+        default:
+            return "Unknown error code";
+    }
+    return "";
+}
 
 XAudioPlayer::XAudioPlayer()
 : mDevice(nullptr), mContext(nullptr) {
-
+    init();
 }
 
 XAudioPlayer::~XAudioPlayer() {
-
+    deinit();
 }
 
 void XAudioPlayer::start() {
@@ -23,6 +43,7 @@ void XAudioPlayer::start() {
     // 2. fill the buffer queue
     for (int i = 0; i < NUM_BUFFERS; ++i) {
         uint8_t* data = reinterpret_cast<uint8_t*>(malloc(BYTES_PRE_BUFFER));
+        memset(data, '\0', BYTES_PRE_BUFFER);
         alBufferData(mBuffers[i], AL_FORMAT_STEREO16, data, BYTES_PRE_BUFFER, 44100);
         if (data) {
             free(data);
@@ -30,20 +51,15 @@ void XAudioPlayer::start() {
         }
     }
 
+    // 3. queue buffer and start to playing
+    alSourceQueueBuffers(mSource00, NUM_BUFFERS, mBuffers);
+    alSourcePlay(mSource00);
     ALenum error = alGetError();
     if (error != AL_NO_ERROR) {
         LOGE("[XAudioPlayer] alBufferData() failed: %s\n", alError2Str(error));
         return;
     }
 
-    // 3. queue buffer and start to playing
-    alSourceQueueBuffers(mSource00, NUM_BUFFERS, mBuffers);
-    alSourcePlay(mSource00);
-    error = alGetError();
-    if (error != AL_NO_ERROR) {
-        LOGE("[XAudioPlayer] alBufferData() failed: %s\n", alError2Str(error));
-        return;
-    }
 }
 
 void XAudioPlayer::pause() {
@@ -55,12 +71,23 @@ void XAudioPlayer::stop() {
 }
 
 int XAudioPlayer::updateAudio(uint8_t *data, int size) {
+
     ALenum error = AL_NO_ERROR;
-    ALint processed, state;
+    ALint processed, state, queued;
     alGetSourcei(mSource00, AL_SOURCE_STATE, &state);
     alGetSourcei(mSource00, AL_BUFFERS_PROCESSED, &processed);
-
+    alGetSourcei(mSource00, AL_BUFFERS_QUEUED, &queued);
+    
+    while (processed <= 0) {
+        if (queued <= 0) {
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        alGetSourcei(mSource00, AL_BUFFERS_PROCESSED, &processed);
+    }
+    
     while (processed > 0) {
+        alGetSourcei(mSource00, AL_BUFFERS_QUEUED, &queued);
         ALuint bufferId;
         alSourceUnqueueBuffers(mSource00, 1, &bufferId);
         if ((error = alGetError()) != AL_NO_ERROR) {
@@ -100,8 +127,9 @@ int XAudioPlayer::updateAudio(uint8_t *data, int size) {
             return -1;
         }
     }
-
-    return size;
+    
+    alGetSourcei(mSource00, AL_BUFFERS_QUEUED, &queued);
+    return queued;
 }
 
 bool XAudioPlayer::init() {

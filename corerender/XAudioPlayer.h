@@ -30,7 +30,7 @@ private:
 
 private:
     static const int NUM_BUFFERS = 4;
-    static const int BYTES_PRE_BUFFER = 8192;
+    static const int BYTES_PRE_BUFFER = 4096;
 
 private:
     ALCdevice* mDevice;
@@ -38,8 +38,6 @@ private:
 
     ALuint mBuffers[NUM_BUFFERS];
     ALuint mSource00;
-
-
 };
 
 

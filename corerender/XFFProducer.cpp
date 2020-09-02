@@ -936,8 +936,8 @@ int XFFProducer::sampleConvert(AVFrame* frame) {
     }
 
     // 4. 音频特效处理
-    LOGI("[XFFProducer] 处理前: %d\n", count);
-    if (1) {
+//    LOGI("[XFFProducer] 处理前: %d\n", count);
+    if (0) {
         int precision = av_get_bytes_per_sample(DST_SAMPLE_FMT) * 8;
         XSoxHelper helper;
         helper.setSampleCount(count);
@@ -954,7 +954,7 @@ int XFFProducer::sampleConvert(AVFrame* frame) {
         }
         size = newSize;
     }
-    LOGE("[XFFProducer] 处理后: %d\n", count);
+//    LOGE("[XFFProducer] 处理后: %d\n", count);
 
     mSampleBufferSize = size;
     mSampleBufferSizeMax = size;
