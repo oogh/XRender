@@ -16,7 +16,6 @@
 #include "XProducable.h"
 #include "XFFHeader.h"
 #include "XSampleQueue.h"
-#include "XSTHelper.h"
 
 class XPacketQueue;
 class XImageQueue;
@@ -146,8 +145,6 @@ private:
     long mLastReqClock;
 
     std::shared_ptr<Packet> mLastPacket;
-    
-    std::unique_ptr<XSTHelper> mSTHelper;
     
     int mRobotIndex = 0;
 };

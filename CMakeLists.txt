@@ -94,9 +94,11 @@ elseif (ANDROID)
 
     aux_source_directory(${DIR_SOURCE}/Android SRC_CORE_ANDROID)
 
-    # 第三方依赖库
+    # 第三方库 -- 头文件
     include_directories(${DIR_DEMO_ANDROID}/corerender/includes/ffmpeg/${ANDROID_ABI}/include)
     include_directories(${DIR_DEMO_ANDROID}/corerender/includes/libyuv/${ANDROID_ABI}/include)
+    include_directories(${DIR_DEMO_ANDROID}/corerender/includes/sox/${ANDROID_ABI}/include)
+    include_directories(${DIR_DEMO_ANDROID}/corerender/includes/openal/${ANDROID_ABI}/include)
 
     SET(SRC_MEDIA ${SRC_CORE} ${SRC_CORE_ANDROID})
 
@@ -105,12 +107,21 @@ elseif (ANDROID)
             SHARED
             ${SRC_MEDIA})
 
+    # 第三方库 -- 库文件
     add_library(ffmpeg
             SHARED
             IMPORTED)
 
     add_library(yuv
             STATIC
+            IMPORTED)
+
+    add_library(sox
+            STATIC
+            IMPORTED)
+
+    add_library(openal
+            SHARED
             IMPORTED)
 
     set_target_properties(ffmpeg
@@ -120,6 +131,14 @@ elseif (ANDROID)
     set_target_properties(yuv
             PROPERTIES IMPORTED_LOCATION
             ${CMAKE_CURRENT_SOURCE_DIR}/${DIR_DEMO_ANDROID}/corerender/libs/${ANDROID_ABI}/libyuv.a)
+
+    set_target_properties(sox
+            PROPERTIES IMPORTED_LOCATION
+            ${CMAKE_CURRENT_SOURCE_DIR}/${DIR_DEMO_ANDROID}/corerender/libs/${ANDROID_ABI}/libsox.a)
+
+    set_target_properties(openal
+            PROPERTIES IMPORTED_LOCATION
+            ${CMAKE_CURRENT_SOURCE_DIR}/${DIR_DEMO_ANDROID}/corerender/libs/${ANDROID_ABI}/libopenal.so)
 
     find_library(
             log-lib
@@ -147,6 +166,8 @@ elseif (ANDROID)
     target_link_libraries(${LibraryName}
             ffmpeg
             yuv
+            sox
+            openal
             ${EXTRAL_LIBRARY})
 else ()
     message(STATUS, "WARNNING: unknown platform!")
