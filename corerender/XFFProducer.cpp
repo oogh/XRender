@@ -363,8 +363,10 @@ int XFFProducer::openAudioCodec() {
         }
         mSwrContext = std::unique_ptr<SwrContext,SwrContextDeleter>(swr);
     }
+    
+    uint64_t channelLayout = (avctx->channel_layout && avctx->channels == av_get_channel_layout_nb_channels(avctx->channel_layout)) ? avctx->channel_layout : av_get_default_channel_layout(avctx->channels);
 
-    av_opt_set_int(mSwrContext.get(), "in_channel_layout", avctx->channel_layout, 0);
+    av_opt_set_int(mSwrContext.get(), "in_channel_layout", channelLayout, 0);
     av_opt_set_int(mSwrContext.get(), "in_sample_rate", avctx->sample_rate, 0);
     av_opt_set_sample_fmt(mSwrContext.get(), "in_sample_fmt", avctx->sample_fmt, 0);
 
@@ -384,7 +386,8 @@ int XFFProducer::openAudioCodec() {
     }
 
     // 申请目标缓冲区内存空间
-    int dstSampleCount = av_rescale_rnd(avctx->frame_size, DST_SAMPLE_RATE, avctx->sample_rate, AV_ROUND_UP);
+    int srcSampleCount = avctx->frame_size > 0 ? avctx->frame_size : 1024;
+    int dstSampleCount = av_rescale_rnd(srcSampleCount, DST_SAMPLE_RATE, avctx->sample_rate, AV_ROUND_UP);
     mDstSampleCountMax = dstSampleCount;
 
     int dstChannels = av_get_channel_layout_nb_channels(DST_CHANNEL_LAYOUT);
