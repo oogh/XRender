@@ -65,7 +65,7 @@ if (APPLE)
 
     set_target_properties(yuv
             PROPERTIES IMPORTED_LOCATION
-            ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/Mac/libyuv/lib/libyub.a)
+            ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/Mac/libyuv/lib/libyuv.a)
 
     set(EXTRAL_INCLUDE
             ${AVFORMAT_INCLUDE_DIR}
