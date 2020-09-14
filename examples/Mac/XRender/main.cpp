@@ -8,8 +8,7 @@
 #include "XAudioPlayer.h"
 #include "XLogger.h"
 
-void testRender() {
-    std::vector<std::string> filenames = {
+std::vector<std::string> filenames = {
 //        "/Users/andy/Movies/ok.gif",
 //        "/Users/andy/Movies/feiqi.gif",
 //        "/Users/andy/Movies/kazhu.gif",
@@ -26,7 +25,7 @@ void testRender() {
 //        "/Users/andy/Workspace/Gaoding/resources/videoEditTest/testData/apng1.png",
 //        "/Users/andy/Workspace/Gaoding/resources/videoEditTest/testData/apng2.png",
 //        "/Users/andy/Movies/jieqian_720x1280.mp4",
-        "/Users/andy/Movies/xinwenlianbo.mp4",
+        "/Users/andy/Workspace/Resources/xinwenlianbo.mp4",
 //        "/Users/andy/Movies/lianche.mp4",
 //        "/Users/andy/Movies/douyin.mp4",
 //        "/Users/andy/Movies/720.mp4",
@@ -34,10 +33,11 @@ void testRender() {
 //        "/Users/andy/Movies/lianche.mp4",
 //        "/Users/andy/Movies/douyin.mp4",
 //        "/Users/andy/Movies/720.mp4"
-    };
+};
+
+void testRender() {
     std::vector<std::shared_ptr<XFFProducer>> producerList;
     int size = filenames.size();
-
     for (int i = 0; i < size; ++i) {
         auto producer = std::make_shared<XFFProducer>();
         producer->setInput(filenames[i]);
@@ -77,7 +77,7 @@ void testRender() {
 }
 
 void testSounder() {
-    std::string filename = "/Users/andy/Movies/xinwenlianbo.mp4";
+    std::string filename = filenames.at(0);
     auto producer = std::make_unique<XFFProducer>();
     producer->setInput(filename);
     producer->setDisableVideo(true);
@@ -139,7 +139,7 @@ void testSounder() {
 }
 
 void testOpenAL() {
-    std::string filename = "/Users/andy/Movies/jieqian_48000.mp4";
+    std::string filename = filenames.at(0);
     auto producer = std::make_unique<XFFProducer>();
     producer->setInput(filename);
     producer->setDisableVideo(true);
