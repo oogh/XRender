@@ -57,6 +57,16 @@ if (APPLE)
             PROPERTIES IMPORTED_LOCATION
             ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/Mac/soundtouch/lib/libSoundTouch.a)
 
+    # libyuv
+    set(YUV_INCLUDE_DIR 3rdparty/Mac/libyuv/include)
+    add_library(yuv
+            STATIC
+            IMPORTED)
+
+    set_target_properties(yuv
+            PROPERTIES IMPORTED_LOCATION
+            ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/Mac/libyuv/lib/libyub.a)
+
     set(EXTRAL_INCLUDE
             ${AVFORMAT_INCLUDE_DIR}
             ${AVCODEC_INCLUDE_DIR}
@@ -64,8 +74,9 @@ if (APPLE)
             ${AVFILTER_INCLUDE_DIR}
             ${SWSCALE_INCLUDE_DIR}
             ${SWRESAMPLE_INCLUDE_DIR}
-	    ${SOUNDTOUCH_INCLUDE_DIR}
-	    ${SOX_INCLUDE_DIR})
+	        ${SOUNDTOUCH_INCLUDE_DIR}
+	        ${SOX_INCLUDE_DIR}
+            ${YUV_INCLUDE_DIR})
     include_directories(${EXTRAL_INCLUDE})
 
     set(EXTRAL_LIBRARY
@@ -75,8 +86,9 @@ if (APPLE)
             ${AVFILTER_LIBRARY}
             ${SWSCALE_LIBRARY}
             ${SWRESAMPLE_LIBRARY}
-	    ${SOX_LIBRARY}
-            soundtouch)
+	        ${SOX_LIBRARY}
+            soundtouch
+            yuv)
 
     SET(SRC_MEDIA ${SRC_CORE} ${SRC_EXSAMPLE_MAC})
 
