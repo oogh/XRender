@@ -57,7 +57,7 @@ public:
     void flush();
     
 private:
-    static const size_t PQ_DEFAULT_CAPACITY = 25;
+    static const size_t PQ_DEFAULT_CAPACITY = 250;
     
 private:
     std::queue<std::shared_ptr<Packet>> mPacketQueue;
