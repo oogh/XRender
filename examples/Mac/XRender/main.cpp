@@ -9,30 +9,36 @@
 #include "XLogger.h"
 
 std::vector<std::string> filenames = {
-//        "/Users/andy/Movies/ok.gif",
-//        "/Users/andy/Movies/feiqi.gif",
-//        "/Users/andy/Movies/kazhu.gif",
-//        "/Users/andy/Downloads/jieqian.gif",
-//        "/Users/andy/Downloads/Andy.jpg",
-//        "/Users/andy/Downloads/logo.png",
-//        "/Users/andy/Downloads/spring.jpg",
-//        "/Users/andy/Downloads/exportTest.gif",
-//        "/Users/andy/Downloads/IMG_0383.GIF",
+//        "/Users/andy/Workspace/Resources/ok.gif",
+//        "/Users/andy/Workspace/Resources/feiqi.gif",
+//        "/Users/andy/Workspace/Resources/kazhu.gif",
+//        "/Users/andy/Workspace/Resources/jieqian.gif",
+//        "/Users/andy/Workspace/Resources/Andy.jpg",
+//        "/Users/andy/Workspace/Resources/logo.png",
+//        "/Users/andy/Workspace/Resources/spring.jpg",
+//        "/Users/andy/Workspace/Resources/exportTest.gif",
+//        "/Users/andy/Workspace/Resources/IMG_0383.GIF",
 //        "/Users/andy/Workspace/Gaoding/resources/videoEditTest/testData/gif0.gif",
 //        "/Users/andy/Workspace/Gaoding/resources/videoEditTest/testData/gif1.gif",
 //        "/Users/andy/Workspace/Gaoding/resources/videoEditTest/testData/gif2.gif",
 //        "/Users/andy/Workspace/Gaoding/resources/videoEditTest/testData/apng0.png",
 //        "/Users/andy/Workspace/Gaoding/resources/videoEditTest/testData/apng1.png",
 //        "/Users/andy/Workspace/Gaoding/resources/videoEditTest/testData/apng2.png",
-//        "/Users/andy/Movies/jieqian_720x1280.mp4",
-        "/Users/andy/Workspace/Resources/xinwenlianbo.mp4",
-//        "/Users/andy/Movies/lianche.mp4",
-//        "/Users/andy/Movies/douyin.mp4",
-//        "/Users/andy/Movies/720.mp4",
-//        "/Users/andy/Movies/jieqian_720x1280.mp4",
-//        "/Users/andy/Movies/lianche.mp4",
-//        "/Users/andy/Movies/douyin.mp4",
-//        "/Users/andy/Movies/720.mp4"
+//        "/Users/andy/Workspace/Resources/jieqian_720x1280.mp4",
+//        "/Users/andy/Workspace/Resources/xinwenlianbo.mp4",
+//        "/Users/andy/Workspace/Resources/lianche.mp4",
+//        "/Users/andy/Workspace/Resources/douyin.mp4",
+//        "/Users/andy/Workspace/Resources/720.mp4",
+//        "/Users/andy/Workspace/Resources/jieqian_720x1280.mp4",
+//        "/Users/andy/Workspace/Resources/lianche.mp4",
+//        "/Users/andy/Workspace/Resources/douyin.mp4",
+//        "/Users/andy/Workspace/Resources/720.mp4",
+//        "/Users/andy/Workspace/Resources/money1.png",
+//        "/Users/andy/Workspace/Resources/jpg.jpg",
+//        "/Users/andy/Workspace/Resources/bbb-palettegen.png",
+//        "/Users/andy/Workspace/Resources/logo.png",
+//        "/Users/andy/Workspace/Resources/png3.png"
+        "/Users/andy/Workspace/Resources/money2_1.png",
 };
 
 void testRender() {
@@ -162,7 +168,7 @@ void testOpenAL() {
 
 int main(int argc, char* argv[]) {
     
-    testOpenAL();
+    testRender();
 
     return 0;
 }
