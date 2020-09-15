@@ -17,9 +17,7 @@
 #include "XLogger.h"
 #include "XSoxHelper.h"
 
-#if PLATFORM_ANDROID || PLATFORM_IOS
 #include "libyuv.h"
-#endif
 
 #ifdef USE_HARDWARE_DECODER
 AVPixelFormat gHWPixelFormat = AV_PIX_FMT_NONE;
@@ -831,7 +829,6 @@ void XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
         av_image_alloc(dst->pixels, dst->linesize, dst->width, dst->height,
                        static_cast<AVPixelFormat>(dst->format), 1);
     }
-#if PLATFORM_ANDROID || PLATFORM_IOS
     switch (src->format) {
         case AV_PIX_FMT_YUV420P:
         case AV_PIX_FMT_YUVJ420P: {
@@ -880,7 +877,6 @@ void XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
             break;
 
         default: {
-#endif
             SwsContext *sws = nullptr;
             if (!mSwsContext) {
                 sws = sws_getContext(src->width, src->height,
@@ -898,11 +894,9 @@ void XFFProducer::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
             }
 
             sws_scale(sws, src->data, src->linesize, 0, src->height, dst->pixels, dst->linesize);
-#if PLATFORM_ANDROID || PLATFORM_IOS
         }
             break;
     }
-#endif
 }
 
 int XFFProducer::sampleConvert(AVFrame* frame) {
@@ -937,27 +931,6 @@ int XFFProducer::sampleConvert(AVFrame* frame) {
         LOGE("[XFFProducer] av_samples_get_buffer_size failed: %s\n", av_err2str(size));
         return size;
     }
-
-    // 4. 音频特效处理
-//    LOGI("[XFFProducer] 处理前: %d\n", count);
-    if (0) {
-        int precision = av_get_bytes_per_sample(DST_SAMPLE_FMT) * 8;
-        XSoxHelper helper;
-        helper.setSampleCount(count);
-        helper.setChannels(dstChannels);
-        helper.setPrecision(precision);
-        helper.setSampleRate(DST_SAMPLE_RATE);
-        
-        uint8_t* data = nullptr;
-        int newSize = helper.process(&data, mSampleData, size);
-        if (data && newSize > 0) {
-            av_freep(&mSampleData);
-            mSampleData = reinterpret_cast<uint8_t*>(av_malloc(newSize));
-            memcpy(mSampleData, data, newSize);
-        }
-        size = newSize;
-    }
-//    LOGE("[XFFProducer] 处理后: %d\n", count);
 
     mSampleBufferSize = size;
     mSampleBufferSizeMax = size;
