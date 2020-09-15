@@ -49,7 +49,7 @@ struct BMPInfoHeader{
 
 #pragma pack()
 
-int rgb2bmp(const char *outFile, uint8_t* rgbData, int width, int height, int format = FORMAT_RGB) {
+int rgb2bmp(const char *outFile, uint8_t* rgbData, int width, int height, int format = FORMAT_RGBA) {
     BMPFileHeader bmpHeader;
     BMPInfoHeader bmpInfo;
     
