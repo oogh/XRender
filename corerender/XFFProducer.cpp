@@ -28,7 +28,7 @@ FILE* fp = nullptr;
 XFFProducer::XFFProducer()
         : mVideoIndex(-1), mAudioIndex(-1), mAbortReq(false), mSeekReq(false), mSeekTargetPos(-1),
           mLastReqClock(INT64_MAX), mAVFormatSeeked(false), mPauseReq(false), mStatus(0), mSampleData(nullptr),
-          mSampleDataIndex(0), mSampleBufferSize(0), mSampleBufferSizeMax(0) {
+          mSampleDataIndex(0), mSampleBufferSize(0), mSampleBufferSizeMax(0), mBFrameIndex(0) {
 }
 
 XFFProducer::~XFFProducer() {
@@ -503,7 +503,7 @@ void XFFProducer::readWorkThread(void *opaque) {
                                      av_q2d(ic->streams[pkt->avpkt->stream_index]->time_base) *
                                      1000);
         if (pkt->avpkt->stream_index == producer->mVideoIndex) {
-            if (videoQ) {
+            if (videoQ && isValidPacket(pkt->avpkt)) {
                 videoQ->put(pkt);
             }
         } else if (pkt->avpkt->stream_index == producer->mAudioIndex) {
@@ -936,6 +936,25 @@ int XFFProducer::sampleConvert(AVFrame* frame) {
     mSampleBufferSizeMax = size;
 
     return mSampleBufferSize;
+}
+
+bool XFFProducer::isValidPacket(AVPacket* pkt) {
+    AVStream *st = mFormatCtx->streams[mVideoIndex];
+    AVCodecParserContext* parser = st->parser;
+    AVCodecContext* avctx = mVideoCodecCtx.get();
+    AVPacket *packet = av_packet_alloc();
+    av_init_packet(packet);
+    av_parser_parse2(parser, avctx, &packet->data, &packet->size, pkt->data, pkt->size, pkt->pts, pkt->dts, pkt->pos);
+    av_packet_free(&packet);
+    if (parser->pict_type == AV_PICTURE_TYPE_B) {
+        mBFrameIndex++;
+        if (mBFrameIndex % 2 == 0) {
+            return false;
+        }
+    } else if (parser->pict_type == AV_PICTURE_TYPE_I || parser->pict_type == AV_PICTURE_TYPE_P) {
+        mBFrameIndex = 0;
+    }
+    return true;
 }
 
 long XFFProducer::getOriginalDuration() const {

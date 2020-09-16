@@ -79,6 +79,9 @@ private:
     void frameConvert(std::shared_ptr<XImage> dst, AVFrame* src);
     
     int sampleConvert(AVFrame* src);
+    
+private:
+    bool isValidPacket(AVPacket* pkt);
 
 private:
     unsigned int mStatus;
@@ -147,6 +150,8 @@ private:
     std::shared_ptr<Packet> mLastPacket;
     
     int mRobotIndex = 0;
+    
+    int mBFrameIndex;
 };
 
 
