@@ -18,18 +18,12 @@ std::vector<std::string> filenames = {
 //        "/Users/andy/Workspace/Resources/spring.jpg",
 //        "/Users/andy/Workspace/Resources/exportTest.gif",
 //        "/Users/andy/Workspace/Resources/IMG_0383.GIF",
-//        "/Users/andy/Workspace/Gaoding/resources/videoEditTest/testData/gif0.gif",
-//        "/Users/andy/Workspace/Gaoding/resources/videoEditTest/testData/gif1.gif",
-//        "/Users/andy/Workspace/Gaoding/resources/videoEditTest/testData/gif2.gif",
-//        "/Users/andy/Workspace/Gaoding/resources/videoEditTest/testData/apng0.png",
-//        "/Users/andy/Workspace/Gaoding/resources/videoEditTest/testData/apng1.png",
-//        "/Users/andy/Workspace/Gaoding/resources/videoEditTest/testData/apng2.png",
 //        "/Users/andy/Workspace/Resources/jieqian_720x1280.mp4",
 //        "/Users/andy/Workspace/Resources/xinwenlianbo.mp4",
 //        "/Users/andy/Workspace/Resources/lianche.mp4",
 //        "/Users/andy/Workspace/Resources/douyin.mp4",
 //        "/Users/andy/Workspace/Resources/720.mp4",
-//        "/Users/andy/Workspace/Resources/jieqian_720x1280.mp4",
+        "/Users/andy/Workspace/Resources/jieqian_720x1280.mp4",
 //        "/Users/andy/Workspace/Resources/lianche.mp4",
 //        "/Users/andy/Workspace/Resources/douyin.mp4",
 //        "/Users/andy/Workspace/Resources/720.mp4",
@@ -38,7 +32,6 @@ std::vector<std::string> filenames = {
 //        "/Users/andy/Workspace/Resources/bbb-palettegen.png",
 //        "/Users/andy/Workspace/Resources/logo.png",
 //        "/Users/andy/Workspace/Resources/png3.png"
-        "/Users/andy/Workspace/Resources/money2_1.png",
 };
 
 void testRender() {
