@@ -122,7 +122,6 @@ void XRender::refreshWorkThread(void* opaque) {
             auto image = render->mProducer->peekImage(render->mTargetPos);
             if (image && image->pixels[0]) {
                 peekImageCounter.markEnd();
-                LOGD("[XRender] peek clock: %ld image duration: %ld\n", render->mTargetPos, peekImageCounter.getRunDuration());
                 if (render->mTexture) {
                     render->mTexture->update(image->pixels[0], render->mTextureWidth, render->mTextureHeight);
                 }
