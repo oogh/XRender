@@ -64,3 +64,11 @@ int XProducable::getOriginalWidth() const {
 int XProducable::getOriginalHeight() const {
     return 0;
 }
+
+int XProducable::getOriginalRotation() const {
+    return 0;
+}
+
+int XProducable::getOriginalFrameRate() const {
+    return 0;
+}

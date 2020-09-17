@@ -13,6 +13,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <string>
+#include <vector>
 #include "XProducable.h"
 #include "XFFHeader.h"
 #include "XSampleQueue.h"
@@ -46,8 +47,16 @@ public:
     
     int getOriginalHeight() const override;
     
+    int getOriginalRotation() const override;
+    
+    int getOriginalFrameRate() const override;
+    
+    void findKeyTimestamps();
+    
 private:
     void seekTo(long targetPos);
+    
+    int seekFileTo(long targetPos);
 
 private:
     int openInFile();
@@ -82,6 +91,8 @@ private:
     
 private:
     bool isValidPacket(AVPacket* pkt);
+    
+    bool checkIfNeedSeek(long clock);
 
 private:
     unsigned int mStatus;
@@ -146,12 +157,15 @@ private:
     int mGetAudioPacket = 0;
     
     long mLastReqClock;
+    long mLastFrameClock;
 
     std::shared_ptr<Packet> mLastPacket;
     
     int mRobotIndex = 0;
     
     int mBFrameIndex;
+    
+    std::vector<long> mKeyTimestamps;
 };
 
 

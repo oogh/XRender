@@ -54,6 +54,10 @@ public:
     virtual int getOriginalWidth() const;
     
     virtual int getOriginalHeight() const;
+    
+    virtual int getOriginalRotation() const;
+    
+    virtual int getOriginalFrameRate() const;
 
 protected:
     std::string mFilename;

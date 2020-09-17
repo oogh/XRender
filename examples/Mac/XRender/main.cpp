@@ -23,7 +23,7 @@ std::vector<std::string> filenames = {
 //        "/Users/andy/Workspace/Resources/lianche.mp4",
 //        "/Users/andy/Workspace/Resources/douyin.mp4",
 //        "/Users/andy/Workspace/Resources/720.mp4",
-        "/Users/andy/Workspace/Resources/jieqian_720x1280.mp4",
+//        "/Users/andy/Workspace/Resources/jieqian_720x1280.mp4",
 //        "/Users/andy/Workspace/Resources/lianche.mp4",
 //        "/Users/andy/Workspace/Resources/douyin.mp4",
 //        "/Users/andy/Workspace/Resources/720.mp4",
@@ -31,7 +31,8 @@ std::vector<std::string> filenames = {
 //        "/Users/andy/Workspace/Resources/jpg.jpg",
 //        "/Users/andy/Workspace/Resources/bbb-palettegen.png",
 //        "/Users/andy/Workspace/Resources/logo.png",
-//        "/Users/andy/Workspace/Resources/png3.png"
+//        "/Users/andy/Workspace/Resources/png3.png",
+        "/Users/andy/Workspace/Resources/image.png",
 };
 
 void testRender() {

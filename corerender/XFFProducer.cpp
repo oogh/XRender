@@ -27,7 +27,7 @@ FILE* fp = nullptr;
 
 XFFProducer::XFFProducer()
         : mVideoIndex(-1), mAudioIndex(-1), mAbortReq(false), mSeekReq(false), mSeekTargetPos(-1),
-          mLastReqClock(INT64_MAX), mAVFormatSeeked(false), mPauseReq(false), mStatus(0), mSampleData(nullptr),
+          mLastReqClock(LONG_MAX), mLastFrameClock(LONG_MAX), mAVFormatSeeked(false), mPauseReq(false), mStatus(0), mSampleData(nullptr),
           mSampleDataIndex(0), mSampleBufferSize(0), mSampleBufferSizeMax(0), mBFrameIndex(0) {
 }
 
@@ -96,12 +96,24 @@ void XFFProducer::seekTo(long targetPos) {
 
 }
 
+int XFFProducer::seekFileTo(long targetPos) {
+    int ret = -1;
+    if (mFormatCtx && mVideoIndex >= 0) {
+        int64_t target = av_rescale(static_cast<int64_t>(targetPos), AV_TIME_BASE, 1000);
+        ret = avformat_seek_file(mFormatCtx.get(), -1, INT64_MIN, target, INT64_MAX, 0);
+        if (ret < 0) {
+            LOGE("[GDFrameRetriever] avformat_seek_file(target: %ld) failed: %s\n", targetPos, av_err2str(ret));
+        }
+    }
+    return ret;
+}
+
 std::shared_ptr<XImage> XFFProducer::peekImage(long clock) {
     if (!mImageQueue) {
         return nullptr;
     }
 
-    if (mLastReqClock > clock || (mLastReqClock == INT64_MAX && clock > 0)) {
+    if (mLastReqClock > clock || (mLastReqClock == LONG_MAX && clock > 0)) {
 //        seekTo(clock);
     }
     mLastReqClock = clock;
@@ -190,7 +202,11 @@ int XFFProducer::openInFile() {
             if (ret < 0) {
                 return ret;
             }
-//            closeVideoCodec();
+            
+            findKeyTimestamps();
+            
+            // TODO(oogh): 2020/09/17 #isValidPacket() 接口中需要使用到 mVideoCodecCtx 变量，这里关闭的话，会偶现出现崩溃问题
+            // closeVideoCodec();
         }
     }
 
@@ -503,7 +519,7 @@ void XFFProducer::readWorkThread(void *opaque) {
                                      av_q2d(ic->streams[pkt->avpkt->stream_index]->time_base) *
                                      1000);
         if (pkt->avpkt->stream_index == producer->mVideoIndex) {
-            if (videoQ && isValidPacket(pkt->avpkt)) {
+            if (videoQ) {
                 videoQ->put(pkt);
             }
         } else if (pkt->avpkt->stream_index == producer->mAudioIndex) {
@@ -957,6 +973,21 @@ bool XFFProducer::isValidPacket(AVPacket* pkt) {
     return true;
 }
 
+bool XFFProducer::checkIfNeedSeek(long clock) {
+    
+    if (clock < mLastFrameClock) {
+        return true;
+    }
+    
+    auto clockIter = std::lower_bound(mKeyTimestamps.begin(), mKeyTimestamps.end(), clock);
+    auto lastClockIter = std::lower_bound(mKeyTimestamps.begin(), mKeyTimestamps.end(), mLastFrameClock);
+    if (clockIter != lastClockIter) {
+        return true;
+    }
+
+    return false;
+}
+
 long XFFProducer::getOriginalDuration() const {
     long duration = 0;
     if (mFormatCtx && mFormatCtx->duration != AV_NOPTS_VALUE) {
@@ -987,4 +1018,68 @@ int XFFProducer::getOriginalHeight() const {
         }
     }
     return height;
+}
+
+int XFFProducer::getOriginalRotation() const {
+    if (!mFormatCtx || mVideoIndex < 0) {
+        return -1;
+    }
+
+    uint8_t *displayMatrix = av_stream_get_side_data(mFormatCtx->streams[mVideoIndex], AV_PKT_DATA_DISPLAYMATRIX, nullptr);
+    double theta = 0;
+    if (displayMatrix) {
+        theta = av_display_rotation_get(reinterpret_cast<const int32_t *>(displayMatrix));
+    }
+
+    theta -= 360 * floor(theta / 360 + 0.9 / 360);
+
+    if (theta < 0) {
+        theta += 360;
+    }
+
+    return static_cast<int>(theta);
+}
+
+int XFFProducer::getOriginalFrameRate() const {
+    if (!mFormatCtx || mVideoIndex < 0) {
+        return -1;
+    }
+
+    AVRational frameRate = mFormatCtx->streams[mVideoIndex]->avg_frame_rate;
+    
+    return frameRate.num / frameRate.den;
+}
+
+void XFFProducer::findKeyTimestamps() {
+    if (!mFormatCtx || mVideoIndex < 0) {
+        return;
+    }
+
+    int ret = seekFileTo(0);
+    if (ret < 0) {
+        return;
+    }
+
+    AVStream *stream = mFormatCtx->streams[mVideoIndex];
+    /* 获取关键帧不能使用 AVDISCARD_NOKEY
+       因为有部分特殊素材，它们内部的pts异常，会导致筛选到的并不是关键帧，同一个素材不同discard得到的数据如下：
+       使用 NOKEY 得到的关键帧是 [0, 1962, 4096 ...](错误情况，可通过 avformat_seek_file() 接口验证)
+       使用 BIDIR 得到的关键帧是 [0, 2020, 4096 ...](正确)
+       总结：获取关键帧时间列表可通过 AVDISCARD_BIDIR 和 AV_PKT_FLAG_KEY 来筛选 */
+    stream->discard = AVDISCARD_BIDIR;
+
+    while (ret != AVERROR_EOF) {
+        auto pkt = std::shared_ptr<Packet>();
+        ret = av_read_frame(mFormatCtx.get(), pkt->avpkt);
+        if (ret >= 0 && pkt->avpkt->stream_index == mVideoIndex && pkt->avpkt->flags & AV_PKT_FLAG_KEY) {
+            av_packet_rescale_ts(pkt->avpkt, stream->time_base, {1, 1000});
+            mKeyTimestamps.push_back(static_cast<long>(pkt->avpkt->pts));
+        }
+    }
+
+    stream->discard = AVDISCARD_DEFAULT;
+    ret = seekFileTo(0);
+    if (ret < 0) {
+        return;
+    }
 }
