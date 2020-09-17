@@ -53,5 +53,10 @@ Pod::Spec.new do |spec|
        yuv.xcconfig = {"HEADER_SEARCH_PATHS" => '"$(PODS_TARGET_SRCROOT)/3rdparty/iOS/libyuv/include"'}
        yuv.vendored_libraries  = '3rdparty/iOS/libyuv/lib/*.a'
     end
+    
+    corerender.subspec 'sox' do |sox|
+       sox.xcconfig = {"HEADER_SEARCH_PATHS" => '"$(PODS_TARGET_SRCROOT)/3rdparty/iOS/sox/include"'}
+       sox.vendored_libraries  = '3rdparty/iOS/sox/lib/*.a'
+    end
   end
 end
