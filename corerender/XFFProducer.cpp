@@ -190,7 +190,7 @@ int XFFProducer::openInFile() {
             if (ret < 0) {
                 return ret;
             }
-            closeVideoCodec();
+//            closeVideoCodec();
         }
     }
 
@@ -385,7 +385,7 @@ int XFFProducer::openAudioCodec() {
 
     // 申请目标缓冲区内存空间
     int srcSampleCount = avctx->frame_size > 0 ? avctx->frame_size : 1024;
-    int dstSampleCount = av_rescale_rnd(srcSampleCount, DST_SAMPLE_RATE, avctx->sample_rate, AV_ROUND_UP);
+    int dstSampleCount = static_cast<int>(av_rescale_rnd(srcSampleCount, DST_SAMPLE_RATE, avctx->sample_rate, AV_ROUND_UP));
     mDstSampleCountMax = dstSampleCount;
 
     int dstChannels = av_get_channel_layout_nb_channels(DST_CHANNEL_LAYOUT);
@@ -911,7 +911,7 @@ int XFFProducer::sampleConvert(AVFrame* frame) {
     
     // 1. 分配目标缓冲区内存空间
     int dstChannels = av_get_channel_layout_nb_channels(DST_CHANNEL_LAYOUT);
-    int dstSampleCount = av_rescale_rnd(swr_get_delay(mSwrContext.get(), frame->sample_rate) + frame->nb_samples, DST_SAMPLE_RATE, frame->sample_rate, AV_ROUND_UP);
+    int dstSampleCount = static_cast<int>(av_rescale_rnd(swr_get_delay(mSwrContext.get(), frame->sample_rate) + frame->nb_samples, DST_SAMPLE_RATE, frame->sample_rate, AV_ROUND_UP));
     mSampleBufferSize = av_samples_alloc(&mSampleData, nullptr, dstChannels, dstSampleCount, DST_SAMPLE_FMT, 1);
     if (mSampleBufferSize < 0) {
         LOGE("[XFFProducer] av_samples_alloc failed!");
@@ -948,7 +948,7 @@ bool XFFProducer::isValidPacket(AVPacket* pkt) {
     av_packet_free(&packet);
     if (parser->pict_type == AV_PICTURE_TYPE_B) {
         mBFrameIndex++;
-        if (mBFrameIndex % 2 == 0) {
+        if (!(mBFrameIndex & 1)) {
             return false;
         }
     } else if (parser->pict_type == AV_PICTURE_TYPE_I || parser->pict_type == AV_PICTURE_TYPE_P) {
