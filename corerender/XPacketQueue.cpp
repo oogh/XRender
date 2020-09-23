@@ -6,7 +6,7 @@
 //  Copyright © 2020 Oogh. All rights reserved.
 //
 
-#include "XPacketQueue.h"
+#include "XPacketQueue.hpp"
 
 XPacketQueue::XPacketQueue(int capacity)
 : mSize(0), mCapacity(capacity) {

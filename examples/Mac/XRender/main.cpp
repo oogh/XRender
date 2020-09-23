@@ -1,12 +1,12 @@
 #include <iostream>
-#include "XFFProducer.h"
-#include "XImageUitls.h"
-#include "XImage.h"
-#include "XTimeCounter.h"
+#include "XFFProducer.hpp"
+#include "XImageUitls.hpp"
+#include "XImage.hpp"
+#include "XTimeCounter.hpp"
 #include <vector>
 #include <string>
-#include "XAudioPlayer.h"
-#include "XLogger.h"
+#include "XAudioPlayer.hpp"
+#include "XLogger.hpp"
 
 std::vector<std::string> filenames = {
 //        "/Users/andy/Workspace/Resources/ok.gif",

@@ -6,7 +6,7 @@
 //  Copyright © 2020 Oogh. All rights reserved.
 //
 
-#include "XSampleQueue.h"
+#include "XSampleQueue.hpp"
 
 #include <cstdio>
 #include <cstdlib>

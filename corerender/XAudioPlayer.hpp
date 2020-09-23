@@ -2,11 +2,11 @@
 // Created by Andy on 2020/8/30.
 //
 
-#ifndef XRENDER_XAUDIOPLAYER_H
-#define XRENDER_XAUDIOPLAYER_H
+#ifndef XRENDER_XAUDIOPLAYER_HPP
+#define XRENDER_XAUDIOPLAYER_HPP
 
 #include <cinttypes>
-#include "XALHeader.h"
+#include "XALHeader.hpp"
 
 class XAudioPlayer {
 public:
@@ -41,4 +41,4 @@ private:
 };
 
 
-#endif //XRENDER_XAUDIOPLAYER_H
+#endif //XRENDER_XAUDIOPLAYER_HPP

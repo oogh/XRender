@@ -14,9 +14,9 @@
 #include <condition_variable>
 #include <string>
 #include <vector>
-#include "XProducable.h"
-#include "XFFHeader.h"
-#include "XSampleQueue.h"
+#include "XProducable.hpp"
+#include "XFFHeader.hpp"
+#include "XSampleQueue.hpp"
 
 class XPacketQueue;
 class XImageQueue;

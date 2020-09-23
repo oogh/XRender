@@ -2,10 +2,10 @@
 // Created by Oogh on 2020/3/19.
 //
 
-#include "XViewJNI.h"
+#include "XViewJNI.hpp"
 #include <string>
 #include <memory>
-#include "XRender.h"
+#include "XRender.hpp"
 
 static const std::string CLASS_NAME = "com/core/render/XView";
 

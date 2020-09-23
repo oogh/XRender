@@ -2,8 +2,8 @@
 // Created by Andy on 2020/8/30.
 //
 
-#include "XAudioPlayer.h"
-#include "XLogger.h"
+#include "XAudioPlayer.hpp"
+#include "XLogger.hpp"
 #include <cstdlib>
 #include <cstring>
 #include <thread>

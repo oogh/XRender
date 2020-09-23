@@ -6,16 +6,16 @@
 //  Copyright © 2020 Oogh. All rights reserved.
 //
 
-#include "XFFProducer.h"
-#include "XException.h"
-#include "XThreadUtils.h"
-#include "XPacketQueue.h"
-#include "XFrameQueue.h"
-#include "XImageQueue.h"
-#include "XPlatform.h"
-#include "XTimeCounter.h"
-#include "XLogger.h"
-#include "XSoxHelper.h"
+#include "XFFProducer.hpp"
+#include "XException.hpp"
+#include "XThreadUtils.hpp"
+#include "XPacketQueue.hpp"
+#include "XFrameQueue.hpp"
+#include "XImageQueue.hpp"
+#include "XPlatform.hpp"
+#include "XTimeCounter.hpp"
+#include "XLogger.hpp"
+#include "XSoxHelper.hpp"
 
 #include "libyuv.h"
 

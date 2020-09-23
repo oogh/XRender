@@ -2,9 +2,9 @@
 // Created by Oogh on 2020/3/19.
 //
 
-#include "XCoreRenderJNI.h"
-#include "XViewJNI.h"
-#include "XFFHeader.h"
+#include "XCoreRenderJNI.hpp"
+#include "XViewJNI.hpp"
+#include "XFFHeader.hpp"
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env = nullptr;

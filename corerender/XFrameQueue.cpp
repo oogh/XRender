@@ -6,7 +6,7 @@
 //  Copyright © 2020 Oogh. All rights reserved.
 //
 
-#include "XFrameQueue.h"
+#include "XFrameQueue.hpp"
 
 XFrameQueue::XFrameQueue(int capacity): mCapacity(capacity), mAborted(false) {
 }

@@ -12,7 +12,7 @@
 #include <vector>
 #include <mutex>
 #include <condition_variable>
-#include "XImage.h"
+#include "XImage.hpp"
 
 class XImageQueue {
 public:

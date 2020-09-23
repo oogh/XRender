@@ -6,8 +6,8 @@
 //  Copyright © 2020 Oogh. All rights reserved.
 //
 
-#include "XFileProducer.h"
-#include "XException.h"
+#include "XFileProducer.hpp"
+#include "XException.hpp"
 
 XFileProducer::XFileProducer() {
     mWidth = 720;

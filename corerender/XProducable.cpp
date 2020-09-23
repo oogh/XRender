@@ -6,7 +6,7 @@
 //  Copyright © 2020 Oogh. All rights reserved.
 //
 
-#include "XProducable.h"
+#include "XProducable.hpp"
 
 XProducable::XProducable()
         : mDisableVideo(false), mDisableAudio(false), mProduceMode(PRODUCE_MODE_SOFTWARE) {

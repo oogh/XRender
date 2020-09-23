@@ -9,9 +9,9 @@
 #ifndef XEXPORTER_XFILEPRODUCER_H
 #define XEXPORTER_XFILEPRODUCER_H
 
-#include "XProducable.h"
+#include "XProducable.hpp"
 #include <fstream>
-#include "XImage.h"
+#include "XImage.hpp"
 
 class XFileProducer : public XProducable {
 

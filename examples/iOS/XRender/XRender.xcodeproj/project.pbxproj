@@ -10,6 +10,8 @@
 		546279D3244AE56000054A08 /* jieqian_720x1280.rgba in Resources */ = {isa = PBXBuildFile; fileRef = 546279D2244AE56000054A08 /* jieqian_720x1280.rgba */; };
 		78A509A7C37148AC312D9D7E /* libPods-XRender.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D728692FFDEAADE9538088B4 /* libPods-XRender.a */; };
 		A19457F424A89A4C00387918 /* douyin_700x1240.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = A19457F324A89A4C00387918 /* douyin_700x1240.mp4 */; };
+		A1B3AAC92513542F00AFFAC7 /* image.png in Resources */ = {isa = PBXBuildFile; fileRef = A1B3AAC82513542F00AFFAC7 /* image.png */; };
+		A1B3AACB2513565100AFFAC7 /* money1.png in Resources */ = {isa = PBXBuildFile; fileRef = A1B3AACA2513565100AFFAC7 /* money1.png */; };
 		A1B80F93243EC5440042705D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B80F92243EC5440042705D /* AppDelegate.m */; };
 		A1B80F96243EC5440042705D /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B80F95243EC5440042705D /* SceneDelegate.m */; };
 		A1B80F99243EC5440042705D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B80F98243EC5440042705D /* ViewController.m */; };
@@ -23,6 +25,8 @@
 /* Begin PBXFileReference section */
 		546279D2244AE56000054A08 /* jieqian_720x1280.rgba */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = jieqian_720x1280.rgba; path = ../../../../Resources/jieqian_720x1280.rgba; sourceTree = "<group>"; };
 		A19457F324A89A4C00387918 /* douyin_700x1240.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = douyin_700x1240.mp4; path = ../../../../Resources/douyin_700x1240.mp4; sourceTree = "<group>"; };
+		A1B3AAC82513542F00AFFAC7 /* image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = image.png; sourceTree = "<group>"; };
+		A1B3AACA2513565100AFFAC7 /* money1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = money1.png; sourceTree = "<group>"; };
 		A1B80F8E243EC5440042705D /* XRender.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XRender.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1B80F91243EC5440042705D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		A1B80F92243EC5440042705D /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -67,6 +71,8 @@
 				A19457F324A89A4C00387918 /* douyin_700x1240.mp4 */,
 				A1C3323524A336A700B75B72 /* jieqian_720x1280.mp4 */,
 				546279D2244AE56000054A08 /* jieqian_720x1280.rgba */,
+				A1B3AAC82513542F00AFFAC7 /* image.png */,
+				A1B3AACA2513565100AFFAC7 /* money1.png */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -179,7 +185,9 @@
 				A19457F424A89A4C00387918 /* douyin_700x1240.mp4 in Resources */,
 				A1B80F9E243EC5460042705D /* Assets.xcassets in Resources */,
 				A1B80F9C243EC5440042705D /* Main.storyboard in Resources */,
+				A1B3AAC92513542F00AFFAC7 /* image.png in Resources */,
 				A1C3323624A336A700B75B72 /* jieqian_720x1280.mp4 in Resources */,
+				A1B3AACB2513565100AFFAC7 /* money1.png in Resources */,
 				546279D3244AE56000054A08 /* jieqian_720x1280.rgba in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -361,6 +369,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				COMPRESS_PNG_FILES = NO;
 				DEVELOPMENT_TEAM = R25N9JGHQ4;
 				HEADER_SEARCH_PATHS = (
 					"\"$(PODS_TARGET_SRCROOT)/3rdparty/x264/iOS/include\"",
@@ -378,6 +387,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = me.oogh.XRender;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_PNG_TEXT = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -388,6 +398,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				COMPRESS_PNG_FILES = NO;
 				DEVELOPMENT_TEAM = R25N9JGHQ4;
 				INFOPLIST_FILE = XRender/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -396,6 +407,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = me.oogh.XRender;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_PNG_TEXT = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

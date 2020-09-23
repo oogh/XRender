@@ -2,12 +2,12 @@
 // Created by Andy on 2020/8/14.
 //
 
-#ifndef XRENDER_XSOXHELPER_H
-#define XRENDER_XSOXHELPER_H
+#ifndef XRENDER_XSOXHELPER_HPP
+#define XRENDER_XSOXHELPER_HPP
 
 #include <cinttypes>
 #include <cstdio>
-#include "XSoxHeader.h"
+#include "XSoxHeader.hpp"
 
 class XSoxHelper {
 public:
@@ -50,4 +50,4 @@ private:
 };
 
 
-#endif //XRENDER_XSOXHELPER_H
+#endif //XRENDER_XSOXHELPER_HPP

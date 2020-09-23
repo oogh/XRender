@@ -6,7 +6,7 @@
 //  Copyright © 2020 Oogh. All rights reserved.
 //
 
-#include "XImageQueue.h"
+#include "XImageQueue.hpp"
 
 XImageQueue::XImageQueue(int capacity)
 : mCapacity(capacity), mSize(0), mWindex(0), mRindex(0), mAborted(false) {

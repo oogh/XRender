@@ -10,7 +10,7 @@
 #define XEXPORTER_XIMAGE_H
 
 #include <memory>
-#include "XFFHeader.h"
+#include "XFFHeader.hpp"
 
 enum ImageType {
     IMG_TYPE_UNKNOWN = -1,

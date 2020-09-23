@@ -5,7 +5,7 @@
 #ifndef ANDROIDDEMO_XGLHEADER_H
 #define ANDROIDDEMO_XGLHEADER_H
 
-#include "XPlatform.h"
+#include "XPlatform.hpp"
 
 #if PLATFORM_ANDROID
     #include <GLES2/gl2.h>

@@ -12,7 +12,7 @@
 #include <queue>
 #include <mutex>
 #include <condition_variable>
-#include "XFFHeader.h"
+#include "XFFHeader.hpp"
 
 class XPacketQueue {
 public:

@@ -6,10 +6,10 @@
 //  Copyright © 2020 Oogh. All rights reserved.
 //
 
-#import "XView.h"
+#import "XView.hpp"
 #include "XGLHeader.h"
 #include "XRender.h"
-#import "XWeakProxy.h"
+#import "XWeakProxy.hpp"
 
 @interface XView()
 {

@@ -2,9 +2,9 @@
 // Created by Andy on 2020/8/14.
 //
 
-#include "XSoxHelper.h"
-#include "XLogger.h"
-#include "XException.h"
+#include "XSoxHelper.hpp"
+#include "XLogger.hpp"
+#include "XException.hpp"
 
 XSoxHelper::XSoxHelper() {
     

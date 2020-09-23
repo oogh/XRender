@@ -6,7 +6,7 @@
 //  Copyright © 2020 Oogh. All rights reserved.
 //
 
-#import "XWeakProxy.h"
+#import "XWeakProxy.hpp"
 
 @implementation XWeakProxy
 
