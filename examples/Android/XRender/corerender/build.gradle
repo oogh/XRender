@@ -52,6 +52,11 @@ android {
         }
     }
 
+    packagingOptions {
+        pickFirst 'lib/arm64-v8a/libopenal.so'
+        pickFirst 'lib/arm64-v8a/libffmpeg.so'
+    }
+
 }
 
 dependencies {
