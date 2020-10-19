@@ -7,7 +7,7 @@
 #ifndef ANDROIDDEMO_XSHADER_H
 #define ANDROIDDEMO_XSHADER_H
 
-#include "XGLHeader.h"
+#include "XGLHeader.hpp"
 
 GLuint createProgram(const char* vertex, const char* fragment);
 

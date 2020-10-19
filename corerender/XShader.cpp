@@ -4,8 +4,8 @@
 
 #ifndef MAC
 
-#include "XShader.h"
-#include "XLogger.h"
+#include "XShader.hpp"
+#include "XLogger.hpp"
 
 void print(const char* name, GLenum type) {
     const char* value = reinterpret_cast<const char*>(glGetString(type));

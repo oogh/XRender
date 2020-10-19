@@ -10,7 +10,7 @@
 #include <memory>
 #include <string>
 #include <mutex>
-#include "XGLHeader.h"
+#include "XGLHeader.hpp"
 
 //#define USE_FILE_PRODUCER
 #define USE_FFMPEG_PRODUCER
@@ -20,7 +20,7 @@
 #endif
 
 #ifdef USE_FFMPEG_PRODUCER
-#include "XFFProducer.h"
+#include "XFFProducer.hpp"
 #endif
 
 class XTexture;

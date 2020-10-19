@@ -7,7 +7,7 @@
 #ifndef ANDROIDDEMO_XTEXTURE_H
 #define ANDROIDDEMO_XTEXTURE_H
 
-#include "XGLHeader.h"
+#include "XGLHeader.hpp"
 
 class XTexture {
 public:

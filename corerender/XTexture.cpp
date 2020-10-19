@@ -4,9 +4,9 @@
 
 #ifndef MAC
 
-#include "XTexture.h"
-#include "XShader.h"
-#include "XLogger.h"
+#include "XTexture.hpp"
+#include "XShader.hpp"
+#include "XLogger.hpp"
 #include <cstring>
 
 #define TO_STR(x) #x

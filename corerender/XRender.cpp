@@ -4,14 +4,14 @@
 
 #ifndef MAC
 
-#include "XRender.h"
-#include "XTexture.h"
-#include "XException.h"
-#include "XImageUtil.h"
-#include "XImage.h"
-#include "XThreadUtils.h"
-#include "XLogger.h"
-#include "XTimeCounter.h"
+#include "XRender.hpp"
+#include "XTexture.hpp"
+#include "XException.hpp"
+#include "XImageUtil.hpp"
+#include "XImage.hpp"
+#include "XThreadUtils.hpp"
+#include "XLogger.hpp"
+#include "XTimeCounter.hpp"
 #include <chrono>
 
 XRender::XRender(): mTextureWidth(0), mTextureHeight(0), mTargetPos(0), mAbortReq(false), mPauseReq(true) {
