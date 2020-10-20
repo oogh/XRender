@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.4.1)
 
-project(XRender CXX)
+project(XRender LANGUAGES C CXX)
 
 add_definitions("-DUSE_HARDWARE_DECODER")
 add_definitions("-DUSE_HARDWARE_ENCODER")
@@ -67,6 +67,14 @@ if (APPLE)
             PROPERTIES IMPORTED_LOCATION
             ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/Mac/libyuv/lib/libyuv.a)
 
+    # glad
+    add_subdirectory(3rdparty/Mac/glad)
+    set(GLAD_INCLUDE_DIR 3rdparty/Mac/glad/include)
+
+    # glfw
+    find_path(GLFW_INCLUDE_DIR GLFW/glfw3.h)
+    find_library(GLFW_LIBRARY glfw)
+
     set(EXTRAL_INCLUDE
             ${AVFORMAT_INCLUDE_DIR}
             ${AVCODEC_INCLUDE_DIR}
@@ -76,7 +84,9 @@ if (APPLE)
             ${SWRESAMPLE_INCLUDE_DIR}
 	        ${SOUNDTOUCH_INCLUDE_DIR}
 	        ${SOX_INCLUDE_DIR}
-            ${YUV_INCLUDE_DIR})
+            ${YUV_INCLUDE_DIR}
+            ${GLAD_INCLUDE_DIR}
+            ${GLFW_INCLUDE_DIR})
     include_directories(${EXTRAL_INCLUDE})
 
     set(EXTRAL_LIBRARY
@@ -88,7 +98,9 @@ if (APPLE)
             ${SWRESAMPLE_LIBRARY}
 	        ${SOX_LIBRARY}
             soundtouch
-            yuv)
+            yuv
+            glad
+            ${GLFW_LIBRARY})
 
     SET(SRC_MEDIA ${SRC_CORE} ${SRC_EXSAMPLE_MAC})
 
