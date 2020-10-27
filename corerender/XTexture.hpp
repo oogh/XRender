@@ -2,8 +2,6 @@
 // Created by Oogh on 2020/3/19.
 //
 
-#ifndef MAC
-
 #ifndef ANDROIDDEMO_XTEXTURE_H
 #define ANDROIDDEMO_XTEXTURE_H
 
@@ -37,5 +35,3 @@ private:
     int mHeight;
 };
 #endif //ANDROIDDEMO_XTEXTURE_H
-
-#endif

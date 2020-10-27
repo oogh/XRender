@@ -2,10 +2,8 @@
 // Created by Oogh on 2020/3/19.
 //
 
-#ifndef MAC
-
 #include "XRender.hpp"
-#include "XTexture.hpp"
+//#include "XTexture.hpp"
 #include "XException.hpp"
 #include "XImageUtil.hpp"
 #include "XImage.hpp"
@@ -84,17 +82,17 @@ void XRender::onDrawFrame() {
     glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     
-    if (!mTexture) {
-        if (mProducer) {
-            mTextureWidth = mProducer->getOriginalWidth();
-            mTextureHeight = mProducer->getOriginalHeight();
-            mTexture = std::make_unique<XTexture>(mTextureWidth, mTextureHeight);
-        }
-    }
-    
-    if (mTexture) {
-        mTexture->draw();
-    }
+//    if (!mTexture) {
+//        if (mProducer) {
+//            mTextureWidth = mProducer->getOriginalWidth();
+//            mTextureHeight = mProducer->getOriginalHeight();
+//            mTexture = std::make_unique<XTexture>(mTextureWidth, mTextureHeight);
+//        }
+//    }
+//
+//    if (mTexture) {
+//        mTexture->draw();
+//    }
 }
 
 void XRender::refreshWorkThread(void* opaque) {
@@ -122,9 +120,9 @@ void XRender::refreshWorkThread(void* opaque) {
             auto image = render->mProducer->peekImage(render->mTargetPos);
             if (image && image->pixels[0]) {
                 peekImageCounter.markEnd();
-                if (render->mTexture) {
-                    render->mTexture->update(image->pixels[0], render->mTextureWidth, render->mTextureHeight);
-                }
+//                if (render->mTexture) {
+//                    render->mTexture->update(image->pixels[0], render->mTextureWidth, render->mTextureHeight);
+//                }
                 if (image->pts > render->mTargetPos) {
                     render->mProducer->endCurrentImageUse();
                 }
@@ -149,5 +147,3 @@ void XRender::stop() {
         mRefreshTid->join();
     }
 }
-
-#endif

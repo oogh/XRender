@@ -2,8 +2,6 @@
 // Created by Oogh on 2020/3/19.
 //
 
-#ifndef MAC
-
 #include "XTexture.hpp"
 #include "XShader.hpp"
 #include "XLogger.hpp"
@@ -11,24 +9,23 @@
 
 #define TO_STR(x) #x
 
-const char* gVertexShader = TO_STR(
-        attribute vec4 aPosition;
-        attribute vec2 aTextureCoord;
-        varying vec2 vTextureCoord;
-        void main() {
-            vTextureCoord = vec2(aTextureCoord.x, 1.0 - aTextureCoord.y);
-            gl_Position = aPosition;
-        }
-);
+const char *gVertexShader = "#version 330 core"
+        "\nattribute vec4 aPosition;"
+        "\nattribute vec2 aTextureCoord;"
+        "\nvarying vec2 vTextureCoord;"
+        "\nvoid main() {"
+        "\n    vTextureCoord = vec2(aTextureCoord.x, 1.0 - aTextureCoord.y);"
+        "\n    gl_Position = aPosition;"
+        "\n}";
 
-const char *gFragRGBA = TO_STR(
-        precision mediump float;
-        varying vec2 vTextureCoord;
-        uniform sampler2D uTexture;
-        void main() {
-            gl_FragColor = texture2D(uTexture, vTextureCoord);
-        }
-);
+
+const char *gFragRGBA = "#version 330 core"
+        "\nprecision mediump float;"
+        "\nvarying vec2 vTextureCoord;"
+        "\nuniform sampler2D uTexture;"
+        "\nvoid main() {"
+        "\ngl_FragColor = texture2D(uTexture, vTextureCoord);"
+        "\n}";
 
 const char *gFragYUV420P = TO_STR(
         precision mediump float;
@@ -66,7 +63,7 @@ XTexture::XTexture(int width, int height)
     };
 
     // 1. 创建着色器程序
-    mProgram = createProgram(gVertexShader, gFragRGBA);
+    mProgram = -1;//createProgram(gVertexShader, gFragRGBA);
 
     // 2. 获取着色器中的属性饮用
     aPosition = static_cast<GLuint>(glGetAttribLocation(mProgram, "aPosition"));
@@ -127,5 +124,3 @@ void XTexture::draw() {
 void XTexture::update(uint8_t* pixels, int width, int height) {
     memcpy(mPixels, pixels, width * height * 4);
 }
-
-#endif

@@ -1,0 +1,77 @@
+//
+// Created by Andy on 2020/10/20.
+//
+
+#include "XSurface.hpp"
+#include "XLogger.hpp"
+
+XSurface::XSurface(int width, int height)
+        : mWidth(width), mHeight(height) {
+    init();
+}
+
+XSurface::~XSurface() {
+    deinit();
+}
+
+void XSurface::init() {
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
+    GLFWwindow* window = glfwCreateWindow(mWidth, mHeight, "LearnOpenGL", nullptr, nullptr);
+    if (window == nullptr) {
+        LOGE("[XSurface] Failed to create GLFW window\n");
+        glfwTerminate();
+        return;
+    }
+    glfwMakeContextCurrent(window);
+
+
+    if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
+        LOGE("[XSurface] Failed to initialize GLAD\n");
+        return;
+    }
+
+    onSurfaceCreated(window);
+
+    while (!glfwWindowShouldClose(window)) {
+        onDrawFrame(window);
+        glfwPollEvents();
+    }
+
+    glfwTerminate();
+}
+
+void XSurface::deinit() {
+    glfwTerminate();
+}
+
+void XSurface::onSurfaceCreated(GLFWwindow* window) {
+    mRender = std::make_unique<XRender>();
+    mRender->onSurfaceCreated();
+    mRender->setInput("/Users/oogh/Workspace/Resources/douyin.mp4");
+    mRender->prepare(0);
+    mRender->start();
+}
+
+void XSurface::onSurfaceSizeChanged(GLFWwindow* window, int width, int height) {
+
+}
+
+void XSurface::onDrawFrame(GLFWwindow* window) {
+    if (!mRender) {
+        return;
+    }
+    mRender->onDrawFrame();
+}
+
+void XSurface::renderWorkThread(void *opaque) {
+    auto surface = reinterpret_cast<XSurface *>(opaque);
+
+}

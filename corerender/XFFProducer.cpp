@@ -257,7 +257,7 @@ int XFFProducer::openVideoCodec() {
     if (mProduceMode == PRODUCE_MODE_HARDWARE) {
 #if PLATFORM_ANDROID
         type = av_hwdevice_find_type_by_name("mediacodec");
-#elif PLATFORM_IOS
+#elif PLATFORM_IOS || PLATFORM_MAC
         type = av_hwdevice_find_type_by_name("videotoolbox");
 #endif
         if (type == AV_HWDEVICE_TYPE_NONE) {
@@ -1069,7 +1069,7 @@ void XFFProducer::findKeyTimestamps() {
     stream->discard = AVDISCARD_BIDIR;
 
     while (ret != AVERROR_EOF) {
-        auto pkt = std::shared_ptr<Packet>();
+        auto pkt = std::make_shared<Packet>();
         ret = av_read_frame(mFormatCtx.get(), pkt->avpkt);
         if (ret >= 0 && pkt->avpkt->stream_index == mVideoIndex && pkt->avpkt->flags & AV_PKT_FLAG_KEY) {
             av_packet_rescale_ts(pkt->avpkt, stream->time_base, {1, 1000});

@@ -9,19 +9,20 @@
 #include <glad/glad.h>
 #include <memory>
 #include <thread>
+#include "XRender.hpp"
 
 class XSurface {
 public:
     XSurface(int width, int height);
 
-    ~XSurface();
+    virtual ~XSurface();
 
 protected:
-    virtual void onSurfaceCreated();
+    virtual void onSurfaceCreated(GLFWwindow* window);
 
-    virtual void onSurfaceSizeChanged(int width, int height);
+    virtual void onSurfaceSizeChanged(GLFWwindow* window, int width, int height);
 
-    virtual void onDrawFrame();
+    virtual void onDrawFrame(GLFWwindow* window);
 
 private:
     void init();
@@ -39,6 +40,9 @@ private:
 
     int mWidth;
     int mHeight;
+
+    std::unique_ptr<XRender> mRender;
+
 };
 
 

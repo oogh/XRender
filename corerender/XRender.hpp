@@ -2,8 +2,6 @@
 // Created by Oogh on 2020/3/19.
 //
 
-#ifndef MAC
-
 #ifndef ANDROIDDEMO_XRENDER_H
 #define ANDROIDDEMO_XRENDER_H
 
@@ -23,7 +21,7 @@
 #include "XFFProducer.hpp"
 #endif
 
-class XTexture;
+//class XTexture;
 
 class XRender {
     using OnProgressChangeCallback = std::function<void(long current, long duration)>;
@@ -56,7 +54,7 @@ private:
     void refreshWorkThread(void* opaque);
 
 private:
-    std::unique_ptr<XTexture> mTexture;
+//    std::unique_ptr<XTexture> mTexture;
 
     int mTextureWidth;
     int mTextureHeight;
@@ -84,5 +82,3 @@ private:
     
 };
 #endif //ANDROIDDEMO_XRENDER_H
-
-#endif
