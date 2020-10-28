@@ -6,6 +6,7 @@
 //#include "XTexture.hpp"
 #include "XException.hpp"
 #include "XImageUtil.hpp"
+#include "XTriangle.hpp"
 #include "XImage.hpp"
 #include "XThreadUtils.hpp"
 #include "XLogger.hpp"
@@ -33,7 +34,7 @@ void XRender::setInput(const std::string& filename) {
 #endif
 
     mProducer->setProduceMode(PRODUCE_MODE_HARDWARE);
-    mProducer->setInput(filename);
+//    mProducer->setInput(filename);
 }
 
 void XRender::setOnProgressChangeCallback(OnProgressChangeCallback callback) {
@@ -45,7 +46,7 @@ void XRender::prepare(long timestamp) {
 }
 
 void XRender::start() {
-    mProducer->start();
+//    mProducer->start();
     
     mPauseReq = false;
     if (!mRefreshTid) {
@@ -78,21 +79,16 @@ void XRender::onSurfaceChanged(int width, int height) {
 }
 
 void XRender::onDrawFrame() {
-    
-    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    
-//    if (!mTexture) {
-//        if (mProducer) {
-//            mTextureWidth = mProducer->getOriginalWidth();
-//            mTextureHeight = mProducer->getOriginalHeight();
-//            mTexture = std::make_unique<XTexture>(mTextureWidth, mTextureHeight);
-//        }
-//    }
-//
-//    if (mTexture) {
-//        mTexture->draw();
-//    }
+
+    if (!mTriangle) {
+        mTriangle = std::make_unique<XTriangle>();
+    }
+
+    if (mTriangle) {
+        mTriangle->draw();
+    }
 }
 
 void XRender::refreshWorkThread(void* opaque) {

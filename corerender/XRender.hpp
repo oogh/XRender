@@ -23,6 +23,8 @@
 
 //class XTexture;
 
+class XTriangle;
+
 class XRender {
     using OnProgressChangeCallback = std::function<void(long current, long duration)>;
 public:
@@ -55,6 +57,7 @@ private:
 
 private:
 //    std::unique_ptr<XTexture> mTexture;
+    std::unique_ptr<XTriangle> mTriangle;
 
     int mTextureWidth;
     int mTextureHeight;

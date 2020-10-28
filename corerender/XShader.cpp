@@ -8,40 +8,53 @@
 #include "XShader.hpp"
 #include "XLogger.hpp"
 
+const char* vertexShaderSource = "#version 330 core\n"
+                                 "layout (location = 0) in vec3 position;\n"
+                                 "void main()\n"
+                                 "{\n"
+                                 "gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
+                                 "}\0";
+const char* fragmentShaderSource = "#version 330 core\n"
+                                   "out vec4 color;\n"
+                                   "void main()\n"
+                                   "{\n"
+                                   "color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+                                   "}\n\0";
+
 XShader::XShader(const char* vertexFilePath, const char* fragmentFilePath) {
-    std::string vertexCode;
-    std::string fragmentCode;
-    std::ifstream vShaderFile;
-    std::ifstream fShaderFile;
-    
-    vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    try {
-        vShaderFile.open(vertexFilePath);
-        fShaderFile.open(fragmentFilePath);
-        std::stringstream vShaderStream, fShaderStream;
-        vShaderStream << vShaderFile.rdbuf();
-        fShaderStream << fShaderFile.rdbuf();
-        vShaderFile.close();
-        fShaderFile.close();
-        vertexCode = vShaderStream.str();
-        fragmentCode = fShaderStream.str();
-    }
-    catch (std::ifstream::failure &e) {
-        LOGE("SHADER::FILE_NOT_SUCCEESFULLY_READ\n");
-    }
-    const char* vShaderCode = vertexCode.data();
-    const char* fShaderCode = fragmentCode.data();
+//    std::string vertexCode;
+//    std::string fragmentCode;
+//    std::ifstream vShaderFile;
+//    std::ifstream fShaderFile;
+//
+//    vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+//    fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+//    try {
+//        vShaderFile.open(vertexFilePath);
+//        fShaderFile.open(fragmentFilePath);
+//        std::stringstream vShaderStream, fShaderStream;
+//        vShaderStream << vShaderFile.rdbuf();
+//        fShaderStream << fShaderFile.rdbuf();
+//        vShaderFile.close();
+//        fShaderFile.close();
+//        vertexCode = vShaderStream.str();
+//        fragmentCode = fShaderStream.str();
+//    }
+//    catch (std::ifstream::failure &e) {
+//        LOGE("SHADER::FILE_NOT_SUCCEESFULLY_READ\n");
+//    }
+//    const char* vShaderCode = vertexCode.data();
+//    const char* fShaderCode = fragmentCode.data();
 
     GLuint vertex;
     vertex = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex, 1, &vShaderCode, nullptr);
+    glShaderSource(vertex, 1, &vertexShaderSource, nullptr);
     glCompileShader(vertex);
     checkCompileError(vertex, "VERTEX");
 
     GLuint fragment;
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment, 1, &fShaderCode, nullptr);
+    glShaderSource(fragment, 1, &fragmentShaderSource, nullptr);
     glCompileShader(fragment);
     checkCompileError(fragment, "FRAGMENT");
 

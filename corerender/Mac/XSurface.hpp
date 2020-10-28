@@ -9,7 +9,7 @@
 #include <glad/glad.h>
 #include <memory>
 #include <thread>
-#include "XRender.hpp"
+#include "XShader.hpp"
 
 class XSurface {
 public:
@@ -41,7 +41,7 @@ private:
     int mWidth;
     int mHeight;
 
-    std::unique_ptr<XRender> mRender;
+    std::unique_ptr<XShader> mShader;
 
 };
 
