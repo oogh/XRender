@@ -4,6 +4,7 @@
 
 #include "XSurface.hpp"
 #include "XLogger.hpp"
+#include "XTriangle.hpp"
 
 XSurface::XSurface(int width, int height)
         : mWidth(width), mHeight(height) {
@@ -32,16 +33,23 @@ void XSurface::init() {
     }
     glfwMakeContextCurrent(window);
 
-
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         LOGE("[XSurface] Failed to initialize GLAD\n");
+        glfwTerminate();
         return;
     }
+
+    mTriangle = std::make_unique<XTriangle>();
 
     onSurfaceCreated(window);
 
     while (!glfwWindowShouldClose(window)) {
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
         onDrawFrame(window);
+
+        glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
@@ -49,15 +57,10 @@ void XSurface::init() {
 }
 
 void XSurface::deinit() {
-    glfwTerminate();
+
 }
 
 void XSurface::onSurfaceCreated(GLFWwindow* window) {
-    mRender = std::make_unique<XRender>();
-    mRender->onSurfaceCreated();
-    mRender->setInput("/Users/oogh/Workspace/Resources/douyin.mp4");
-    mRender->prepare(0);
-    mRender->start();
 }
 
 void XSurface::onSurfaceSizeChanged(GLFWwindow* window, int width, int height) {
@@ -65,13 +68,5 @@ void XSurface::onSurfaceSizeChanged(GLFWwindow* window, int width, int height) {
 }
 
 void XSurface::onDrawFrame(GLFWwindow* window) {
-    if (!mRender) {
-        return;
-    }
-    mRender->onDrawFrame();
-}
-
-void XSurface::renderWorkThread(void *opaque) {
-    auto surface = reinterpret_cast<XSurface *>(opaque);
-
+    mTriangle->draw();
 }

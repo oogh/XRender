@@ -6,14 +6,13 @@
 #include <sstream>
 #include "XLogger.hpp"
 #include "XShader.hpp"
-#include "XLogger.hpp"
 
 XShader::XShader(const char* vertexFilePath, const char* fragmentFilePath) {
     std::string vertexCode;
     std::string fragmentCode;
     std::ifstream vShaderFile;
     std::ifstream fShaderFile;
-    
+
     vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     try {
@@ -28,7 +27,7 @@ XShader::XShader(const char* vertexFilePath, const char* fragmentFilePath) {
         fragmentCode = fShaderStream.str();
     }
     catch (std::ifstream::failure &e) {
-        LOGE("SHADER::FILE_NOT_SUCCEESFULLY_READ\n");
+        LOGE("[XShader] open vs/fs file failed: %s\n", e.what());
     }
     const char* vShaderCode = vertexCode.data();
     const char* fShaderCode = fragmentCode.data();
@@ -82,13 +81,13 @@ void XShader::checkCompileError(GLuint shader, std::string type) {
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
         if (!success) {
             glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
-            LOGE("SHADER_COMPILATION_ERROR of type: %s error: %s\n", type.data(), infoLog);
+            LOGE("[XShader] SHADER_COMPILATION_ERROR of type: %s error: %s\n", type.data(), infoLog);
         }
     } else {
         glGetProgramiv(shader, GL_LINK_STATUS, &success);
         if (!success) {
             glGetProgramInfoLog(shader, 1024, nullptr, infoLog);
-            LOGE("PROGRAM_LINKING_ERROR of type: %s error: %s\n", type.data(), infoLog);
+            LOGE("[XShader] PROGRAM_LINKING_ERROR of type: %s error: %s\n", type.data(), infoLog);
         }
     }
 }
