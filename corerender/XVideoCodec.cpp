@@ -1,5 +1,5 @@
 //
-// Created by Andy on 2020/9/18.
+// Created by Oogh on 2020/9/18.
 //
 
 #include "XVideoCodec.hpp"

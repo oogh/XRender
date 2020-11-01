@@ -10,20 +10,8 @@
 #include <mutex>
 #include "XGLHeader.hpp"
 
-//#define USE_FILE_PRODUCER
-#define USE_FFMPEG_PRODUCER
-
-#ifdef USE_FILE_PRODUCER
-#include "XFileProducer.h"
-#endif
-
-#ifdef USE_FFMPEG_PRODUCER
-#include "XFFProducer.hpp"
-#endif
-
-//class XTexture;
-
-class XTriangle;
+class XFFProducer;
+class XRectangle;
 
 class XRender {
     using OnProgressChangeCallback = std::function<void(long current, long duration)>;
@@ -56,20 +44,11 @@ private:
     void refreshWorkThread(void* opaque);
 
 private:
-//    std::unique_ptr<XTexture> mTexture;
-    std::unique_ptr<XTriangle> mTriangle;
-
     int mTextureWidth;
     int mTextureHeight;
 
-#ifdef USE_FILE_PRODUCER
-    std::unique_ptr<XFileProducer> mProducer;
-#endif
-
-#ifdef USE_FFMPEG_PRODUCER
     std::unique_ptr<XFFProducer> mProducer;
-#endif
-    
+
     long mTargetPos;
     
     std::unique_ptr<std::thread> mRefreshTid;
@@ -82,6 +61,8 @@ private:
     std::condition_variable mContinueRefreshCond;
     
     OnProgressChangeCallback mProgressChangeCallback;
+
+    std::unique_ptr<XRectangle> mRectangle;
     
 };
 #endif //ANDROIDDEMO_XRENDER_H

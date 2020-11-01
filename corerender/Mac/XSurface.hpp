@@ -1,5 +1,5 @@
 //
-// Created by Andy on 2020/10/20.
+// Created by Oogh on 2020/10/20.
 //
 
 #ifndef XRENDER_XSURFACE_HPP
@@ -8,7 +8,7 @@
 #include <memory>
 #include "XGLHeader.hpp"
 
-class XRectangle;
+class XRender;
 
 class XSurface {
 public:
@@ -29,12 +29,10 @@ private:
     void deinit();
 
 private:
-    GLFWwindow* mWindow;
-
     int mWidth;
     int mHeight;
 
-    std::unique_ptr<XRectangle> mRectangle;
+    std::unique_ptr<XRender> mRender;
 
 };
 

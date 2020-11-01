@@ -1,10 +1,10 @@
 //
-// Created by Andy on 2020/10/20.
+// Created by Oogh on 2020/10/20.
 //
 
 #include "XSurface.hpp"
 #include "XLogger.hpp"
-#include "XRectangle.hpp"
+#include "XRender.hpp"
 
 XSurface::XSurface(int width, int height)
         : mWidth(width), mHeight(height) {
@@ -39,7 +39,7 @@ void XSurface::init() {
         return;
     }
 
-    mRectangle = std::make_unique<XRectangle>();
+    mRender = std::make_unique<XRender>();
 
     onSurfaceCreated(window);
 
@@ -61,12 +61,13 @@ void XSurface::deinit() {
 }
 
 void XSurface::onSurfaceCreated(GLFWwindow* window) {
+    mRender->onSurfaceCreated();
 }
 
 void XSurface::onSurfaceSizeChanged(GLFWwindow* window, int width, int height) {
-
+    mRender->onSurfaceChanged(width, height);
 }
 
 void XSurface::onDrawFrame(GLFWwindow* window) {
-    mRectangle->draw();
+    mRender->onDrawFrame();
 }

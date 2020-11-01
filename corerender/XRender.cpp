@@ -2,16 +2,16 @@
 // Created by Oogh on 2020/3/19.
 //
 
+#include <chrono>
 #include "XRender.hpp"
-//#include "XTexture.hpp"
 #include "XException.hpp"
 #include "XImageUtil.hpp"
-#include "XTriangle.hpp"
 #include "XImage.hpp"
 #include "XThreadUtils.hpp"
 #include "XLogger.hpp"
 #include "XTimeCounter.hpp"
-#include <chrono>
+#include "XFFProducer.hpp"
+#include "XRectangle.hpp"
 
 XRender::XRender(): mTextureWidth(0), mTextureHeight(0), mTargetPos(0), mAbortReq(false), mPauseReq(true) {
     
@@ -25,15 +25,8 @@ XRender::~XRender() {
 }
 
 void XRender::setInput(const std::string& filename) {
-#ifdef USE_FILE_PRODUCER
-    mProducer = std::make_unique<XFileProducer>();
-#endif
-
-#ifdef USE_FFMPEG_PRODUCER
-    mProducer = std::make_unique<XFFProducer>();
-#endif
-
-    mProducer->setProduceMode(PRODUCE_MODE_HARDWARE);
+//    mProducer = std::make_unique<XFFProducer>();
+//    mProducer->setProduceMode(PRODUCE_MODE_HARDWARE);
 //    mProducer->setInput(filename);
 }
 
@@ -47,14 +40,13 @@ void XRender::prepare(long timestamp) {
 
 void XRender::start() {
 //    mProducer->start();
-    
-    mPauseReq = false;
-    if (!mRefreshTid) {
-        mRefreshTid = std::make_unique<std::thread>([this] { refreshWorkThread(this); });
-    } else {
-        std::lock_guard<std::mutex> lock(mMutex);
-        mContinueRefreshCond.notify_one();
-    }
+//    mPauseReq = false;
+//    if (!mRefreshTid) {
+//        mRefreshTid = std::make_unique<std::thread>([this] { refreshWorkThread(this); });
+//    } else {
+//        std::lock_guard<std::mutex> lock(mMutex);
+//        mContinueRefreshCond.notify_one();
+//    }
 }
 
 void XRender::seekTo(long targetPos) {
@@ -67,7 +59,7 @@ void XRender::pause() {
 }
 
 void XRender::onSurfaceCreated() {
-    
+    mRectangle = std::make_unique<XRectangle>();
 }
 
 void XRender::onSurfaceChanged(int width, int height) {
@@ -79,16 +71,7 @@ void XRender::onSurfaceChanged(int width, int height) {
 }
 
 void XRender::onDrawFrame() {
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    if (!mTriangle) {
-        mTriangle = std::make_unique<XTriangle>();
-    }
-
-    if (mTriangle) {
-        mTriangle->draw();
-    }
+    mRectangle->draw();
 }
 
 void XRender::refreshWorkThread(void* opaque) {
