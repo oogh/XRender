@@ -10,7 +10,7 @@
 
 class XShader {
 public:
-    XShader(const char* vertexFilePath, const char* fragmentFilePath);
+    XShader(std::string vertexFilePath, std::string fragmentFilePath);
 
     ~XShader();
 

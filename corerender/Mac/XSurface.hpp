@@ -7,7 +7,8 @@
 
 #include <memory>
 #include "XGLHeader.hpp"
-class XTriangle;
+
+class XRectangle;
 
 class XSurface {
 public:
@@ -33,7 +34,7 @@ private:
     int mWidth;
     int mHeight;
 
-    std::unique_ptr<XTriangle> mTriangle;
+    std::unique_ptr<XRectangle> mRectangle;
 
 };
 

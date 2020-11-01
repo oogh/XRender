@@ -7,7 +7,7 @@
 #include "XLogger.hpp"
 #include "XShader.hpp"
 
-XShader::XShader(const char* vertexFilePath, const char* fragmentFilePath) {
+XShader::XShader(std::string vertexFilePath, std::string fragmentFilePath) {
     std::string vertexCode;
     std::string fragmentCode;
     std::ifstream vShaderFile;
@@ -55,7 +55,7 @@ XShader::XShader(const char* vertexFilePath, const char* fragmentFilePath) {
 }
 
 XShader::~XShader() {
-
+    glDeleteProgram(mProgram);
 }
 
 void XShader::use() {

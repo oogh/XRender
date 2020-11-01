@@ -4,7 +4,7 @@
 
 #include "XSurface.hpp"
 #include "XLogger.hpp"
-#include "XTriangle.hpp"
+#include "XRectangle.hpp"
 
 XSurface::XSurface(int width, int height)
         : mWidth(width), mHeight(height) {
@@ -39,7 +39,7 @@ void XSurface::init() {
         return;
     }
 
-    mTriangle = std::make_unique<XTriangle>();
+    mRectangle = std::make_unique<XRectangle>();
 
     onSurfaceCreated(window);
 
@@ -68,5 +68,5 @@ void XSurface::onSurfaceSizeChanged(GLFWwindow* window, int width, int height) {
 }
 
 void XSurface::onDrawFrame(GLFWwindow* window) {
-    mTriangle->draw();
+    mRectangle->draw();
 }

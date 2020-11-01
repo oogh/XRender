@@ -3,18 +3,18 @@
 //
 
 #include "XTriangle.hpp"
-#include "XShader.hpp"
 
-const char* vertexFilePath = "/Users/andy/Workspace/Oogh/XRender/Resources/shaders/triangle.vs";
-const char* fragmentFilePath = "/Users/andy/Workspace/Oogh/XRender/Resources/shaders/triangle.fs";
+std::string XTriangle::sVertexFilePath = "/Users/oogh/Workspace/XRender/Resources/shaders/triangle.vs";
+std::string XTriangle::sFragmentFilePath = "/Users/oogh/Workspace/XRender/Resources/shaders/triangle.fs";
+
 
 XTriangle::XTriangle() {
-    mShader = std::make_unique<XShader>(vertexFilePath, fragmentFilePath);
+    mShader = std::make_unique<XShader>(sVertexFilePath, sFragmentFilePath);
 
     float vertices[] = {
             -0.5f, -0.5f, 0.0f, // left
             0.5f, -0.5f, 0.0f, // right
-            0.0f,  0.5f, 0.0f  // top
+            0.0f, 0.5f, 0.0f  // top
     };
 
     glGenVertexArrays(1, &VAO);
