@@ -40,9 +40,11 @@ void XSurface::init() {
     }
 
     mRender = std::make_unique<XRender>();
+    mRender->setInput("/Users/oogh/Workspace/Resources/jieqian_720x1280.mp4");
 
     onSurfaceCreated(window);
 
+    glViewport(0, 0, mWidth, mHeight);
     while (!glfwWindowShouldClose(window)) {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -62,6 +64,7 @@ void XSurface::deinit() {
 
 void XSurface::onSurfaceCreated(GLFWwindow* window) {
     mRender->onSurfaceCreated();
+    mRender->start();
 }
 
 void XSurface::onSurfaceSizeChanged(GLFWwindow* window, int width, int height) {

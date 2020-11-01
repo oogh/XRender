@@ -11,7 +11,7 @@
 #include "XGLHeader.hpp"
 
 class XFFProducer;
-class XRectangle;
+class XTexture;
 
 class XRender {
     using OnProgressChangeCallback = std::function<void(long current, long duration)>;
@@ -62,7 +62,7 @@ private:
     
     OnProgressChangeCallback mProgressChangeCallback;
 
-    std::unique_ptr<XRectangle> mRectangle;
+    std::unique_ptr<XTexture> mTexture;
     
 };
 #endif //ANDROIDDEMO_XRENDER_H
