@@ -11,6 +11,9 @@
     #include <GLES2/gl2.h>
 #elif PLATFORM_IOS
     #import <OpenGLES/ES2/gl.h>
+#elif PLATFORM_MAC
+    #include <GLFW/glfw3.h>
+    #include <glad/glad.h>
 #endif
 
 #endif //ANDROIDDEMO_XGLHEADER_H

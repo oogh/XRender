@@ -7,6 +7,7 @@
 #include <string>
 #include "XAudioPlayer.hpp"
 #include "XLogger.hpp"
+#include "Mac/XSurface.hpp"
 
 std::vector<std::string> filenames = {
 //        "/Users/andy/Workspace/Resources/ok.gif",
@@ -161,9 +162,7 @@ void testOpenAL() {
 }
 
 int main(int argc, char* argv[]) {
-    
-    testRender();
-
+    std::cout << "example03" << std::endl;
     return 0;
 }
 

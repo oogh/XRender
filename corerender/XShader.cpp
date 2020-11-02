@@ -2,93 +2,92 @@
 // Created by Oogh on 2020/3/19.
 //
 
-#ifndef MAC
-
-#include "XShader.hpp"
+#include <fstream>
+#include <sstream>
 #include "XLogger.hpp"
+#include "XShader.hpp"
 
-void print(const char* name, GLenum type) {
-    const char* value = reinterpret_cast<const char*>(glGetString(type));
-    LOGI("[XShader] %s = %s \n", name, value);
+XShader::XShader(std::string vertexFilePath, std::string fragmentFilePath) {
+    std::string vertexCode;
+    std::string fragmentCode;
+    std::ifstream vShaderFile;
+    std::ifstream fShaderFile;
+
+    vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    try {
+        vShaderFile.open(vertexFilePath);
+        fShaderFile.open(fragmentFilePath);
+        std::stringstream vShaderStream, fShaderStream;
+        vShaderStream << vShaderFile.rdbuf();
+        fShaderStream << fShaderFile.rdbuf();
+        vShaderFile.close();
+        fShaderFile.close();
+        vertexCode = vShaderStream.str();
+        fragmentCode = fShaderStream.str();
+    }
+    catch (std::ifstream::failure &e) {
+        LOGE("[XShader] open vs/fs file failed: %s\n", e.what());
+    }
+    const char* vShaderCode = vertexCode.data();
+    const char* fShaderCode = fragmentCode.data();
+
+    GLuint vertex;
+    vertex = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex, 1, &vShaderCode, nullptr);
+    glCompileShader(vertex);
+    checkCompileError(vertex, "VERTEX");
+
+    GLuint fragment;
+    fragment = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment, 1, &fShaderCode, nullptr);
+    glCompileShader(fragment);
+    checkCompileError(fragment, "FRAGMENT");
+
+    mProgram = glCreateProgram();
+    glAttachShader(mProgram, vertex);
+    glAttachShader(mProgram, fragment);
+    glLinkProgram(mProgram);
+    checkCompileError(mProgram, "PROGRAM");
+
+    glDeleteShader(vertex);
+    glDeleteShader(fragment);
 }
 
-void printOperationError(const char* op) {
-    for (GLint error = glGetError(); error; error = glGetError()) {
-        LOGE("[XShader] run %s(): glError (0x%x)\n", op, error);
-    }
+XShader::~XShader() {
+    glDeleteProgram(mProgram);
 }
 
-GLuint create(GLenum type, const char* code) {
-    GLuint shader = glCreateShader(type);
-    if (!shader) {
-        printOperationError("glCreateShader");
-        return 0;
-    }
-    glShaderSource(shader, 1, &code, nullptr);
-    GLint compiled = GL_FALSE;
-    glCompileShader(shader);
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-    if (!compiled) {
-        GLint infoLogLen = 0;
-        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLen);
-        if (infoLogLen > 0) {
-            GLchar *infoLog = new GLchar[infoLogLen];
-            if (infoLog) {
-                glGetShaderInfoLog(shader, infoLogLen, nullptr, infoLog);
-                LOGE("[XShader] compile failed： %s shader:\n%s\n",
-                     type == GL_VERTEX_SHADER ? "vertex" : "fragment",
-                     infoLog);
-                delete[] infoLog;
-            }
+void XShader::use() {
+    glUseProgram(mProgram);
+}
+
+void XShader::setBool(const std::string &name, bool value) const {
+    glUniform1i(glGetUniformLocation(mProgram, name.data()), (int) value);
+}
+
+void XShader::setInt(const std::string &name, int value) const {
+    glUniform1i(glGetUniformLocation(mProgram, name.data()), value);
+}
+
+void XShader::setFloat(const std::string &name, float value) const {
+    glUniform1f(glGetUniformLocation(mProgram, name.data()), value);
+}
+
+void XShader::checkCompileError(GLuint shader, std::string type) {
+    int success;
+    char infoLog[1024];
+    if (type != "PROGRAM") {
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
+            LOGE("[XShader] SHADER_COMPILATION_ERROR of type: %s error: %s\n", type.data(), infoLog);
         }
-        glDeleteShader(shader);
-        return 0;
-    }
-    return shader;
-}
-
-GLuint createProgram(const char* vertex, const char* fragment) {
-    GLuint vShader = 0;
-    GLuint fShader = 0;
-    GLuint program = 0;
-    GLint linked = GL_FALSE;
-    vShader = create(GL_VERTEX_SHADER, vertex);
-    if (!vShader) {
-        glDeleteShader(vShader);
-        return 0;
-    }
-    fShader = create(GL_FRAGMENT_SHADER, fragment);
-    if (!fShader) {
-        glDeleteShader(vShader);
-        glDeleteShader(fShader);
-        return 0;
-    }
-    program = glCreateProgram();
-    if (!program) {
-        printOperationError("glCreateProgram");
-        glDeleteShader(vShader);
-        glDeleteShader(fShader);
-        return 0;
-    }
-    glAttachShader(program, vShader);
-    glAttachShader(program, fShader);
-    glLinkProgram(program);
-    glGetProgramiv(program, GL_LINK_STATUS, &linked);
-    if (!linked) {
-        GLint len = 0;
-        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len);
-        if (len) {
-            GLchar *error_msg = new GLchar[len];
-            if (error_msg) {
-                glGetProgramInfoLog(program, len, nullptr, error_msg);
-                LOGE("[XShader] glLinkProgram failed:\n%s\n", error_msg);
-                delete[] error_msg;
-            }
+    } else {
+        glGetProgramiv(shader, GL_LINK_STATUS, &success);
+        if (!success) {
+            glGetProgramInfoLog(shader, 1024, nullptr, infoLog);
+            LOGE("[XShader] PROGRAM_LINKING_ERROR of type: %s error: %s\n", type.data(), infoLog);
         }
-        glDeleteProgram(program);
-        program = 0;
     }
-    return program;
 }
-
-#endif

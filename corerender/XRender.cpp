@@ -2,17 +2,16 @@
 // Created by Oogh on 2020/3/19.
 //
 
-#ifndef MAC
-
+#include <chrono>
 #include "XRender.hpp"
-#include "XTexture.hpp"
 #include "XException.hpp"
 #include "XImageUtil.hpp"
 #include "XImage.hpp"
 #include "XThreadUtils.hpp"
 #include "XLogger.hpp"
 #include "XTimeCounter.hpp"
-#include <chrono>
+#include "XFFProducer.hpp"
+#include "XTexture.hpp"
 
 XRender::XRender(): mTextureWidth(0), mTextureHeight(0), mTargetPos(0), mAbortReq(false), mPauseReq(true) {
     
@@ -26,14 +25,7 @@ XRender::~XRender() {
 }
 
 void XRender::setInput(const std::string& filename) {
-#ifdef USE_FILE_PRODUCER
-    mProducer = std::make_unique<XFileProducer>();
-#endif
-
-#ifdef USE_FFMPEG_PRODUCER
     mProducer = std::make_unique<XFFProducer>();
-#endif
-
     mProducer->setProduceMode(PRODUCE_MODE_HARDWARE);
     mProducer->setInput(filename);
 }
@@ -48,7 +40,6 @@ void XRender::prepare(long timestamp) {
 
 void XRender::start() {
     mProducer->start();
-    
     mPauseReq = false;
     if (!mRefreshTid) {
         mRefreshTid = std::make_unique<std::thread>([this] { refreshWorkThread(this); });
@@ -68,7 +59,7 @@ void XRender::pause() {
 }
 
 void XRender::onSurfaceCreated() {
-    
+    mTexture = std::make_unique<XTexture>();
 }
 
 void XRender::onSurfaceChanged(int width, int height) {
@@ -80,21 +71,7 @@ void XRender::onSurfaceChanged(int width, int height) {
 }
 
 void XRender::onDrawFrame() {
-    
-    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    
-    if (!mTexture) {
-        if (mProducer) {
-            mTextureWidth = mProducer->getOriginalWidth();
-            mTextureHeight = mProducer->getOriginalHeight();
-            mTexture = std::make_unique<XTexture>(mTextureWidth, mTextureHeight);
-        }
-    }
-    
-    if (mTexture) {
-        mTexture->draw();
-    }
+    mTexture->draw();
 }
 
 void XRender::refreshWorkThread(void* opaque) {
@@ -123,7 +100,7 @@ void XRender::refreshWorkThread(void* opaque) {
             if (image && image->pixels[0]) {
                 peekImageCounter.markEnd();
                 if (render->mTexture) {
-                    render->mTexture->update(image->pixels[0], render->mTextureWidth, render->mTextureHeight);
+                    render->mTexture->setPixels(image->pixels[0], image->width, image->height);
                 }
                 if (image->pts > render->mTargetPos) {
                     render->mProducer->endCurrentImageUse();
@@ -149,5 +126,3 @@ void XRender::stop() {
         mRefreshTid->join();
     }
 }
-
-#endif

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.4.1)
 
-project(XRender CXX)
+project(XRender LANGUAGES C CXX)
 
 add_definitions("-DUSE_HARDWARE_DECODER")
 add_definitions("-DUSE_HARDWARE_ENCODER")
@@ -9,21 +9,22 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(DIR_SOURCE ./corerender)
+set(DIR_MIDDLE_MAC ${DIR_SOURCE}/Mac)
 set(DIR_EXSAMPLE ./examples)
 
 # 添加头文件目录
 include_directories(${DIR_SOURCE})
+include_directories(${DIR_MIDDLE_MAC})
 
 # 添加源码目录
 aux_source_directory(${DIR_SOURCE} SRC_CORE)
+aux_source_directory(${DIR_MIDDLE_MAC} SRC_MIDDLE)
 
 #### （Mac 平台） ###################################################################################
 if (APPLE)
     add_definitions("-DMAC")
-    set(ExecuteName "XRender")
+    set(LibraryName "XRender")
     set(DIR_DEMO_MAC ${DIR_EXSAMPLE}/Mac/XRender)
-
-    aux_source_directory(${DIR_DEMO_MAC} SRC_EXSAMPLE_MAC)
 
     # FFmpeg
     find_path(AVFORMAT_INCLUDE_DIR libavformat/avformat.h)
@@ -67,6 +68,14 @@ if (APPLE)
             PROPERTIES IMPORTED_LOCATION
             ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/Mac/libyuv/lib/libyuv.a)
 
+    # glad
+    add_subdirectory(3rdparty/Mac/glad)
+    set(GLAD_INCLUDE_DIR 3rdparty/Mac/glad/include)
+
+    # glfw
+    find_path(GLFW_INCLUDE_DIR GLFW/glfw3.h)
+    find_library(GLFW_LIBRARY glfw)
+
     set(EXTRAL_INCLUDE
             ${AVFORMAT_INCLUDE_DIR}
             ${AVCODEC_INCLUDE_DIR}
@@ -76,7 +85,9 @@ if (APPLE)
             ${SWRESAMPLE_INCLUDE_DIR}
 	        ${SOUNDTOUCH_INCLUDE_DIR}
 	        ${SOX_INCLUDE_DIR}
-            ${YUV_INCLUDE_DIR})
+            ${YUV_INCLUDE_DIR}
+            ${GLAD_INCLUDE_DIR}
+            ${GLFW_INCLUDE_DIR})
     include_directories(${EXTRAL_INCLUDE})
 
     set(EXTRAL_LIBRARY
@@ -88,15 +99,29 @@ if (APPLE)
             ${SWRESAMPLE_LIBRARY}
 	        ${SOX_LIBRARY}
             soundtouch
-            yuv)
+            yuv
+            glad
+            ${GLFW_LIBRARY})
 
-    SET(SRC_MEDIA ${SRC_CORE} ${SRC_EXSAMPLE_MAC})
+    SET(SRC_MEDIA ${SRC_CORE} ${SRC_MIDDLE})
+
+    # 生成动态库
+    add_library(${LibraryName} SHARED ${SRC_MEDIA})
+    target_link_libraries(${LibraryName}
+            ${EXTRAL_LIBRARY}
+            "-framework OpenAL"
+            "-framework OpenGL"
+            "-framework VideoToolbox")
 
     # 生成可执行文件
-    add_executable(${ExecuteName} ${SRC_MEDIA})
+    add_executable(gl_render ${SRC_MEDIA} ${DIR_DEMO_MAC}/gl_render.cpp)
+    target_link_libraries(gl_render ${LibraryName})
 
-    # 添加链接库
-    target_link_libraries(${ExecuteName} ${EXTRAL_LIBRARY} "-framework OpenAL")
+    add_executable(example02 ${SRC_MEDIA} ${DIR_DEMO_MAC}/example02.cpp)
+    target_link_libraries(example02 ${LibraryName})
+
+    add_executable(example03 ${SRC_MEDIA} ${DIR_DEMO_MAC}/example03.cpp)
+    target_link_libraries(example03 ${LibraryName})
 
 #### （Android 平台） ###############################################################################
 elseif (ANDROID)

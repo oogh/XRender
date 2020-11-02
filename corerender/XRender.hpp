@@ -2,8 +2,6 @@
 // Created by Oogh on 2020/3/19.
 //
 
-#ifndef MAC
-
 #ifndef ANDROIDDEMO_XRENDER_H
 #define ANDROIDDEMO_XRENDER_H
 
@@ -12,17 +10,7 @@
 #include <mutex>
 #include "XGLHeader.hpp"
 
-//#define USE_FILE_PRODUCER
-#define USE_FFMPEG_PRODUCER
-
-#ifdef USE_FILE_PRODUCER
-#include "XFileProducer.h"
-#endif
-
-#ifdef USE_FFMPEG_PRODUCER
-#include "XFFProducer.hpp"
-#endif
-
+class XFFProducer;
 class XTexture;
 
 class XRender {
@@ -56,19 +44,11 @@ private:
     void refreshWorkThread(void* opaque);
 
 private:
-    std::unique_ptr<XTexture> mTexture;
-
     int mTextureWidth;
     int mTextureHeight;
 
-#ifdef USE_FILE_PRODUCER
-    std::unique_ptr<XFileProducer> mProducer;
-#endif
-
-#ifdef USE_FFMPEG_PRODUCER
     std::unique_ptr<XFFProducer> mProducer;
-#endif
-    
+
     long mTargetPos;
     
     std::unique_ptr<std::thread> mRefreshTid;
@@ -81,8 +61,8 @@ private:
     std::condition_variable mContinueRefreshCond;
     
     OnProgressChangeCallback mProgressChangeCallback;
+
+    std::unique_ptr<XTexture> mTexture;
     
 };
 #endif //ANDROIDDEMO_XRENDER_H
-
-#endif
