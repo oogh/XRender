@@ -1,10 +1,10 @@
 //
-// Created by Andy on 2020/10/20.
+// Created by Oogh on 2020/10/20.
 //
 
 #include "XSurface.hpp"
 #include "XLogger.hpp"
-#include "XTriangle.hpp"
+#include "XRender.hpp"
 
 XSurface::XSurface(int width, int height)
         : mWidth(width), mHeight(height) {
@@ -39,10 +39,12 @@ void XSurface::init() {
         return;
     }
 
-    mTriangle = std::make_unique<XTriangle>();
+    mRender = std::make_unique<XRender>();
+    mRender->setInput("/Users/oogh/Workspace/Resources/jieqian_720x1280.mp4");
 
     onSurfaceCreated(window);
 
+    glViewport(0, 0, mWidth, mHeight);
     while (!glfwWindowShouldClose(window)) {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -61,12 +63,14 @@ void XSurface::deinit() {
 }
 
 void XSurface::onSurfaceCreated(GLFWwindow* window) {
+    mRender->onSurfaceCreated();
+    mRender->start();
 }
 
 void XSurface::onSurfaceSizeChanged(GLFWwindow* window, int width, int height) {
-
+    mRender->onSurfaceChanged(width, height);
 }
 
 void XSurface::onDrawFrame(GLFWwindow* window) {
-    mTriangle->draw();
+    mRender->onDrawFrame();
 }

@@ -2,16 +2,16 @@
 // Created by Oogh on 2020/3/19.
 //
 
+#include <chrono>
 #include "XRender.hpp"
-//#include "XTexture.hpp"
 #include "XException.hpp"
 #include "XImageUtil.hpp"
-#include "XTriangle.hpp"
 #include "XImage.hpp"
 #include "XThreadUtils.hpp"
 #include "XLogger.hpp"
 #include "XTimeCounter.hpp"
-#include <chrono>
+#include "XFFProducer.hpp"
+#include "XTexture.hpp"
 
 XRender::XRender(): mTextureWidth(0), mTextureHeight(0), mTargetPos(0), mAbortReq(false), mPauseReq(true) {
     
@@ -25,16 +25,9 @@ XRender::~XRender() {
 }
 
 void XRender::setInput(const std::string& filename) {
-#ifdef USE_FILE_PRODUCER
-    mProducer = std::make_unique<XFileProducer>();
-#endif
-
-#ifdef USE_FFMPEG_PRODUCER
     mProducer = std::make_unique<XFFProducer>();
-#endif
-
     mProducer->setProduceMode(PRODUCE_MODE_HARDWARE);
-//    mProducer->setInput(filename);
+    mProducer->setInput(filename);
 }
 
 void XRender::setOnProgressChangeCallback(OnProgressChangeCallback callback) {
@@ -46,8 +39,7 @@ void XRender::prepare(long timestamp) {
 }
 
 void XRender::start() {
-//    mProducer->start();
-    
+    mProducer->start();
     mPauseReq = false;
     if (!mRefreshTid) {
         mRefreshTid = std::make_unique<std::thread>([this] { refreshWorkThread(this); });
@@ -67,7 +59,7 @@ void XRender::pause() {
 }
 
 void XRender::onSurfaceCreated() {
-    
+    mTexture = std::make_unique<XTexture>();
 }
 
 void XRender::onSurfaceChanged(int width, int height) {
@@ -79,16 +71,7 @@ void XRender::onSurfaceChanged(int width, int height) {
 }
 
 void XRender::onDrawFrame() {
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    if (!mTriangle) {
-        mTriangle = std::make_unique<XTriangle>();
-    }
-
-    if (mTriangle) {
-        mTriangle->draw();
-    }
+    mTexture->draw();
 }
 
 void XRender::refreshWorkThread(void* opaque) {
@@ -116,9 +99,9 @@ void XRender::refreshWorkThread(void* opaque) {
             auto image = render->mProducer->peekImage(render->mTargetPos);
             if (image && image->pixels[0]) {
                 peekImageCounter.markEnd();
-//                if (render->mTexture) {
-//                    render->mTexture->update(image->pixels[0], render->mTextureWidth, render->mTextureHeight);
-//                }
+                if (render->mTexture) {
+                    render->mTexture->setPixels(image->pixels[0], image->width, image->height);
+                }
                 if (image->pts > render->mTargetPos) {
                     render->mProducer->endCurrentImageUse();
                 }

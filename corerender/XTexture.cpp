@@ -1,126 +1,97 @@
 //
-// Created by Oogh on 2020/3/19.
+// Created by Oogh on 2020/11/1.
 //
 
 #include "XTexture.hpp"
-#include "XShader.hpp"
-#include "XLogger.hpp"
-#include <cstring>
+#include "XImageUitls.hpp"
 
-#define TO_STR(x) #x
+std::string XTexture::sVertexFilePath = "/Users/oogh/Workspace/XRender/Resources/shaders/texture.vs";
+std::string XTexture::sFragmentFilePath = "/Users/oogh/Workspace/XRender/Resources/shaders/texture.fs";
 
-const char *gVertexShader = "#version 330 core"
-        "\nattribute vec4 aPosition;"
-        "\nattribute vec2 aTextureCoord;"
-        "\nvarying vec2 vTextureCoord;"
-        "\nvoid main() {"
-        "\n    vTextureCoord = vec2(aTextureCoord.x, 1.0 - aTextureCoord.y);"
-        "\n    gl_Position = aPosition;"
-        "\n}";
+XTexture::XTexture(): mWidth(0), mHeight(0), mPixels(nullptr) {
+    mShader = std::make_unique<XShader>(sVertexFilePath, sFragmentFilePath);
 
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
 
-const char *gFragRGBA = "#version 330 core"
-        "\nprecision mediump float;"
-        "\nvarying vec2 vTextureCoord;"
-        "\nuniform sampler2D uTexture;"
-        "\nvoid main() {"
-        "\ngl_FragColor = texture2D(uTexture, vTextureCoord);"
-        "\n}";
+    glBindVertexArray(VAO);
 
-const char *gFragYUV420P = TO_STR(
-        precision mediump float;
-        varying vec2 vTextureCoord;
-        uniform sampler2D yTexture;
-        uniform sampler2D uTexture;
-        uniform sampler2D vTexture;
-        void main() {
-            vec3 yuv;
-            vec3 rgb;
-            yuv.r = texture2D(yTexture, vTextureCoord).r;
-            yuv.g = texture2D(uTexture, vTextureCoord).r - 0.5;
-            yuv.b = texture2D(vTexture, vTextureCoord).r - 0.5;
-            rgb = mat3(1.0, 1.0, 1.0,
-                       0.0, -0.39465, 2.03211,
-                       1.13983, -0.58060, 0.0) * yuv;
-            gl_FragColor = vec4(rgb, 1.0);
-        }
-);
-
-XTexture::XTexture(int width, int height)
-: mWidth(width), mHeight(height) {
-    mVertexCoords = new float[TEXTURE_VERTEX_COUNT * 3] {
-            1.0f, -1.0f, 0.0f,
-            -1.0f, -1.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,
-            -1.0f, 1.0f, 0.0f,
+    float vertices[] = {
+            // positions          // colors           // texture coords
+            1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top right
+            1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom right
+            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
+            -1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f  // top left
     };
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    mTextureCoords = new float[TEXTURE_VERTEX_COUNT * 2] {
-            1.0f, 0.0f, //右下
-            0.0f, 0.0f,
-            1.0f, 1.0f,
-            0.0, 1.0
+    unsigned int indices[] = {
+            0, 1, 3,
+            1, 2, 3
     };
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    // 1. 创建着色器程序
-    mProgram = -1;//createProgram(gVertexShader, gFragRGBA);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) 0);
+    glEnableVertexAttribArray(0);
 
-    // 2. 获取着色器中的属性饮用
-    aPosition = static_cast<GLuint>(glGetAttribLocation(mProgram, "aPosition"));
-    aTextureCoord = static_cast<GLuint>(glGetAttribLocation(mProgram, "aTextureCoord"));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
-    // 3. 使用着色器程序
-    glUseProgram(mProgram);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
-    // 4. 向着色器程序中传递顶点坐标数据
-    glVertexAttribPointer(aPosition, 3, GL_FLOAT, GL_FALSE, 0, mVertexCoords);
-    glEnableVertexAttribArray(aPosition);
+    glGenTextures(1, &mTexture);
+    glBindTexture(GL_TEXTURE_2D, mTexture);
 
-    // 5. 向着色器程序中传递纹理坐标数据
-    glVertexAttribPointer(aTextureCoord, 2, GL_FLOAT, GL_FALSE, 0, mTextureCoords);
-    glEnableVertexAttribArray(aTextureCoord);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    // 以上是着色器程序部分
-    //---------------------------------------
-    // 以下是纹理部分
-
-    // 1. 设置纹理层
-    glUniform1i(glGetUniformLocation(mProgram, "uTexture"), 0);
-
-    // 2. 创建纹理
-    glGenTextures(1, &mTextureId);
-    glBindTexture(GL_TEXTURE_2D, mTextureId);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mWidth, mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    
-    mPixels = new uint8_t[mWidth * mHeight * 4];
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 XTexture::~XTexture() {
-    if (mVertexCoords) {
-        delete[] mVertexCoords;
-        mVertexCoords = nullptr;
+    if (mPixels) {
+        free(mPixels);
+        mPixels = nullptr;
     }
+}
 
-    if (mTextureCoords) {
-        delete[] mTextureCoords;
-        mTextureCoords = nullptr;
+void XTexture::setPixels(uint8_t* pixels, int width, int height) {
+    if (!pixels || width <= 0 || height <= 0) {
+        return;
     }
+    
+    if (mWidth != width || mHeight != height) {
+        if (mPixels) {
+            free(mPixels);
+            mPixels = nullptr;
+        }
+        mWidth = width;
+        mHeight = height;
+    }
+    
+    size_t size = width * height * 4;
+    if (!mPixels) {
+        mPixels = reinterpret_cast<uint8_t*>(malloc(size));
+    }
+    
+    memcpy(mPixels, pixels, size);
+
 }
 
 void XTexture::draw() {
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, mTextureId);
+    if (mPixels) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mWidth, mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, mPixels);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
     
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mWidth, mHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, mPixels);
-    
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-}
+    glBindTexture(GL_TEXTURE_2D, mTexture);
 
-void XTexture::update(uint8_t* pixels, int width, int height) {
-    memcpy(mPixels, pixels, width * height * 4);
+    mShader->use();
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }

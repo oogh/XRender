@@ -1,31 +1,30 @@
 //
-// Created by Oogh on 2020/10/26.
+// Created by Oogh on 2020/10/31.
 //
 
-#ifndef XRENDER_XTRIANGLE_HPP
-#define XRENDER_XTRIANGLE_HPP
+#ifndef XRENDER_XRECTANGLE_HPP
+#define XRENDER_XRECTANGLE_HPP
 
 #include "XShader.hpp"
 
-class XTriangle {
-
+class XRectangle {
 public:
-    XTriangle();
+    XRectangle();
 
-    ~XTriangle();
+    ~XRectangle();
 
     void draw();
 
 private:
     static std::string sVertexFilePath;
     static std::string sFragmentFilePath;
-    static float* sVertices;
 
 private:
     std::unique_ptr<XShader> mShader;
     GLuint VBO;
     GLuint VAO;
+    GLuint EBO;
 };
 
 
-#endif //XRENDER_XTRIANGLE_HPP
+#endif //XRENDER_XRECTANGLE_HPP
