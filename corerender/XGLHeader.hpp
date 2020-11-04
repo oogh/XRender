@@ -8,7 +8,8 @@
 #include "XPlatform.hpp"
 
 #if PLATFORM_ANDROID
-    #include <GLES2/gl2.h>
+    #include <GLES3/gl3.h>
+    #include <GLES3/gl3ext.h>
 #elif PLATFORM_IOS
     #import <OpenGLES/ES2/gl.h>
 #elif PLATFORM_MAC

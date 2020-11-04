@@ -27,7 +27,7 @@ public class XView extends GLSurfaceView implements GLSurfaceView.Renderer {
 
     private void init() {
         mNativePtr = nativeCreateView();
-        setEGLContextClientVersion(2);
+        setEGLContextClientVersion(3);
         setRenderer(this);
     }
 
