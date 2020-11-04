@@ -8,20 +8,28 @@
 #include <memory>
 #include <thread>
 #include "XFFHeader.hpp"
+#include "XSample.hpp"
+#include "XPacketQueue.hpp"
 
 class XSampleQueue;
 
 class XAudioCodec {
 public:
-    XAudioCodec(std::shared_ptr<AVFormatContext> ic, int index);
+    XAudioCodec();
 
     ~XAudioCodec();
 
+    int setFilename(std::string filename);
+
+    void setLoop(bool loop);
+
     int open();
 
-    int decodePacket(bool async = false);
+    int seekFileTo(long target);
 
-    int getSamples(uint8_t* out, int size);
+    std::shared_ptr<Packet> getPacket();
+
+    std::shared_ptr<XSample> getSample(int length);
 
     void close();
 
@@ -44,25 +52,27 @@ private:
     const int S_AUDIO_DECODE_EOF = 1 << 1;
 
 private:
-    std::shared_ptr<AVFormatContext> mFormatCtx;
+    std::string mFilename;
+    std::unique_ptr<AVFormatContext, InputFormatDeleter> mFormatCtx;
 
     int mIndex;
     std::unique_ptr<AVCodecContext, CodecDeleter> mCodecCtx;
     std::unique_ptr<std::thread> mAudioTid;
     std::unique_ptr<XSampleQueue> mSampleQueue;
     std::unique_ptr<SwrContext, SwrContextDeleter> mSwrContext;
+    bool mLoop;
 
     ///< 采样缓存区
-    uint8_t* mSampleData;
+    uint8_t* mAudioBuffer;
 
     ///< 记录当前采样缓存区中已被读取的采样数据的大小
-    int mSampleDataIndex;
+    int mAudioBufferIndex;
 
-    ///< 记录当前采样缓存区中剩余采样数据的大小，其值等于 mSampleBufferSizeMax - mSampleDataIndex
-    int mSampleBufferSize;
+    ///< 记录当前采样缓存区中剩余采样数据的大小，其值等于 mAudioBufferSizeMax - mAudioBufferIndex
+    int mAudioBufferSize;
 
     ///< 记录上一次重采样之后缓存区中存放的采样数据的大小
-    int mSampleBufferSizeMax;
+    int mAudioBufferSizeMax;
 
     ///< 理论上执行重采样过后，得到的采样数。这里记录最大值，确保重采样输出缓存区的内存空间足够大
     int mDstSampleCountMax;

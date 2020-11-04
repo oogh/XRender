@@ -55,7 +55,6 @@ struct XImage {
             this->linesize[i] = 0;
         }
     }
-
 };
 
 #endif //XEXPORTER_XIMAGE_H

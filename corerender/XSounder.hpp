@@ -8,11 +8,11 @@
 #include <cinttypes>
 #include "XALHeader.hpp"
 
-class XAudioPlayer {
+class XSounder {
 public:
-    XAudioPlayer();
+    XSounder();
 
-    ~XAudioPlayer();
+    ~XSounder();
 
     void start();
 

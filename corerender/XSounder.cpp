@@ -2,7 +2,7 @@
 // Created by Oogh on 2020/8/30.
 //
 
-#include "XAudioPlayer.hpp"
+#include "XSounder.hpp"
 #include "XLogger.hpp"
 #include <cstdlib>
 #include <cstring>
@@ -26,16 +26,16 @@ const char *alError2Str(ALenum error) {
     return "";
 }
 
-XAudioPlayer::XAudioPlayer()
+XSounder::XSounder()
 : mDevice(nullptr), mContext(nullptr) {
     init();
 }
 
-XAudioPlayer::~XAudioPlayer() {
+XSounder::~XSounder() {
     deinit();
 }
 
-void XAudioPlayer::start() {
+void XSounder::start() {
     // Rewind the source position and clear the buffer queue
     alSourceRewind(mSource00);
     alSourcei(mSource00, AL_BUFFER, 0);
@@ -56,21 +56,21 @@ void XAudioPlayer::start() {
     alSourcePlay(mSource00);
     ALenum error = alGetError();
     if (error != AL_NO_ERROR) {
-        LOGE("[XAudioPlayer] alBufferData() failed: %s\n", alError2Str(error));
+        LOGE("[XSounder] alBufferData() failed: %s\n", alError2Str(error));
         return;
     }
 
 }
 
-void XAudioPlayer::pause() {
+void XSounder::pause() {
     alSourcePause(mSource00);
 }
 
-void XAudioPlayer::stop() {
+void XSounder::stop() {
     alSourceStop(mSource00);
 }
 
-int XAudioPlayer::updateAudio(uint8_t *data, int size) {
+int XSounder::updateAudio(uint8_t *data, int size) {
 
     ALenum error = AL_NO_ERROR;
     ALint processed, state, queued;
@@ -91,7 +91,7 @@ int XAudioPlayer::updateAudio(uint8_t *data, int size) {
         ALuint bufferId;
         alSourceUnqueueBuffers(mSource00, 1, &bufferId);
         if ((error = alGetError()) != AL_NO_ERROR) {
-            LOGE("[XAudioPlayer] alSourceUnqueueBuffers() failed: %s\n", alError2Str(error));
+            LOGE("[XSounder] alSourceUnqueueBuffers() failed: %s\n", alError2Str(error));
             return -1;
         }
         processed--;
@@ -100,13 +100,13 @@ int XAudioPlayer::updateAudio(uint8_t *data, int size) {
          * back on the source */
         alBufferData(bufferId, AL_FORMAT_STEREO16, data, size, 44100);
         if ((error = alGetError()) != AL_NO_ERROR) {
-            LOGE("[XAudioPlayer] alBufferData() failed: %s\n", alError2Str(error));
+            LOGE("[XSounder] alBufferData() failed: %s\n", alError2Str(error));
             return -1;
         }
 
         alSourceQueueBuffers(mSource00, 1, &bufferId);
         if ((error = alGetError()) != AL_NO_ERROR) {
-            LOGE("[XAudioPlayer] alSourceQueueBuffers() failed: %s\n", alError2Str(error));
+            LOGE("[XSounder] alSourceQueueBuffers() failed: %s\n", alError2Str(error));
             return -1;
         }
     }
@@ -123,7 +123,7 @@ int XAudioPlayer::updateAudio(uint8_t *data, int size) {
 
         alSourcePlay(mSource00);
         if ((error = alGetError()) != AL_NO_ERROR) {
-            LOGE("[XAudioPlayer] alSourcePlay() failed: %s\n", alError2Str(error));
+            LOGE("[XSounder] alSourcePlay() failed: %s\n", alError2Str(error));
             return -1;
         }
     }
@@ -132,7 +132,7 @@ int XAudioPlayer::updateAudio(uint8_t *data, int size) {
     return queued;
 }
 
-bool XAudioPlayer::init() {
+bool XSounder::init() {
     // 1. 打开默认音频设备
     mDevice = alcOpenDevice(nullptr);
     if (!mDevice) {
@@ -184,7 +184,7 @@ bool XAudioPlayer::init() {
     return true;
 }
 
-void XAudioPlayer::deinit() {
+void XSounder::deinit() {
     alDeleteSources(1, &mSource00);
 
     alDeleteBuffers(NUM_BUFFERS, mBuffers);
