@@ -7,7 +7,6 @@
 std::string XTriangle::sVertexFilePath = "/Users/oogh/Workspace/XRender/Resources/shaders/triangle.vs";
 std::string XTriangle::sFragmentFilePath = "/Users/oogh/Workspace/XRender/Resources/shaders/triangle.fs";
 
-
 XTriangle::XTriangle() {
     mShader = std::make_unique<XShader>(sVertexFilePath, sFragmentFilePath);
 
