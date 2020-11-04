@@ -3,15 +3,11 @@
 //
 
 #include "XAudioCodec.hpp"
-#include "XMediaHandle.hpp"
 #include "XLogger.hpp"
-#include "XSampleQueue.hpp"
-#include "XThreadUtils.hpp"
 
 
 XAudioCodec::XAudioCodec()
-: mStatus(0), mAudioBuffer(nullptr), mAudioBufferIndex(0), mAudioBufferSize(0), mAudioBufferSizeMax(0),
-  mDstSampleCountMax(0), mLoop(false) {
+: mStatus(0), mAudioBuffer(nullptr), mAudioBufferIndex(0), mAudioBufferSize(0),  mLoop(false) {
 
 }
 
@@ -124,7 +120,6 @@ int XAudioCodec::open() {
         return ret;
     }
 
-    mDstSampleCountMax = 0;
     if (mAudioBuffer) {
         av_freep(&mAudioBuffer);
     }
@@ -132,7 +127,6 @@ int XAudioCodec::open() {
     // 申请目标缓冲区内存空间
     int srcSampleCount = avctx->frame_size > 0 ? avctx->frame_size : 1024;
     int dstSampleCount = static_cast<int>(av_rescale_rnd(srcSampleCount, DST_SAMPLE_RATE, avctx->sample_rate, AV_ROUND_UP));
-    mDstSampleCountMax = dstSampleCount;
 
     int dstChannels = av_get_channel_layout_nb_channels(DST_CHANNEL_LAYOUT);
     ret = av_samples_alloc(&mAudioBuffer, nullptr, dstChannels, dstSampleCount, DST_SAMPLE_FMT, 0);
@@ -147,6 +141,8 @@ int XAudioCodec::seekFileTo(long target) {
     if (!mFormatCtx || mIndex < 0) {
         return AVERROR(EINVAL);
     }
+
+    mStatus &= ~(S_READ_EOF | S_AUDIO_DECODE_EOF);
 
     int64_t ts = av_rescale(target, AV_TIME_BASE, 1000);
     int ret = avformat_seek_file(mFormatCtx.get(), -1, INT64_MIN, ts, INT64_MAX, 0);
@@ -169,7 +165,11 @@ std::shared_ptr<Packet> XAudioCodec::getPacket() {
         ret = av_read_frame(mFormatCtx.get(), pkt->avpkt);
         if (ret < 0) {
             if (ret == AVERROR_EOF && mLoop) {
-                seekFileTo(0);
+                ret = seekFileTo(0);
+                if (ret < 0) {
+                    return nullptr;
+                }
+                continue;
             }
             return nullptr;
         }
@@ -183,7 +183,7 @@ std::shared_ptr<Packet> XAudioCodec::getPacket() {
     return nullptr;
 }
 
-int XAudioCodec::decodeAudioFrame() {
+int XAudioCodec::decodeFrame() {
     int ret = AVERROR(EAGAIN);
     for (;;) {
         auto frame = std::make_shared<Frame>();
@@ -207,13 +207,23 @@ int XAudioCodec::decodeAudioFrame() {
         auto pkt = std::make_shared<Packet>();
         ret = av_read_frame(mFormatCtx.get(), pkt->avpkt);
         if (ret < 0) {
-            if (ret == AVERROR_EOF && !(mStatus & S_READ_EOF)) {
-                ret = avcodec_send_packet(mCodecCtx.get(), nullptr);
-                if (ret < 0 && ret != AVERROR(EAGAIN) && ret != AVERROR_EOF) {
-                    LOGE("[XAudioCodec] avcodec_send_packet failed: %s\n", av_err2str(ret));
-                    return ret;
+            if (ret == AVERROR_EOF) {
+                if (!(mStatus & S_READ_EOF)) {
+                    ret = avcodec_send_packet(mCodecCtx.get(), nullptr);
+                    if (ret < 0 && ret != AVERROR(EAGAIN) && ret != AVERROR_EOF) {
+                        LOGE("[XAudioCodec] avcodec_send_packet failed: %s\n", av_err2str(ret));
+                        return ret;
+                    }
+
+                    if (mLoop) {
+                        ret = seekFileTo(0);
+                        if (ret < 0) {
+                            return ret;
+                        }
+                    } else {
+                        mStatus |= S_READ_EOF;
+                    }
                 }
-                mStatus |= S_READ_EOF;
                 continue;
             }
             return ret;
@@ -232,7 +242,24 @@ int XAudioCodec::decodeAudioFrame() {
 }
 
 std::shared_ptr<XSample> XAudioCodec::getSample(int length) {
+    auto sample = std::make_shared<XSample>(length);
+    int available, writeLen;
+    while (length > 0) {
+        if (mAudioBufferIndex >= mAudioBufferSize) {
+            if (decodeFrame() == AVERROR_EOF) {
+                return sample;
+            }
+        }
 
+        available = mAudioBufferSize - mAudioBufferIndex;
+        writeLen = std::min(available, length);
+
+        memcpy(sample->data, mAudioBuffer + mAudioBufferIndex, writeLen);
+        mAudioBufferIndex += writeLen;
+        length -= writeLen;
+    }
+
+    return sample;
 }
 
 int XAudioCodec::sampleConvert(AVFrame *src) {
@@ -263,15 +290,30 @@ int XAudioCodec::sampleConvert(AVFrame *src) {
         return size;
     }
 
+    mAudioBufferIndex = 0;
     mAudioBufferSize = size;
-    mAudioBufferSizeMax = size;
 
     return mAudioBufferSize;
 }
 
 void XAudioCodec::close() {
+
+    if (mAudioBuffer) {
+        av_freep(&mAudioBuffer);
+    }
+    mAudioBufferIndex = 0;
+    mAudioBufferSize = 0;
+
+    if (mSwrContext) {
+        mSwrContext.reset();
+    }
+
     if (mCodecCtx) {
         mCodecCtx.reset();
+    }
+
+    if (mFormatCtx) {
+        mFormatCtx.reset();
     }
 }
 

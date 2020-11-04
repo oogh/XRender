@@ -7,6 +7,8 @@
 
 #include <memory>
 #include <thread>
+#include <mutex>
+#include <condition_variable>
 
 class XRender;
 class XSounder;
@@ -21,7 +23,9 @@ public:
 
     void setTimeline(std::shared_ptr<XTimeline> timeline);
 
-    int prepared();
+    int start();
+
+    bool isCompleted();
 
 private:
     void audioWorkThread(void* opaque);
@@ -32,6 +36,8 @@ private:
     std::shared_ptr<XTimeline> mTimeline;
 
     std::unique_ptr<std::thread> mAudioTid;
+    std::mutex mMutex;
+    std::condition_variable mContinueAudioWorkCond;
 
     bool mAborted;
 };

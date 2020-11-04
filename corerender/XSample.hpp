@@ -9,24 +9,20 @@
 #include "XFFHeader.hpp"
 
 struct XSample {
-    uint8_t* pixels = nullptr;
+    uint8_t* data = nullptr;
 
     int length = 0;
 
-    int format = -1;
-
-    XSample() {
+    XSample(int length) {
+        this->length = length;
+        this->data = reinterpret_cast<uint8_t*>(av_malloc(length));
+        memset(this->data, '\0', length);
     }
 
     ~XSample() {
-        free();
-    }
-
-    void free() {
         this->length = 0;
-        this->format = -1;
-        if (this->pixels != nullptr) {
-            av_freep(&this->pixels);
+        if (this->data != nullptr) {
+            av_freep(&this->data);
         }
     }
 };

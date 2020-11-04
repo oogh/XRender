@@ -7,8 +7,9 @@
 
 #include <list>
 #include <mutex>
+#include "XTrack.hpp"
 
-class XTrack;
+class XSample;
 
 class XTimeline : public std::enable_shared_from_this<XTimeline> {
 public:
@@ -20,10 +21,23 @@ public:
 
     int removeTrack(int id);
 
+    std::shared_ptr<XSample> getSample(int length);
+
+    long getClock();
+
+    bool isCompleted();
+
+private:
+    void updateDuration();
+
 private:
     std::list<std::shared_ptr<XTrack>> mTrackList;
 
     std::mutex mMutex;
+
+    int mUsedSample;
+
+    long mDuration;
 };
 
 

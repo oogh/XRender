@@ -7,9 +7,8 @@
 
 int XTrack::ID_GENERATOR = 0;
 
-XTrack::XTrack(const std::string& filename)
-: mId(ID_GENERATOR++), mFilename(filename), mDelay(0), mClipStartTime(0), mClipEndTime(0) {
-
+XTrack::XTrack() : mId(ID_GENERATOR++), mDelay(0), mClipStartTime(0), mClipEndTime(0) {
+    mAudioCodec = std::make_unique<XAudioCodec>();
 }
 
 XTrack::~XTrack() {
@@ -20,8 +19,13 @@ void XTrack::setTimeline(std::shared_ptr<XTimeline> timeline) {
     mTimeline = timeline;
 }
 
-void XTrack::replaceFilename(const std::string& filename) {
+void XTrack::setFilename(const std::string& filename) {
     mFilename = filename;
+    if (mAudioCodec) {
+        mAudioCodec->close();
+    }
+    mAudioCodec->setFilename(filename);
+    mAudioCodec->open();
 }
 
 int XTrack::getId() const {
@@ -58,4 +62,11 @@ long XTrack::getClipEndTime() const {
 
 long XTrack::getClipDuration() const {
     return mClipEndTime - mClipStartTime;
+}
+
+std::shared_ptr<XSample> XTrack::getSample(long clock, int length) {
+    if (mAudioCodec && (mDelay <= clock && clock <= mDelay + getClipDuration())) {
+        return mAudioCodec->getSample(length);
+    }
+    return nullptr;
 }

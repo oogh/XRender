@@ -5,6 +5,9 @@
 #include "XPlayer.hpp"
 #include "XRender.hpp"
 #include "XSounder.hpp"
+#include "XTimeline.hpp"
+#include "XThreadUtils.hpp"
+#include "XLogger.hpp"
 
 XPlayer::XPlayer() {
     mRender = std::make_unique<XRender>();
@@ -19,16 +22,16 @@ void XPlayer::setTimeline(std::shared_ptr<XTimeline> timeline) {
     mTimeline = timeline;
 }
 
-int XPlayer::prepared() {
+int XPlayer::start() {
     if (!mAudioTid) {
         mAudioTid = std::make_unique<std::thread>([this]{ audioWorkThread(this); });
     }
-
-
     return 0;
 }
 
 void XPlayer::audioWorkThread(void* opaque) {
+    XThreadUtils::configThreadName("audioWorkThread");
+    LOGD("[XPlayer] audioWorkThread ++++\n");
     auto player = reinterpret_cast<XPlayer*>(opaque);
 
     player->mSounder->start();
@@ -38,9 +41,17 @@ void XPlayer::audioWorkThread(void* opaque) {
             break;
         }
 
+        if (player->mTimeline->isCompleted()) {
+            std::unique_lock<std::mutex> lock(player->mMutex);
+            player->mContinueAudioWorkCond.wait(lock);
+        }
+
+        auto sample = player->mTimeline->getSample(4096);
+        player->mSounder->updateAudio(sample->data, sample->length);
 
     }
 
     player->mSounder->stop();
+    LOGD("[XPlayer] audioWorkThread ----\n");
 }
 

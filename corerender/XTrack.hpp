@@ -6,18 +6,19 @@
 #define XRENDER_XTRACK_HPP
 
 #include <string>
+#include "XAudioCodec.hpp"
 
 class XTimeline;
 
 class XTrack {
 public:
-    explicit XTrack(const std::string& filename);
+    XTrack();
 
     ~XTrack();
 
     void setTimeline(std::shared_ptr<XTimeline> timeline);
 
-    void replaceFilename(const std::string& filename);
+    void setFilename(const std::string& filename);
 
     void setDelay(long delay);
 
@@ -37,6 +38,8 @@ public:
 
     long getClipDuration() const;
 
+    std::shared_ptr<XSample> getSample(long clock, int length);
+
 private:
     static int ID_GENERATOR;
 
@@ -47,6 +50,8 @@ private:
     long mDelay;
     long mClipStartTime;
     long mClipEndTime;
+
+    std::unique_ptr<XAudioCodec> mAudioCodec;
 };
 
 

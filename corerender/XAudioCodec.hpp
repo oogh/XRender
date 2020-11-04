@@ -34,12 +34,9 @@ public:
     void close();
 
 private:
-    int decodeAudioFrame();
+    int decodeFrame();
 
     int sampleConvert(AVFrame* src);
-
-private:
-    void audioWorkThread(void* opaque);
 
 private:
     const uint64_t DST_CHANNEL_LAYOUT = AV_CH_LAYOUT_STEREO;
@@ -57,8 +54,6 @@ private:
 
     int mIndex;
     std::unique_ptr<AVCodecContext, CodecDeleter> mCodecCtx;
-    std::unique_ptr<std::thread> mAudioTid;
-    std::unique_ptr<XSampleQueue> mSampleQueue;
     std::unique_ptr<SwrContext, SwrContextDeleter> mSwrContext;
     bool mLoop;
 
@@ -70,12 +65,6 @@ private:
 
     ///< 记录当前采样缓存区中剩余采样数据的大小，其值等于 mAudioBufferSizeMax - mAudioBufferIndex
     int mAudioBufferSize;
-
-    ///< 记录上一次重采样之后缓存区中存放的采样数据的大小
-    int mAudioBufferSizeMax;
-
-    ///< 理论上执行重采样过后，得到的采样数。这里记录最大值，确保重采样输出缓存区的内存空间足够大
-    int mDstSampleCountMax;
 };
 
 #endif //XRENDER_XAUDIOCODEC_HPP
