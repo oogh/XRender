@@ -12,19 +12,23 @@
 
 class XVideoCodec {
 public:
-    XVideoCodec(std::shared_ptr<AVFormatContext> ic, int index);
+    XVideoCodec();
 
     ~XVideoCodec();
 
+    void setFilename(std::string filename);
+
+    void setLoop(bool loop);
+
     int open();
+
+    int seekFileTo(long target);
 
     std::shared_ptr<XImage> getImage(long clock);
 
     void close();
 
 private:
-    int decodeVideoFrame();
-
     void frameConvert(std::shared_ptr<XImage> dst, AVFrame* src);
 
 private:
@@ -38,6 +42,8 @@ private:
     const AVPixelFormat DST_PIX_FMT = AV_PIX_FMT_RGBA;
 
 private:
+    std::string mFilename;
+
     std::shared_ptr<AVFormatContext> mFormatCtx;
 
     int mIndex;
@@ -50,7 +56,11 @@ private:
 
     ///< 上一次取到的帧
     std::shared_ptr<XImage> mLastImage;
+    std::shared_ptr<Frame> mLastFrame;
+    long mLastClock;
     static AVPixelFormat mHWPixelFormat;
+
+    bool mLoop;
 };
 
 

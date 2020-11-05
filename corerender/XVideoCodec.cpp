@@ -12,8 +12,8 @@
 
 AVPixelFormat XVideoCodec::mHWPixelFormat = AV_PIX_FMT_NONE;
 
-XVideoCodec::XVideoCodec(std::shared_ptr<AVFormatContext> ic, int index)
-: mFormatCtx(ic), mIndex(index), mBFrameIndex(0) {
+XVideoCodec::XVideoCodec()
+: mBFrameIndex(0), mLastClock(LONG_MAX), mLoop(false) {
 
 }
 
@@ -21,164 +21,104 @@ XVideoCodec::~XVideoCodec() {
 
 }
 
+void XVideoCodec::setFilename(std::string filename) {
+    mFilename = filename;
+}
+
+void XVideoCodec::setLoop(bool loop) {
+    mLoop = loop;
+}
+
 int XVideoCodec::open() {
-    if (!mFormatCtx || mIndex < 0) {
+    if (mFilename.empty()) {
         return AVERROR(EINVAL);
     }
 
-    if (!mCodecCtx) {
-        AVStream* stream = mFormatCtx->streams[mIndex];
-        AVCodec* codec = avcodec_find_decoder(stream->codecpar->codec_id);
-        if (!codec) {
-            LOGE("[XVideoCodec] avcodec_find_decoder(%s) failed!\n", avcodec_get_name(stream->codecpar->codec_id));
-            return AVERROR_DECODER_NOT_FOUND;
-        }
+    AVFormatContext* ic = avformat_alloc_context();
+    if (!ic) {
+        return AVERROR(ENOMEM);
+    }
+    mFormatCtx = std::unique_ptr<AVFormatContext, InputFormatDeleter>(ic);
 
-        bool decodeByHardware = false;
-        AVHWDeviceType type = AV_HWDEVICE_TYPE_NONE;
-#if PLATFORM_ANDROID
-        if (codec->id == AV_CODEC_ID_H264) {
-            codec = avcodec_find_decoder_by_name("h264_mediacodec");
-        } else if (codec->id == AV_CODEC_ID_HEVC) {
-            codec = avcodec_find_decoder_by_name("hevc_mediacodec");
-        }
-        if (!codec) {
-            codec = avcodec_find_decoder(stream->codecpar->codec_id);
-            if (!codec) {
-                LOGE("[XVideoCodec] avcodec_find_decoder failed: cannot find decoder %s\n",
-                     avcodec_get_name(codec->id));
-                return AVERROR_DECODER_NOT_FOUND;
-            }
-        }
-        type = av_hwdevice_find_type_by_name("mediacodec");
-#elif PLATFORM_IOS || PLATFORM_MAC
-        type = av_hwdevice_find_type_by_name("videotoolbox");
-        if (type == AV_HWDEVICE_TYPE_NONE) {
-            LOGW("[XVideoCodec] av_hwdevice_find_type_by_name(videotoolbox) failed!\n");
-        }  else {
-            for (int i = 0;; ++i) {
-                const AVCodecHWConfig *config = avcodec_get_hw_config(codec, i);
-                if (!config) {
-                    LOGW("[XVideoCodec] Decoder %s does not support device type %s.\n", codec->name,
-                         av_hwdevice_get_type_name(type));
-                } else if (config->methods & AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX &&
-                    config->device_type == type) {
-                    mHWPixelFormat = config->pix_fmt;
-                    decodeByHardware = true;
-                    break;
-                }
-            }
-        }
-#endif
+    int ret = avformat_open_input(&ic, mFilename.data(), nullptr, nullptr);
+    if (ret < 0) {
+        LOGE("[XVideoCodec] avformat_open_input failed: %s\n", av_err2str(ret));
+        return ret;
+    }
 
-        AVCodecContext* avctx = avcodec_alloc_context3(codec);
-        if (!avctx) {
-            LOGE("[XVideoCodec] avcodec_alloc_context3 failed!\n");
-            return AVERROR(ENOMEM);
-        }
-        mCodecCtx = std::unique_ptr<AVCodecContext, CodecDeleter>(avctx);
+    ret = avformat_find_stream_info(ic, nullptr);
+    if (ret < 0) {
+        LOGE("[XVideoCodec] avformat_find_stream_info failed: %s\n", av_err2str(ret));
+        return ret;
+    }
 
-        int ret = avcodec_parameters_to_context(avctx, stream->codecpar);
-        if (ret < 0) {
-            LOGE("[XVideoCodec] avcodec_parameters_to_context failed: %s\n",
-                 av_err2str(ret));
-            return ret;
-        }
+    for (int i = 0; i < mFormatCtx->nb_streams; ++i) {
+        mFormatCtx->streams[i]->discard = AVDISCARD_ALL;
+    }
 
-        if (decodeByHardware) {
-            avctx->get_format = [](AVCodecContext* ctx, const enum AVPixelFormat* format) -> AVPixelFormat {
-                return mHWPixelFormat;
-            };
+    int index = av_find_best_stream(ic, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
+    if (index < 0) {
+        return AVERROR_STREAM_NOT_FOUND;
+    }
+    mIndex = index;
+    AVStream* stream = mFormatCtx->streams[index];
+    stream->discard = AVDISCARD_DEFAULT;
 
-            AVBufferRef *deviceCtx = nullptr;
-            ret = av_hwdevice_ctx_create(&deviceCtx, type, nullptr, nullptr, 0);
-            if (ret < 0) {
-                LOGE("[XVideoCodec] av_hwdevice_ctx_create failed: %s\n", av_err2str(ret));
-                return ret;
-            }
-            // TODO(oogh): 2020/09/22 需要通过 av_buffer_unref 释放
-            avctx->hw_device_ctx = av_buffer_ref(deviceCtx);
-        }
+    AVCodec* decoder = avcodec_find_decoder(stream->codecpar->codec_id);
+    if (!decoder) {
+        LOGE("[XVideoCodec] avcodec_find_decoder(%s) failed!\n", avcodec_get_name(stream->codecpar->codec_id));
+        return AVERROR_DECODER_NOT_FOUND;
+    }
 
-        AVDictionary* opts = nullptr;
-        if (!av_dict_get(opts, "threads", nullptr, 0)) {
-            av_dict_set(&opts, "threads", "auto", 0);
-        }
+    AVCodecContext* avctx = avcodec_alloc_context3(decoder);
+    if (!avctx) {
+        LOGE("[XVideoCodec] avcodec_alloc_context3 failed!\n");
+        return AVERROR(ENOMEM);
+    }
+    mCodecCtx = std::unique_ptr<AVCodecContext, CodecDeleter>(avctx);
 
-        ret = avcodec_open2(avctx, codec, &opts);
+    ret = avcodec_parameters_to_context(avctx, stream->codecpar);
+    if (ret < 0) {
+        LOGE("[XVideoCodec] avcodec_parameters_to_context failed: %s\n",
+             av_err2str(ret));
+        return ret;
+    }
 
-        if (opts) {
-            av_opt_free(opts);
-        }
+    AVDictionary* opts = nullptr;
+    if (!av_dict_get(opts, "threads", nullptr, 0)) {
+        av_dict_set(&opts, "threads", "auto", 0);
+    }
 
-        if (ret < 0) {
-            LOGE("[XVideoCodec] avcodec_open2 failed: %s\n", av_err2str(ret));
-            return ret;
-        }
+    ret = avcodec_open2(avctx, nullptr, &opts);
+
+    if (opts) {
+        av_opt_free(opts);
+    }
+
+    if (ret < 0) {
+        LOGE("[XVideoCodec] avcodec_open2 failed: %s\n", av_err2str(ret));
+        return ret;
     }
 
     return 0;
 }
 
-int XVideoCodec::decodeVideoFrame() {
-    int ret = AVERROR(EAGAIN);
-    for (;;) {
-        auto frame = std::make_shared<Frame>();
-        ret = avcodec_receive_frame(mCodecCtx.get(), frame->avframe);
-        if (ret < 0 && ret != AVERROR(EAGAIN) && ret != AVERROR_EOF) {
-            LOGE("[XVideoCodec] avcodec_receive_frame failed: %s\n", av_err2str(ret));
-            return ret;
-        }
 
-        if (ret == AVERROR_EOF) {
-            // TODO(oogh): 2020/09/22 视频解码完成
-            mStatus |= S_VIDEO_DECODE_EOF;
-            return ret;
-        }
 
-        if (ret >= 0) {
-            if (frame->avframe->format == mHWPixelFormat) {
-                auto cpuFrame = std::make_shared<Frame>();
-                ret = av_hwframe_transfer_data(cpuFrame->avframe, frame->avframe, 0);
-                if (ret < 0) {
-                    LOGE("[XVideoCodec] av_hwframe_transfer_data failed: %s\n",
-                         av_err2str(ret));
-                    return ret;
-                }
-//                queueFrame(cpuFrame->avframe, static_cast<long>(frame->avframe->pts), static_cast<long>(frame->avframe->pkt_duration));
-            } else {
-//                queueFrame(frame->avframe, static_cast<long>(frame->avframe->pts), static_cast<long>(frame->avframe->pkt_duration));
-            }
-            return 1;
-        }
-
-        auto pkt = std::make_shared<Packet>();
-        ret = av_read_frame(mFormatCtx.get(), pkt->avpkt);
-        if (ret < 0) {
-            if (ret == AVERROR_EOF && !(mStatus & S_READ_EOF)) {
-                ret = avcodec_send_packet(mCodecCtx.get(), nullptr);
-                if (ret < 0 && ret != AVERROR(EAGAIN) && ret != AVERROR_EOF) {
-                    LOGE("[XVideoCodec] avcodec_send_packet failed: %s\n", av_err2str(ret));
-                    return ret;
-                }
-                mStatus |= S_READ_EOF;
-                continue;
-            }
-            return ret;
-        }
-
-        AVStream* stream = mFormatCtx->streams[mIndex];
-        if (pkt->avpkt->stream_index == mIndex &&
-            !(stream->disposition & AV_DISPOSITION_ATTACHED_PIC) &&
-            checkIsValidPacket(pkt->avpkt)) {
-            av_packet_rescale_ts(pkt->avpkt, stream->time_base, {1, 1000});
-            ret = avcodec_send_packet(mCodecCtx.get(), pkt->avpkt);
-            if (ret < 0 && ret != AVERROR(EAGAIN) && ret != AVERROR_EOF) {
-                LOGE("[XVideoCodec] avcodec_send_packet failed: %s\n", av_err2str(ret));
-                return ret;
-            }
-        }
+int XVideoCodec::seekFileTo(long target) {
+    if (!mFormatCtx || mIndex < 0) {
+        return AVERROR(EINVAL);
     }
+
+    mStatus &= ~(S_READ_EOF | S_VIDEO_DECODE_EOF);
+
+    int64_t ts = av_rescale(target, AV_TIME_BASE, 1000);
+    int ret = avformat_seek_file(mFormatCtx.get(), -1, INT64_MIN, ts, INT64_MAX, 0);
+    if (ret < 0) {
+        LOGE("[XAudioCodec] avformat_seek_file failed: %s\n", av_err2str(ret));
+        return ret;
+    }
+
     return 0;
 }
 
@@ -273,6 +213,80 @@ void XVideoCodec::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
 }
 
 std::shared_ptr<XImage> XVideoCodec::getImage(long clock) {
+
+    if (!mFormatCtx || mIndex < 0 || !mCodecCtx) {
+        return nullptr;
+    }
+
+    if (mLastImage) {
+        if (clock == mLastClock || mLastImage->pts <= clock && clock <= mLastImage->pts + mLastImage->duration) {
+            return mLastImage;
+        }
+    }
+
+    mLastClock = clock;
+
+    AVStream* stream = mFormatCtx->streams[mIndex];
+    int ret;
+    for (;;) {
+        auto frame = std::make_shared<Frame>();
+        ret = avcodec_receive_frame(mCodecCtx.get(), frame->avframe);
+        if (ret < 0 && ret != AVERROR(EAGAIN)) {
+            if (ret != AVERROR_EOF) {
+                LOGE("[XVideoCodec] avcodec_receive_frame failed: %s\n", av_err2str(ret));
+            }
+            return nullptr;
+        }
+
+        if (ret >= 0) {
+            if (frame->avframe->pts <= clock) {
+                mLastFrame = frame;
+                if (clock <= frame->avframe->pts + frame->avframe->pkt_duration) {
+                    auto image = std::make_shared<XImage>();
+                    frameConvert(image, frame->avframe);
+                    mLastImage = image;
+                    return image;
+                }
+            } else if (clock > frame->avframe->pts + frame->avframe->pkt_duration && mLastFrame) {
+                auto image = std::make_shared<XImage>();
+                frameConvert(image, mLastFrame->avframe);
+                mLastImage = image;
+                return image;
+            }
+            continue;
+        }
+
+        auto pkt = std::make_shared<Packet>();
+        ret = av_read_frame(mFormatCtx.get(), pkt->avpkt);
+        if (ret < 0) {
+            if (ret == AVERROR_EOF && !(mStatus & S_READ_EOF)) {
+                ret = avcodec_send_packet(mCodecCtx.get(), nullptr);
+                if (ret < 0 && ret != AVERROR(EAGAIN) && ret != AVERROR_EOF) {
+                    LOGW("[XVideoCodec] avcodec_send_packet(nullptr) failed: %s\n", av_err2str(ret));
+                }
+                if (mLoop) {
+                    ret = seekFileTo(0);
+                    if (ret < 0) {
+                        return nullptr;
+                    }
+                } else {
+                    mStatus |= S_READ_EOF;
+                }
+                continue;
+            } else {
+                LOGE("[XVideoCodec] av_read_frame failed: %s\n", av_err2str(ret));
+            }
+            return nullptr;
+        } else {
+            if (pkt->avpkt->stream_index == mIndex && !(stream->disposition & AV_DISPOSITION_ATTACHED_PIC)) {
+                av_packet_rescale_ts(pkt->avpkt, stream->time_base, {1, 1000});
+                ret = avcodec_send_packet(mCodecCtx.get(), pkt->avpkt);
+                if (ret < 0) {
+                    LOGW("[XVideoCodec] avcodec_send_packet(pkt) failed: %s\n", av_err2str(ret));
+                }
+            }
+        }
+    }
     return nullptr;
 }
 

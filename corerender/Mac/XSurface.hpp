@@ -9,31 +9,31 @@
 #include "XGLHeader.hpp"
 
 class XRender;
+class XPlayer;
 
 class XSurface {
 public:
     XSurface(int width, int height);
 
-    virtual ~XSurface();
+    ~XSurface();
+
+    void setPlayer(std::shared_ptr<XPlayer> player);
+
+    void create();
 
 protected:
-    virtual void onSurfaceCreated(GLFWwindow* window);
+    void onSurfaceCreated(GLFWwindow* window);
 
-    virtual void onSurfaceSizeChanged(GLFWwindow* window, int width, int height);
+    void onSurfaceSizeChanged(GLFWwindow* window, int width, int height);
 
-    virtual void onDrawFrame(GLFWwindow* window);
-
-private:
-    void init();
-
-    void deinit();
+    void onDrawFrame(GLFWwindow* window);
 
 private:
     int mWidth;
     int mHeight;
 
-    std::unique_ptr<XRender> mRender;
-
+    std::shared_ptr<XRender> mRender;
+    std::shared_ptr<XPlayer> mPlayer;
 };
 
 

@@ -6,8 +6,8 @@
 #include "XImageUitls.hpp"
 
 #if __APPLE__
-std::string XTexture::sVertexFilePath = "/Users/oogh/Workspace/XRender/Resources/shaders/texture.vs";
-std::string XTexture::sFragmentFilePath = "/Users/oogh/Workspace/XRender/Resources/shaders/texture.fs";
+std::string XTexture::sVertexFilePath = "/Users/andy/Workspace/Oogh/XRender/Resources/shaders/texture.vs";
+std::string XTexture::sFragmentFilePath = "/Users/andy/Workspace/Oogh/XRender/Resources/shaders/texture.fs";
 #elif __ANDROID__
 std::string XTexture::sVertexFilePath = "/sdcard/Android/data/com.demo.render/files/shaders/texture.vs";
 std::string XTexture::sFragmentFilePath = "/sdcard/Android/data/com.demo.render/files/shaders/texture.fs";

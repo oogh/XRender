@@ -23,15 +23,17 @@ public:
 
     void setTimeline(std::shared_ptr<XTimeline> timeline);
 
+    void setRender(std::shared_ptr<XRender> render);
+
     int start();
 
 private:
-    void audioWorkThread(void* opaque);
+    void audioWorkThread(void *opaque);
 
-    void videoWorkThread(void* opaque);
+    void videoWorkThread(void *opaque);
 
 private:
-    std::unique_ptr<XRender> mRender;
+    std::shared_ptr<XRender> mRender;
     std::unique_ptr<XSounder> mSounder;
     std::shared_ptr<XTimeline> mTimeline;
 
@@ -42,7 +44,7 @@ private:
     std::condition_variable mContinueVideoWorkCond;
 
     bool mAborted;
-};
 
+};
 
 #endif //XRENDER_XPLAYER_HPP

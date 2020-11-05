@@ -10,7 +10,7 @@
 #include "XLogger.hpp"
 
 XPlayer::XPlayer() {
-    mRender = std::make_unique<XRender>();
+    mRender = std::make_shared<XRender>();
     mSounder = std::make_unique<XSounder>();
 }
 
@@ -20,6 +20,10 @@ XPlayer::~XPlayer() {
 
 void XPlayer::setTimeline(std::shared_ptr<XTimeline> timeline) {
     mTimeline = timeline;
+}
+
+void XPlayer::setRender(std::shared_ptr<XRender> render) {
+    mRender = render;
 }
 
 int XPlayer::start() {

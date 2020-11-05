@@ -9,6 +9,7 @@ int XTrack::ID_GENERATOR = 0;
 
 XTrack::XTrack() : mId(ID_GENERATOR++), mDelay(0), mClipStartTime(0), mClipEndTime(0) {
     mAudioCodec = std::make_unique<XAudioCodec>();
+    mVideoCodec = std::make_unique<XVideoCodec>();
 }
 
 XTrack::~XTrack() {
@@ -21,6 +22,13 @@ void XTrack::setTimeline(std::shared_ptr<XTimeline> timeline) {
 
 void XTrack::setFilename(const std::string& filename) {
     mFilename = filename;
+
+    if (mVideoCodec) {
+        mVideoCodec->close();
+    }
+    mVideoCodec->setFilename(filename);
+    mVideoCodec->open();
+
     if (mAudioCodec) {
         mAudioCodec->close();
     }

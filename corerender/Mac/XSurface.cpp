@@ -5,17 +5,23 @@
 #include "XSurface.hpp"
 #include "XLogger.hpp"
 #include "XRender.hpp"
+#include "XPlayer.hpp"
 
 XSurface::XSurface(int width, int height)
         : mWidth(width), mHeight(height) {
-    init();
 }
 
 XSurface::~XSurface() {
-    deinit();
+
 }
 
-void XSurface::init() {
+void XSurface::setPlayer(std::shared_ptr<XPlayer> player) {
+    player->setRender(mRender);
+    mPlayer = player;
+    mPlayer->start();
+}
+
+void XSurface::create() {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -39,7 +45,7 @@ void XSurface::init() {
         return;
     }
 
-    mRender = std::make_unique<XRender>();
+    mRender = std::make_shared<XRender>();
 
     onSurfaceCreated(window);
 
@@ -55,10 +61,6 @@ void XSurface::init() {
     }
 
     glfwTerminate();
-}
-
-void XSurface::deinit() {
-
 }
 
 void XSurface::onSurfaceCreated(GLFWwindow* window) {
