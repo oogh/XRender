@@ -120,30 +120,6 @@ int XVideoCodec::open() {
     return 0;
 }
 
-int XVideoCodec::decodePacket(bool async) {
-    if (async) {
-        if (!mVideoTid) {
-            mVideoTid = std::make_unique<std::thread>([this] { videoWorkThread(this); });
-        }
-        return 0;
-    } else {
-        return decodeVideoFrame();
-    }
-}
-
-void XVideoCodec::videoWorkThread(void* opaque) {
-    XThreadUtils::configThreadName("videoWorkThread");
-    auto codec = reinterpret_cast<XVideoCodec*>(opaque);
-
-    int ret;
-    for (;;) {
-        ret = codec->decodeVideoFrame();
-        if (ret < 0) {
-            break;
-        }
-    }
-}
-
 int XVideoCodec::decodeVideoFrame() {
     int ret = AVERROR(EAGAIN);
     for (;;) {
@@ -169,9 +145,9 @@ int XVideoCodec::decodeVideoFrame() {
                          av_err2str(ret));
                     return ret;
                 }
-                queueFrame(cpuFrame->avframe, static_cast<long>(frame->avframe->pts), static_cast<long>(frame->avframe->pkt_duration));
+//                queueFrame(cpuFrame->avframe, static_cast<long>(frame->avframe->pts), static_cast<long>(frame->avframe->pkt_duration));
             } else {
-                queueFrame(frame->avframe, static_cast<long>(frame->avframe->pts), static_cast<long>(frame->avframe->pkt_duration));
+//                queueFrame(frame->avframe, static_cast<long>(frame->avframe->pts), static_cast<long>(frame->avframe->pkt_duration));
             }
             return 1;
         }
@@ -219,23 +195,6 @@ bool XVideoCodec::checkIsValidPacket(AVPacket *pkt) {
         mBFrameIndex = 0;
     }
     return true;
-}
-
-void XVideoCodec::queueFrame(AVFrame *frame, long pts, long duration) {
-
-    auto image = mImageQueue->peekWritable();
-    if (!image) {
-        return;
-    }
-
-    image->width = frame->width;
-    image->height = frame->height;
-    image->pts = pts;
-    image->duration = duration;
-    image->format = DST_PIX_FMT;
-    frameConvert(image, frame);
-
-    mImageQueue->push();
 }
 
 void XVideoCodec::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
@@ -314,23 +273,6 @@ void XVideoCodec::frameConvert(std::shared_ptr<XImage> dst, AVFrame *src) {
 }
 
 std::shared_ptr<XImage> XVideoCodec::getImage(long clock) {
-    if (!mImageQueue) {
-        return nullptr;
-    }
-
-    for (;;) {
-        auto image = mImageQueue->peekReadable();
-        if (image->pts > clock) {
-            return mLastImage ? mLastImage : nullptr;
-        } else if (image->pts <= clock && clock <= (image->pts + image->duration)) {
-            mLastImage = image;
-            return image;
-        } else {
-            mImageQueue->next();
-            continue;
-        }
-    }
-
     return nullptr;
 }
 

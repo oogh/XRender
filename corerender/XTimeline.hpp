@@ -23,6 +23,8 @@ public:
 
     std::shared_ptr<XSample> getSample(int length);
 
+    std::shared_ptr<XImage> getImage(long clock);
+
     long getClock();
 
     bool isCompleted();

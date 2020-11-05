@@ -9,9 +9,6 @@
 #include <thread>
 #include "XFFHeader.hpp"
 #include "XSample.hpp"
-#include "XPacketQueue.hpp"
-
-class XSampleQueue;
 
 class XAudioCodec {
 public:

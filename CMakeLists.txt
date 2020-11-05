@@ -120,12 +120,6 @@ if (APPLE)
     add_executable(xplayer ${SRC_MEDIA} ${DIR_DEMO_MAC}/xplayer.cpp)
     target_link_libraries(xplayer ${LibraryName})
 
-    add_executable(example02 ${SRC_MEDIA} ${DIR_DEMO_MAC}/example02.cpp)
-    target_link_libraries(example02 ${LibraryName})
-
-    add_executable(example03 ${SRC_MEDIA} ${DIR_DEMO_MAC}/example03.cpp)
-    target_link_libraries(example03 ${LibraryName})
-
 #### （Android 平台） ###############################################################################
 elseif (ANDROID)
     add_definitions("-DANDROID")

@@ -6,6 +6,7 @@
 #define XRENDER_XTRACK_HPP
 
 #include <string>
+#include "XVideoCodec.hpp"
 #include "XAudioCodec.hpp"
 
 class XTimeline;
@@ -40,6 +41,8 @@ public:
 
     std::shared_ptr<XSample> getSample(long clock, int length);
 
+    std::shared_ptr<XImage> getImage(long clock);
+
 private:
     static int ID_GENERATOR;
 
@@ -52,6 +55,7 @@ private:
     long mClipEndTime;
 
     std::unique_ptr<XAudioCodec> mAudioCodec;
+    std::unique_ptr<XVideoCodec> mVideoCodec;
 };
 
 

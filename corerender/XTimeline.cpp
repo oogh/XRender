@@ -34,6 +34,14 @@ int XTimeline::removeTrack(int id) {
     return mTrackList.size();
 }
 
+std::shared_ptr<XImage> XTimeline::getImage(long clock) {
+    std::shared_ptr<XImage> image;
+    for (auto& track: mTrackList) {
+        image = track->getImage(clock);
+    }
+    return image;
+}
+
 std::shared_ptr<XSample> XTimeline::getSample(int length) {
     std::shared_ptr<XSample> sample = std::make_shared<XSample>(length);
 
@@ -58,6 +66,7 @@ long XTimeline::getClock() {
 }
 
 bool XTimeline::isCompleted() {
+    std::lock_guard<std::mutex> lock(mMutex);
     return getClock() >= mDuration;
 }
 

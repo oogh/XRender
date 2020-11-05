@@ -64,6 +64,13 @@ long XTrack::getClipDuration() const {
     return mClipEndTime - mClipStartTime;
 }
 
+std::shared_ptr<XImage> XTrack::getImage(long clock) {
+    if (mVideoCodec && (mDelay <= clock && clock <= mDelay + getClipDuration())) {
+        return mVideoCodec->getImage(clock - mDelay);
+    }
+    return nullptr;
+}
+
 std::shared_ptr<XSample> XTrack::getSample(long clock, int length) {
     if (mAudioCodec && (mDelay <= clock && clock <= mDelay + getClipDuration())) {
         return mAudioCodec->getSample(length);

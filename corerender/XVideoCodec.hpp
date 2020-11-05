@@ -8,9 +8,7 @@
 #include <memory>
 #include <thread>
 #include "XFFHeader.hpp"
-
-struct XImage;
-struct XImageQueue;
+#include "XImage.hpp"
 
 class XVideoCodec {
 public:
@@ -20,8 +18,6 @@ public:
 
     int open();
 
-    int decodePacket(bool async = true);
-
     std::shared_ptr<XImage> getImage(long clock);
 
     void close();
@@ -29,15 +25,10 @@ public:
 private:
     int decodeVideoFrame();
 
-    void queueFrame(AVFrame* frame, long pts, long duration);
-
     void frameConvert(std::shared_ptr<XImage> dst, AVFrame* src);
 
 private:
     bool checkIsValidPacket(AVPacket* pkt);
-
-private:
-    void videoWorkThread(void* opaque);
 
 private:
     int mStatus;
@@ -52,7 +43,6 @@ private:
     int mIndex;
     std::unique_ptr<AVCodecContext, CodecDeleter> mCodecCtx;
     std::unique_ptr<std::thread> mVideoTid;
-    std::unique_ptr<XImageQueue> mImageQueue;
     std::unique_ptr<SwsContext, SwsContextDeleter> mSwsContext;
 
     ///< 在一个GOP中，两个P帧之间的B帧的数量 这里是一个丢B帧的逻辑。如果在两个P帧之间存在多个B帧，则丢弃第奇数个B帧

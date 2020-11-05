@@ -40,7 +40,6 @@ void XSurface::init() {
     }
 
     mRender = std::make_unique<XRender>();
-    mRender->setInput("/Users/oogh/Workspace/Resources/jieqian_720x1280.mp4");
 
     onSurfaceCreated(window);
 

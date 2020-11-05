@@ -20,17 +20,9 @@ public:
 
     ~XRender();
     
-    void setOnProgressChangeCallback(OnProgressChangeCallback callback = nullptr);
-    
-    void setInput(const std::string& filename);
-
-    void prepare(long timestamp);
-
     void start();
-    
-    void seekTo(long targetPos);
-    
-    void pause();
+
+    void updatePixel(uint8_t* pixel, int width, int height);
     
     void onSurfaceCreated();
 
@@ -39,9 +31,6 @@ public:
     void onDrawFrame();
     
     void stop();
-    
-private:
-    void refreshWorkThread(void* opaque);
 
 private:
     int mTextureWidth;

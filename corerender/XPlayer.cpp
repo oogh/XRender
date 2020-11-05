@@ -26,6 +26,11 @@ int XPlayer::start() {
     if (!mAudioTid) {
         mAudioTid = std::make_unique<std::thread>([this]{ audioWorkThread(this); });
     }
+
+    if (!mVideoTid) {
+        mVideoTid = std::make_unique<std::thread>([this]{ videoWorkThread(this); });
+    }
+
     return 0;
 }
 
@@ -53,5 +58,30 @@ void XPlayer::audioWorkThread(void* opaque) {
 
     player->mSounder->stop();
     LOGD("[XPlayer] audioWorkThread ----\n");
+}
+
+void XPlayer::videoWorkThread(void* opaque) {
+    XThreadUtils::configThreadName("videoWorkThread");
+    LOGD("[XPlayer] videoWorkThread ++++\n");
+    auto player = reinterpret_cast<XPlayer*>(opaque);
+
+    player->mRender->start();
+
+    for (;;) {
+        if (player->mAborted) {
+            break;
+        }
+
+        if (player->mTimeline->isCompleted()) {
+            std::unique_lock<std::mutex> lock(player->mMutex);
+            player->mContinueVideoWorkCond.wait(lock);
+        }
+
+        auto image = player->mTimeline->getImage(player->mTimeline->getClock());
+        player->mRender->updatePixel(image->pixels[0], image->width, image->height);
+    }
+
+    player->mRender->stop();
+    LOGD("[XPlayer] videoWorkThread ----\n");
 }
 

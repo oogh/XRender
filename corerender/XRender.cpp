@@ -24,38 +24,16 @@ XRender::~XRender() {
     mRefreshTid.reset();
 }
 
-void XRender::setInput(const std::string& filename) {
-    mProducer = std::make_unique<XFFProducer>();
-    mProducer->setProduceMode(PRODUCE_MODE_HARDWARE);
-    mProducer->setInput(filename);
-}
-
-void XRender::setOnProgressChangeCallback(OnProgressChangeCallback callback) {
-    mProgressChangeCallback = callback;
-}
-
-void XRender::prepare(long timestamp) {
-    mTargetPos = timestamp;
-}
-
 void XRender::start() {
-    mProducer->start();
-    mPauseReq = false;
-    if (!mRefreshTid) {
-        mRefreshTid = std::make_unique<std::thread>([this] { refreshWorkThread(this); });
-    } else {
-        std::lock_guard<std::mutex> lock(mMutex);
-        mContinueRefreshCond.notify_one();
-    }
+
 }
 
-void XRender::seekTo(long targetPos) {
-    mTargetPos = targetPos;
-}
-
-void XRender::pause() {
+void XRender::updatePixel(uint8_t* pixel, int width, int height) {
     std::lock_guard<std::mutex> lock(mMutex);
-    mPauseReq = true;
+    if (mTexture) {
+        mTexture->setPixels(pixel, width, height);
+    }
+    mContinueRefreshCond.notify_one();
 }
 
 void XRender::onSurfaceCreated() {
@@ -72,49 +50,6 @@ void XRender::onSurfaceChanged(int width, int height) {
 
 void XRender::onDrawFrame() {
     mTexture->draw();
-}
-
-void XRender::refreshWorkThread(void* opaque) {
-    XThreadUtils::configThreadName("refreshWorkThread");
-    LOGD("[XRender] refreshWorkThread ++++\n");
-    XRender* render = reinterpret_cast<XRender*>(opaque);
-    if (!render) {
-        return;
-    }
-    
-    XTimeCounter peekImageCounter;
-    for (;;) {
-        if (render->mAbortReq) {
-            break;
-        }
-        
-        if (render->mPauseReq) {
-            std::unique_lock<std::mutex> lock(render->mMutex);
-            render->mContinueRefreshCond.wait(lock);
-            continue;
-        }
-        
-        if (render->mProducer) {
-            peekImageCounter.markStart();
-            auto image = render->mProducer->peekImage(render->mTargetPos);
-            if (image && image->pixels[0]) {
-                peekImageCounter.markEnd();
-                if (render->mTexture) {
-                    render->mTexture->setPixels(image->pixels[0], image->width, image->height);
-                }
-                if (image->pts > render->mTargetPos) {
-                    render->mProducer->endCurrentImageUse();
-                }
-                
-                if (mProgressChangeCallback) {
-                    mProgressChangeCallback(render->mTargetPos, render->mProducer->getOriginalDuration());
-                }
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(33));
-            mTargetPos += 33;
-        }
-    }
-    LOGD("[XRender] refreshWorkThread ----\n");
 }
 
 void XRender::stop() {

@@ -25,10 +25,10 @@ public:
 
     int start();
 
-    bool isCompleted();
-
 private:
     void audioWorkThread(void* opaque);
+
+    void videoWorkThread(void* opaque);
 
 private:
     std::unique_ptr<XRender> mRender;
@@ -36,8 +36,10 @@ private:
     std::shared_ptr<XTimeline> mTimeline;
 
     std::unique_ptr<std::thread> mAudioTid;
+    std::unique_ptr<std::thread> mVideoTid;
     std::mutex mMutex;
     std::condition_variable mContinueAudioWorkCond;
+    std::condition_variable mContinueVideoWorkCond;
 
     bool mAborted;
 };
