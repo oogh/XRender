@@ -3,7 +3,7 @@
 //
 
 #include "XCoreRenderJNI.hpp"
-#include "XViewJNI.hpp"
+#include "XSurfaceJNI.hpp"
 #include "XFFHeader.hpp"
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
@@ -18,7 +18,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
 
     av_jni_set_java_vm(vm, nullptr);
 
-    if (!viewRegisterNativeMethods(env)) {
+    if (!surfaceRegisterNativeMethods(env)) {
         return -1;
     }
 

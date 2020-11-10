@@ -7,6 +7,6 @@
 
 #include <jni.h>
 
-int viewRegisterNativeMethods(JNIEnv* env);
+int surfaceRegisterNativeMethods(JNIEnv* env);
 
 #endif //ANDROIDDEMO_XVIEWERJNI_H

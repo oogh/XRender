@@ -6,13 +6,13 @@ import android.os.Environment;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.core.render.XView;
+import com.core.render.XSurface;
 
 import java.io.File;
 
 public class PlayerActivity extends AppCompatActivity {
 
-    private XView mDisplayView;
+    private XSurface mDisplayView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

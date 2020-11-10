@@ -7,7 +7,7 @@ import android.util.AttributeSet;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class XView extends GLSurfaceView implements GLSurfaceView.Renderer {
+public class XSurface extends GLSurfaceView implements GLSurfaceView.Renderer {
 
     private long mNativePtr = -1L;
 
@@ -15,18 +15,18 @@ public class XView extends GLSurfaceView implements GLSurfaceView.Renderer {
         System.loadLibrary("corerender");
     }
 
-    public XView(Context context) {
+    public XSurface(Context context) {
         super(context);
         init();
     }
 
-    public XView(Context context, AttributeSet attrs) {
+    public XSurface(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
     private void init() {
-        mNativePtr = nativeCreateView();
+        mNativePtr = nativeCreateSurface();
         setEGLContextClientVersion(3);
         setRenderer(this);
     }
@@ -84,12 +84,12 @@ public class XView extends GLSurfaceView implements GLSurfaceView.Renderer {
 
     public void destroy() {
         if (mNativePtr != -1L) {
-            nativeDestroyView(mNativePtr);
+            nativeDestroySurface(mNativePtr);
             mNativePtr = -1L;
         }
     }
 
-    private native long nativeCreateView();
+    private native long nativeCreateSurface();
 
     private native void nativeSurfaceCreated(long nativePtr);
 
@@ -97,7 +97,7 @@ public class XView extends GLSurfaceView implements GLSurfaceView.Renderer {
 
     private native void nativeDrawFrame(long nativePtr);
 
-    private native void nativeDestroyView(long nativePtr);
+    private native void nativeDestroySurface(long nativePtr);
 
     private native void nativeSetInput(long nativePtr, String filename);
 
