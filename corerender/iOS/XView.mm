@@ -7,8 +7,8 @@
 //
 
 #import "XView.hpp"
-#include "XGLHeader.h"
-#include "XRender.h"
+#include "XGLHeader.hpp"
+#include "XRender.hpp"
 #import "XWeakProxy.hpp"
 
 @interface XView()
@@ -54,11 +54,11 @@
 
 #pragma mark - Public
 - (void)setInput:(NSString*)filename {
-    _render->setInput(filename.UTF8String);
+//    _render->setInput(filename.UTF8String);
 }
 
 - (void)prepare:(long)timestamp {
-    _render->prepare(timestamp);
+//    _render->prepare(timestamp);
 }
 
 - (void)start {
@@ -72,7 +72,7 @@
 }
 
 - (void)seekTo:(long)targetPos {
-    _render->seekTo(targetPos);
+//    _render->seekTo(targetPos);
 }
 
 - (void)pause {
@@ -80,7 +80,7 @@
         _displayLink.paused = YES;
     }
     
-    _render->pause();
+//    _render->pause();
 }
 
 - (void)stop {
@@ -144,12 +144,12 @@
 
 - (void)setupCallback {
     __weak typeof(self) weakSelf = self;
-    _render->setOnProgressChangeCallback(^(long current, long duration) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        dispatch_async(dispatch_get_main_queue(), ^{
-            strongSelf.progressChangeCallback(current, duration);
-        });
-    });
+//    _render->setOnProgressChangeCallback(^(long current, long duration) {
+//        __strong typeof(weakSelf) strongSelf = weakSelf;
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            strongSelf.progressChangeCallback(current, duration);
+//        });
+//    });
 }
 
 - (void)drawFrame {

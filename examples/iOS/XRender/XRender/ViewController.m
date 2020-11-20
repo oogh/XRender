@@ -7,7 +7,7 @@
 //
 
 #import "ViewController.h"
-#import "XView.h"
+#import "XView.hpp"
 
 @interface ViewController ()
 @property (weak, nonatomic) IBOutlet XView *displayView;
