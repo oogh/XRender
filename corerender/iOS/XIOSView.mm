@@ -6,12 +6,12 @@
 //  Copyright © 2020 Oogh. All rights reserved.
 //
 
-#import "XView.hpp"
+#import "XIOSView.hpp"
 #include "XGLHeader.hpp"
 #include "XRender.hpp"
 #import "XWeakProxy.hpp"
 
-@interface XView()
+@interface XIOSView()
 {
     CAEAGLLayer* _glLayer;
     EAGLContext* _glContext;
@@ -22,7 +22,7 @@
 }
 @end
 
-@implementation XView
+@implementation XIOSView
 
 #pragma mark - Life Cycle
 - (instancetype)initWithCoder:(NSCoder *)coder {
@@ -68,7 +68,7 @@
         [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
     }
     _displayLink.paused = NO;
-    _render->start();
+//    _render->start();
 }
 
 - (void)seekTo:(long)targetPos {

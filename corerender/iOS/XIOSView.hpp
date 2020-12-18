@@ -13,7 +13,7 @@
 
 typedef void (^OnProgressChangeCallback)(long current, long duration);
 
-@interface XView : UIView
+@interface XIOSView : UIView
 
 @property (nonatomic, copy) OnProgressChangeCallback progressChangeCallback;
 

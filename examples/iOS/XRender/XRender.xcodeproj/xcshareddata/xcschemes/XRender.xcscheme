@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1140"
+   LastUpgradeVersion = "1220"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A1B80F8D243EC5440042705D"
+               BlueprintIdentifier = "A1E626E7258CA9A40084D0EE"
                BuildableName = "XRender.app"
                BlueprintName = "XRender"
                ReferencedContainer = "container:XRender.xcodeproj">
@@ -44,7 +44,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A1B80F8D243EC5440042705D"
+            BlueprintIdentifier = "A1E626E7258CA9A40084D0EE"
             BuildableName = "XRender.app"
             BlueprintName = "XRender"
             ReferencedContainer = "container:XRender.xcodeproj">
@@ -61,7 +61,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A1B80F8D243EC5440042705D"
+            BlueprintIdentifier = "A1E626E7258CA9A40084D0EE"
             BuildableName = "XRender.app"
             BlueprintName = "XRender"
             ReferencedContainer = "container:XRender.xcodeproj">
