@@ -20,8 +20,10 @@
     #include "TargetConditionals.h"
     #if TARGET_IPHONE_SIMULATOR
         #define PLATFORM_IOS 1
+        #define PLATFORM_IOS_SIMULATOR 1
     #elif TARGET_OS_IPHONE
         #define PLATFORM_IOS 1
+        #define PLATFORM_IOS_IPHONE 1
     #elif TARGET_OS_MAC
         #define PLATFORM_MAC 1
     #else
