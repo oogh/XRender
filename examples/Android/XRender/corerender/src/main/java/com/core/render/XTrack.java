@@ -17,6 +17,10 @@ public class XTrack {
         }
     }
 
+    public long getNativePtr() {
+        return mNativePtr;
+    }
+
     protected void setTimeline(XTimeline timeline) {
         mTimeline = timeline;
     }

@@ -2,45 +2,38 @@
 // Created by Oogh on 2020/10/20.
 //
 
-#include "XSurface.hpp"
+#include "XMacView.hpp"
 #include "XLogger.hpp"
 #include "XRender.hpp"
-#include "XPlayer.hpp"
 
-XSurface::XSurface(int width, int height)
+XMacView::XMacView(int width, int height)
         : mWidth(width), mHeight(height) {
 }
 
-XSurface::~XSurface() {
+XMacView::~XMacView() {
 
 }
 
-void XSurface::setPlayer(std::shared_ptr<XPlayer> player) {
-    player->setRender(mRender);
-    mPlayer = player;
-    mPlayer->start();
-}
-
-void XSurface::create() {
+void XMacView::create() {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-#ifdef __APPLE__
+#if PLATFORM_MAC
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
     GLFWwindow* window = glfwCreateWindow(mWidth, mHeight, "LearnOpenGL", nullptr, nullptr);
     if (window == nullptr) {
-        LOGE("[XSurface] Failed to create GLFW window\n");
+        LOGE("[XMacView] Failed to create GLFW window\n");
         glfwTerminate();
         return;
     }
     glfwMakeContextCurrent(window);
 
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
-        LOGE("[XSurface] Failed to initialize GLAD\n");
+        LOGE("[XMacView] Failed to initialize GLAD\n");
         glfwTerminate();
         return;
     }
@@ -50,7 +43,7 @@ void XSurface::create() {
     onSurfaceCreated(window);
 
     glViewport(0, 0, mWidth, mHeight);
-    while (!glfwWindowShouldClose(window)) {
+    while (true) {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -63,15 +56,24 @@ void XSurface::create() {
     glfwTerminate();
 }
 
-void XSurface::onSurfaceCreated(GLFWwindow* window) {
-    mRender->onSurfaceCreated();
-    mRender->start();
+std::shared_ptr<XRender> XMacView::getRender() {
+    return mRender;
 }
 
-void XSurface::onSurfaceSizeChanged(GLFWwindow* window, int width, int height) {
+void XMacView::onSurfaceCreated(GLFWwindow* window) {
+    mRender->onSurfaceCreated();
+}
+
+void XMacView::onSurfaceSizeChanged(GLFWwindow* window, int width, int height) {
     mRender->onSurfaceChanged(width, height);
 }
 
-void XSurface::onDrawFrame(GLFWwindow* window) {
+void XMacView::onDrawFrame(GLFWwindow* window) {
     mRender->onDrawFrame();
+}
+
+void XMacView::update(std::vector<std::shared_ptr<XImage>> images) {
+    if (mRender) {
+        mRender->update(images);
+    }
 }

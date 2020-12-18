@@ -4,16 +4,35 @@
 
 #include "XTexture.hpp"
 #include "XImageUitls.hpp"
+#include "XPlatform.hpp"
 
-#if __APPLE__
+#if PLATFORM_MAC
 std::string XTexture::sVertexFilePath = "/Users/andy/Workspace/Oogh/XRender/Resources/shaders/texture.vs";
 std::string XTexture::sFragmentFilePath = "/Users/andy/Workspace/Oogh/XRender/Resources/shaders/texture.fs";
-#elif __ANDROID__
+#elif PLATFORM_ANDROID
+std::string XTexture::sVertexFilePath = "/sdcard/Android/data/com.demo.render/files/shaders/texture.vs";
+std::string XTexture::sFragmentFilePath = "/sdcard/Android/data/com.demo.render/files/shaders/texture.fs";
+#elif PLATFORM_IOS
 std::string XTexture::sVertexFilePath = "/sdcard/Android/data/com.demo.render/files/shaders/texture.vs";
 std::string XTexture::sFragmentFilePath = "/sdcard/Android/data/com.demo.render/files/shaders/texture.fs";
 #endif
 
-XTexture::XTexture(): mWidth(0), mHeight(0), mPixels(nullptr) {
+XTexture::XTexture(int id, int width, int height): mId(id), mWidth(width), mHeight(height), mPixels(nullptr), mDrawable(false) {
+
+}
+
+XTexture::~XTexture() {
+    if (mPixels) {
+        free(mPixels);
+        mPixels = nullptr;
+    }
+}
+
+bool XTexture::drawable() const {
+    return mDrawable;
+}
+
+void XTexture::create() {
     mShader = std::make_unique<XShader>(sVertexFilePath, sFragmentFilePath);
 
     glGenVertexArrays(1, &VAO);
@@ -56,13 +75,12 @@ XTexture::XTexture(): mWidth(0), mHeight(0), mPixels(nullptr) {
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    mDrawable = true;
 }
 
-XTexture::~XTexture() {
-    if (mPixels) {
-        free(mPixels);
-        mPixels = nullptr;
-    }
+int XTexture::getId() const {
+    return mId;
 }
 
 void XTexture::setPixels(uint8_t* pixels, int width, int height) {

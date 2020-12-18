@@ -2,24 +2,28 @@
 // Created by Oogh on 2020/10/20.
 //
 
-#ifndef XRENDER_XSURFACE_HPP
-#define XRENDER_XSURFACE_HPP
+#ifndef XMACVIEW_HPP
+#define XMACVIEW_HPP
 
 #include <memory>
 #include "XGLHeader.hpp"
+#include "XViewObserver.hpp"
 
 class XRender;
-class XPlayer;
+class XImage;
 
-class XSurface {
+class XMacView : public XViewObserver {
 public:
-    XSurface(int width, int height);
+    XMacView(int width, int height);
 
-    ~XSurface();
+    ~XMacView();
 
-    void setPlayer(std::shared_ptr<XPlayer> player);
+    std::shared_ptr<XRender> getRender();
 
     void create();
+
+public:
+    void update(std::vector<std::shared_ptr<XImage>> images) override;
 
 protected:
     void onSurfaceCreated(GLFWwindow* window);
@@ -33,8 +37,7 @@ private:
     int mHeight;
 
     std::shared_ptr<XRender> mRender;
-    std::shared_ptr<XPlayer> mPlayer;
 };
 
 
-#endif //XRENDER_XSURFACE_HPP
+#endif // XMACVIEW_HPP

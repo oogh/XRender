@@ -7,7 +7,7 @@ import android.util.AttributeSet;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class XSurface extends GLSurfaceView implements GLSurfaceView.Renderer {
+public class XMacView extends GLSurfaceView implements GLSurfaceView.Renderer {
 
     private long mNativePtr = -1L;
 
@@ -15,12 +15,12 @@ public class XSurface extends GLSurfaceView implements GLSurfaceView.Renderer {
         System.loadLibrary("corerender");
     }
 
-    public XSurface(Context context) {
+    public XMacView(Context context) {
         super(context);
         init();
     }
 
-    public XSurface(Context context, AttributeSet attrs) {
+    public XMacView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
@@ -29,6 +29,10 @@ public class XSurface extends GLSurfaceView implements GLSurfaceView.Renderer {
         mNativePtr = nativeCreateSurface();
         setEGLContextClientVersion(3);
         setRenderer(this);
+    }
+
+    public long getNativePtr() {
+        return mNativePtr;
     }
 
     public void setInput(String filename) {

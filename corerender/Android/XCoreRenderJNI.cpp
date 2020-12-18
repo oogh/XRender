@@ -6,6 +6,7 @@
 #include "XSurfaceJNI.hpp"
 #include "XTrackJNI.hpp"
 #include "XTimelineJNI.hpp"
+#include "XPlayerJNI.hpp"
 #include "XFFHeader.hpp"
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
@@ -19,6 +20,10 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     env->GetJavaVM(&javaVm);
 
     av_jni_set_java_vm(vm, nullptr);
+
+    if (!playerRegisterNativeMethods(env)) {
+        return -1;
+    }
 
     if (!surfaceRegisterNativeMethods(env)) {
         return -1;

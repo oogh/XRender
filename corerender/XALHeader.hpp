@@ -2,12 +2,14 @@
 // Created by Oogh on 2020/8/14.
 //
 
-#ifndef XRENDER_XALHEADER_HPP
-#define XRENDER_XALHEADER_HPP
+#ifndef XALHEADER_HPP
+#define XALHEADER_HPP
 
-#if __APPLE__
+#include "XPlatform.hpp"
+
+#if PLATFORM_IOS || PLATFORM_MAC
 #include <OpenAL/OpenAL.h>
-#elif __ANDROID__
+#elif PLATFORM_ANDROID
 #include <AL/al.h>
 #include <AL/alc.h>
 #endif
@@ -15,4 +17,4 @@
 extern const char* alError2Str(ALenum error);
 
 
-#endif //XRENDER_XALHEADER_HPP
+#endif // XALHEADER_HPP

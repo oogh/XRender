@@ -2,60 +2,40 @@
 // Created by Oogh on 2020/11/10.
 //
 
-#include "XTimelineJNI.hpp"
-
 #include <string>
 #include <memory>
+#include "XTimelineJNI.hpp"
 #include "XTimeline.hpp"
 
 static const std::string CLASS_NAME = "com/core/render/XTimeline";
 
 jlong timelineCreate(JNIEnv*, jobject) {
-    std::shared_ptr<XTimeline>* timeline = new std::shared_ptr<XTimeline>(new XTimeline());
+    auto* timeline = new std::shared_ptr<XTimeline>(new XTimeline());
     return reinterpret_cast<jlong>(timeline);
 }
 
+jint timelineAddTrack(JNIEnv* env, jobject, jlong timelinePtr, jlong trackPtr) {
+    auto* timeline = reinterpret_cast<std::shared_ptr<XTimeline> *>(timelinePtr);
+    auto* track = reinterpret_cast<std::shared_ptr<XTrack> *>(trackPtr);
+    return static_cast<jint>((*timeline)->addTrack(*track));
+}
+
+jint timelineRemoveTrack(JNIEnv*, jobject, jlong timelinePtr, jlong trackPtr) {
+    auto* timeline = reinterpret_cast<std::shared_ptr<XTimeline> *>(timelinePtr);
+    auto* track = reinterpret_cast<std::shared_ptr<XTrack> *>(trackPtr);
+    return static_cast<jint>((*timeline)->removeTrack((*track)->getId()));
+}
+
 void timelineDestroy(JNIEnv*, jobject, jlong timelinePtr) {
-    std::shared_ptr<XTimeline>* timeline = reinterpret_cast<std::shared_ptr<XTimeline> *>(timelinePtr);
+    auto* timeline = reinterpret_cast<std::shared_ptr<XTimeline> *>(timelinePtr);
     delete timeline;
-}
-
-void timelineSetInput(JNIEnv* env, jobject, jlong timelinePtr, jstring filename) {
-    std::shared_ptr<XTimeline>* timeline = reinterpret_cast<std::shared_ptr<XTimeline> *>(timelinePtr);
-    jboolean copy;
-    const char* path = env->GetStringUTFChars(filename, &copy);
-//    (*timeline)->setInput(path);
-    env->ReleaseStringUTFChars(filename, path);
-}
-
-void timelinePrepare(JNIEnv*, jobject, jlong timelinePtr, jlong timestamp) {
-    std::shared_ptr<XTimeline>* timeline = reinterpret_cast<std::shared_ptr<XTimeline> *>(timelinePtr);
-//    (*timeline)->prepare(timestamp);
-}
-
-void timelineStart(JNIEnv*, jobject, jlong timelinePtr) {
-    std::shared_ptr<XTimeline>* timeline = reinterpret_cast<std::shared_ptr<XTimeline> *>(timelinePtr);
-//    (*timeline)->start();
-}
-
-void timelinePause(JNIEnv*, jobject, jlong timelinePtr) {
-    std::shared_ptr<XTimeline>* timeline = reinterpret_cast<std::shared_ptr<XTimeline> *>(timelinePtr);
-//    (*timeline)->pause();
-}
-
-void timelineStop(JNIEnv*, jobject, jlong timelinePtr) {
-    std::shared_ptr<XTimeline>* timeline = reinterpret_cast<std::shared_ptr<XTimeline> *>(timelinePtr);
-//    (*timeline)->stop();
 }
 
 static JNINativeMethod gMethods[] = {
         {"nativeCreateTimeline", "()J", reinterpret_cast<void*>(timelineCreate)},
+        {"nativeAddTrack", "(JJ)I", reinterpret_cast<void*>(timelineAddTrack)},
+        {"nativeRemoveTrack", "(JJ)I", reinterpret_cast<void*>(timelineRemoveTrack)},
         {"nativeDestroyTimeline", "(J)V", reinterpret_cast<void*>(timelineDestroy)},
-        {"nativeSetInput", "(JLjava/lang/String;)V", reinterpret_cast<void*>(timelineSetInput)},
-        {"nativePrepare", "(JJ)V", reinterpret_cast<void*>(timelinePrepare)},
-        {"nativeStart", "(J)V", reinterpret_cast<void*>(timelineStart)},
-        {"nativePause", "(J)V", reinterpret_cast<void*>(timelinePause)},
-        {"nativeStop", "(J)V", reinterpret_cast<void*>(timelineStop)},
 };
 
 int timelineRegisterNativeMethods(JNIEnv* env) {

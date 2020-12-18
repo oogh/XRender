@@ -10,12 +10,12 @@
 static const std::string CLASS_NAME = "com/core/render/XTrack";
 
 jlong trackCreate(JNIEnv*, jobject) {
-    std::shared_ptr<XTrack>* track = new std::shared_ptr<XTrack>(new XTrack());
+    auto* track = new std::shared_ptr<XTrack>(new XTrack());
     return reinterpret_cast<jlong>(track);
 }
 
 void trackSetFilename(JNIEnv* env, jobject, jlong trackPtr, jstring filename) {
-    std::shared_ptr<XTrack>* track = reinterpret_cast<std::shared_ptr<XTrack> *>(trackPtr);
+    auto* track = reinterpret_cast<std::shared_ptr<XTrack> *>(trackPtr);
     jboolean copy;
     const char* path = env->GetStringUTFChars(filename, &copy);
     (*track)->setFilename(path);
@@ -23,27 +23,27 @@ void trackSetFilename(JNIEnv* env, jobject, jlong trackPtr, jstring filename) {
 }
 
 void trackSetDelay(JNIEnv*, jobject, jlong trackPtr, jlong delay) {
-    std::shared_ptr<XTrack>* track = reinterpret_cast<std::shared_ptr<XTrack> *>(trackPtr);
+    auto* track = reinterpret_cast<std::shared_ptr<XTrack> *>(trackPtr);
     (*track)->setDelay(static_cast<long>(delay));
 }
 
 void trackSetClipStartTime(JNIEnv*, jobject, jlong trackPtr, jlong clipStartTime) {
-    std::shared_ptr<XTrack>* track = reinterpret_cast<std::shared_ptr<XTrack> *>(trackPtr);
+    auto* track = reinterpret_cast<std::shared_ptr<XTrack> *>(trackPtr);
     (*track)->setClipStartTime(static_cast<long>(clipStartTime));
 }
 
 void trackSetClipEndTime(JNIEnv*, jobject, jlong trackPtr, jlong clipEndTime) {
-    std::shared_ptr<XTrack>* track = reinterpret_cast<std::shared_ptr<XTrack> *>(trackPtr);
+    auto* track = reinterpret_cast<std::shared_ptr<XTrack> *>(trackPtr);
     (*track)->setClipEndTime(clipEndTime);
 }
 
 jint trackGetId(JNIEnv*, jobject, jlong trackPtr) {
-    std::shared_ptr<XTrack>* track = reinterpret_cast<std::shared_ptr<XTrack> *>(trackPtr);
+    auto* track = reinterpret_cast<std::shared_ptr<XTrack> *>(trackPtr);
     return static_cast<jint>((*track)->getId());
 }
 
 void trackDestroy(JNIEnv*, jobject, jlong trackPtr) {
-    std::shared_ptr<XTrack>* track = reinterpret_cast<std::shared_ptr<XTrack> *>(trackPtr);
+    auto* track = reinterpret_cast<std::shared_ptr<XTrack> *>(trackPtr);
     delete track;
 }
 

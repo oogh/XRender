@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "XView.hpp"
+#import "XIOSMediaCore.hpp"
 
 @interface ViewController ()
 @property (weak, nonatomic) IBOutlet XView *displayView;
@@ -24,6 +25,14 @@
     self.slider.value = 0;
     self.currentTextField.placeholder = @"0";
     self.durationTextField.placeholder = @"0";
+    
+    InitParams params = {
+        .resPath = @"",
+        .shaderPath = @""
+    };
+    
+    [XIOSMediaCore setup:params];
+    
     __weak typeof(self) weakSelf = self;
     self.displayView.progressChangeCallback = ^(long current, long duration) {
         __strong typeof(weakSelf) strongSelf = weakSelf;

@@ -243,6 +243,11 @@ std::shared_ptr<XImage> XVideoCodec::getImage(long clock) {
                 mLastFrame = frame;
                 if (clock <= frame->avframe->pts + frame->avframe->pkt_duration) {
                     auto image = std::make_shared<XImage>();
+                    image->format = DST_PIX_FMT;
+                    image->width = frame->avframe->width;
+                    image->height = frame->avframe->height;
+                    image->pts = static_cast<long>(frame->avframe->pts);
+                    image->duration = static_cast<long>(frame->avframe->pkt_duration);
                     frameConvert(image, frame->avframe);
                     mLastImage = image;
                     return image;

@@ -8,15 +8,15 @@ add_definitions("-DUSE_HARDWARE_ENCODER")
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(DIR_SOURCE ../../../corerender)
+set(DIR_SOURCE ../../corerender)
 set(DIR_MIDDLE_MAC ${DIR_SOURCE}/Mac)
 set(DIR_EXSAMPLE .)
-set(DIR_THIRDPARTY ../../../3rdparty)
+set(DIR_THIRDPARTY ../../3rdparty)
 
 
 include_directories(${DIR_EXSAMPLE})
 
-add_subdirectory(../../../ MediaCore.OUT)
+add_subdirectory(../../ MediaCore.OUT)
 
 # 添加头文件目录
 include_directories(${DIR_SOURCE})

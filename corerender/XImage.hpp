@@ -34,6 +34,8 @@ struct XImage {
 
     int format = -1;
 
+    int textureId = -1;
+
     XImage(): width(0), height(0), pts(-1), duration(-1) {
     }
 

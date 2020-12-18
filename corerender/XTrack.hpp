@@ -17,7 +17,7 @@ public:
 
     ~XTrack();
 
-    void setTimeline(std::shared_ptr<XTimeline> timeline);
+    void setTimeline(const std::shared_ptr<XTimeline>& timeline);
 
     void setFilename(const std::string& filename);
 

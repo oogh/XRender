@@ -9,6 +9,12 @@
 /* Begin PBXBuildFile section */
 		546279D3244AE56000054A08 /* jieqian_720x1280.rgba in Resources */ = {isa = PBXBuildFile; fileRef = 546279D2244AE56000054A08 /* jieqian_720x1280.rgba */; };
 		78A509A7C37148AC312D9D7E /* libPods-XRender.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D728692FFDEAADE9538088B4 /* libPods-XRender.a */; };
+		A114A160258C46AA0002D327 /* texture.fs in Resources */ = {isa = PBXBuildFile; fileRef = A114A15A258C46AA0002D327 /* texture.fs */; };
+		A114A161258C46AA0002D327 /* triangle.fs in Resources */ = {isa = PBXBuildFile; fileRef = A114A15B258C46AA0002D327 /* triangle.fs */; };
+		A114A162258C46AA0002D327 /* rectangle.fs in Resources */ = {isa = PBXBuildFile; fileRef = A114A15C258C46AA0002D327 /* rectangle.fs */; };
+		A114A163258C46AA0002D327 /* triangle.vs in Resources */ = {isa = PBXBuildFile; fileRef = A114A15D258C46AA0002D327 /* triangle.vs */; };
+		A114A164258C46AA0002D327 /* rectangle.vs in Resources */ = {isa = PBXBuildFile; fileRef = A114A15E258C46AA0002D327 /* rectangle.vs */; };
+		A114A165258C46AA0002D327 /* texture.vs in Resources */ = {isa = PBXBuildFile; fileRef = A114A15F258C46AA0002D327 /* texture.vs */; };
 		A19457F424A89A4C00387918 /* douyin_700x1240.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = A19457F324A89A4C00387918 /* douyin_700x1240.mp4 */; };
 		A1B80F93243EC5440042705D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B80F92243EC5440042705D /* AppDelegate.m */; };
 		A1B80F96243EC5440042705D /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B80F95243EC5440042705D /* SceneDelegate.m */; };
@@ -22,6 +28,12 @@
 
 /* Begin PBXFileReference section */
 		546279D2244AE56000054A08 /* jieqian_720x1280.rgba */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = jieqian_720x1280.rgba; path = ../../../../Resources/jieqian_720x1280.rgba; sourceTree = "<group>"; };
+		A114A15A258C46AA0002D327 /* texture.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = texture.fs; sourceTree = "<group>"; };
+		A114A15B258C46AA0002D327 /* triangle.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = triangle.fs; sourceTree = "<group>"; };
+		A114A15C258C46AA0002D327 /* rectangle.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = rectangle.fs; sourceTree = "<group>"; };
+		A114A15D258C46AA0002D327 /* triangle.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = triangle.vs; sourceTree = "<group>"; };
+		A114A15E258C46AA0002D327 /* rectangle.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = rectangle.vs; sourceTree = "<group>"; };
+		A114A15F258C46AA0002D327 /* texture.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = texture.vs; sourceTree = "<group>"; };
 		A19457F324A89A4C00387918 /* douyin_700x1240.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = douyin_700x1240.mp4; path = ../../../../Resources/douyin_700x1240.mp4; sourceTree = "<group>"; };
 		A1B80F8E243EC5440042705D /* XRender.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XRender.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1B80F91243EC5440042705D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -64,11 +76,10 @@
 		54CE26BC243F5EAB00CE518C /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				A114A159258C46AA0002D327 /* shaders */,
 				A19457F324A89A4C00387918 /* douyin_700x1240.mp4 */,
 				A1C3323524A336A700B75B72 /* jieqian_720x1280.mp4 */,
 				546279D2244AE56000054A08 /* jieqian_720x1280.rgba */,
-				A1B3AAC82513542F00AFFAC7 /* image.png */,
-				A1B3AACA2513565100AFFAC7 /* money1.png */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -80,6 +91,20 @@
 				AF12E9C4655CE79889DBC249 /* Pods-XRender.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		A114A159258C46AA0002D327 /* shaders */ = {
+			isa = PBXGroup;
+			children = (
+				A114A15A258C46AA0002D327 /* texture.fs */,
+				A114A15B258C46AA0002D327 /* triangle.fs */,
+				A114A15C258C46AA0002D327 /* rectangle.fs */,
+				A114A15D258C46AA0002D327 /* triangle.vs */,
+				A114A15E258C46AA0002D327 /* rectangle.vs */,
+				A114A15F258C46AA0002D327 /* texture.vs */,
+			);
+			name = shaders;
+			path = ../../../../Resources/shaders;
 			sourceTree = "<group>";
 		};
 		A1B80F85243EC5440042705D = {
@@ -177,14 +202,18 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A114A161258C46AA0002D327 /* triangle.fs in Resources */,
 				A1B80FA1243EC5460042705D /* LaunchScreen.storyboard in Resources */,
+				A114A165258C46AA0002D327 /* texture.vs in Resources */,
 				A19457F424A89A4C00387918 /* douyin_700x1240.mp4 in Resources */,
 				A1B80F9E243EC5460042705D /* Assets.xcassets in Resources */,
+				A114A163258C46AA0002D327 /* triangle.vs in Resources */,
 				A1B80F9C243EC5440042705D /* Main.storyboard in Resources */,
-				A1B3AAC92513542F00AFFAC7 /* image.png in Resources */,
+				A114A164258C46AA0002D327 /* rectangle.vs in Resources */,
 				A1C3323624A336A700B75B72 /* jieqian_720x1280.mp4 in Resources */,
-				A1B3AACB2513565100AFFAC7 /* money1.png in Resources */,
+				A114A160258C46AA0002D327 /* texture.fs in Resources */,
 				546279D3244AE56000054A08 /* jieqian_720x1280.rgba in Resources */,
+				A114A162258C46AA0002D327 /* rectangle.fs in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -366,7 +395,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				COMPRESS_PNG_FILES = NO;
-				DEVELOPMENT_TEAM = R25N9JGHQ4;
+				DEVELOPMENT_TEAM = GD5336T8W5;
 				HEADER_SEARCH_PATHS = (
 					"\"$(PODS_TARGET_SRCROOT)/3rdparty/x264/iOS/include\"",
 					"$(inherited)",
@@ -395,7 +424,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				COMPRESS_PNG_FILES = NO;
-				DEVELOPMENT_TEAM = R25N9JGHQ4;
+				DEVELOPMENT_TEAM = GD5336T8W5;
 				INFOPLIST_FILE = XRender/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

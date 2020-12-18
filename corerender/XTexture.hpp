@@ -9,9 +9,15 @@
 
 class XTexture {
 public:
-    XTexture();
+    XTexture(int id, int width, int height);
 
     ~XTexture();
+
+    bool drawable() const;
+
+    void create();
+
+    int getId() const;
 
     void setPixels(uint8_t* pixels, int width, int height);
 
@@ -22,6 +28,9 @@ private:
     static std::string sFragmentFilePath;
 
 private:
+    int mId;
+    bool mDrawable;
+
     std::unique_ptr<XShader> mShader;
     GLuint VBO;
     GLuint VAO;

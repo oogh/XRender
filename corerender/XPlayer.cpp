@@ -3,14 +3,12 @@
 //
 
 #include "XPlayer.hpp"
-#include "XRender.hpp"
 #include "XSounder.hpp"
 #include "XTimeline.hpp"
 #include "XThreadUtils.hpp"
 #include "XLogger.hpp"
 
 XPlayer::XPlayer() {
-    mRender = std::make_shared<XRender>();
     mSounder = std::make_unique<XSounder>();
 }
 
@@ -18,12 +16,12 @@ XPlayer::~XPlayer() {
 
 }
 
-void XPlayer::setTimeline(std::shared_ptr<XTimeline> timeline) {
+void XPlayer::setTimeline(std::shared_ptr<XTimeline>&& timeline) {
     mTimeline = timeline;
 }
 
-void XPlayer::setRender(std::shared_ptr<XRender> render) {
-    mRender = render;
+void XPlayer::attachObserverView(std::shared_ptr<XViewObserver>&& observer) {
+    mViewObserver = observer;
 }
 
 int XPlayer::start() {
@@ -57,7 +55,7 @@ void XPlayer::audioWorkThread(void* opaque) {
 
         auto sample = player->mTimeline->getSample(4096);
         player->mSounder->updateAudio(sample->data, sample->length);
-
+        LOGE("[XPlayer] andy sample->length: %d\n", sample->length);
     }
 
     player->mSounder->stop();
@@ -69,8 +67,6 @@ void XPlayer::videoWorkThread(void* opaque) {
     LOGD("[XPlayer] videoWorkThread ++++\n");
     auto player = reinterpret_cast<XPlayer*>(opaque);
 
-    player->mRender->start();
-
     for (;;) {
         if (player->mAborted) {
             break;
@@ -81,11 +77,12 @@ void XPlayer::videoWorkThread(void* opaque) {
             player->mContinueVideoWorkCond.wait(lock);
         }
 
-        auto image = player->mTimeline->getImage(player->mTimeline->getClock());
-        player->mRender->updatePixel(image->pixels[0], image->width, image->height);
+        auto images = player->mTimeline->getImage(player->mTimeline->getClock());
+        if (player->mViewObserver) {
+            player->mViewObserver->update(images);
+        }
     }
 
-    player->mRender->stop();
     LOGD("[XPlayer] videoWorkThread ----\n");
 }
 

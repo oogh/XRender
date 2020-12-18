@@ -16,7 +16,7 @@ XTrack::~XTrack() {
 
 }
 
-void XTrack::setTimeline(std::shared_ptr<XTimeline> timeline) {
+void XTrack::setTimeline(const std::shared_ptr<XTimeline>& timeline) {
     mTimeline = timeline;
 }
 
@@ -74,7 +74,11 @@ long XTrack::getClipDuration() const {
 
 std::shared_ptr<XImage> XTrack::getImage(long clock) {
     if (mVideoCodec && (mDelay <= clock && clock <= mDelay + getClipDuration())) {
-        return mVideoCodec->getImage(clock - mDelay);
+        auto result =  mVideoCodec->getImage(clock - mDelay);
+        if (result) {
+            result->textureId = mId;
+        }
+        return result;
     }
     return nullptr;
 }
