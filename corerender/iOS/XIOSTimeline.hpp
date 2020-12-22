@@ -11,7 +11,11 @@
 
 #import <Foundation/Foundation.h>
 
+@class XIOSTrack;
+
 @interface XIOSTimeline : NSObject
+
+- (void)addTrack:(XIOSTrack*)track;
 
 - (void)prepare;
 

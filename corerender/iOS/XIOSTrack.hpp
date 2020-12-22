@@ -13,6 +13,16 @@
 
 @interface XIOSTrack : NSObject
 
+- (instancetype)init;
+
+- (void)setFilename:(NSString*)filename;
+
+- (void)setDelay:(long)delay;
+
+- (void)setClipStartTime:(long)startTime;
+
+- (void)setClipEndTime:(long)endTime;
+
 - (void)prepare;
 
 - (void)start;

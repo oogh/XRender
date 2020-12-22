@@ -5,17 +5,18 @@
 #include "XTexture.hpp"
 #include "XImageUitls.hpp"
 #include "XPlatform.hpp"
+#include "XMediaCore.hpp"
 
-#if PLATFORM_MAC
-std::string XTexture::sVertexFilePath = "/Users/andy/Workspace/Oogh/XRender/Resources/shaders/texture.vs";
-std::string XTexture::sFragmentFilePath = "/Users/andy/Workspace/Oogh/XRender/Resources/shaders/texture.fs";
-#elif PLATFORM_ANDROID
-std::string XTexture::sVertexFilePath = "/sdcard/Android/data/com.demo.render/files/shaders/texture.vs";
-std::string XTexture::sFragmentFilePath = "/sdcard/Android/data/com.demo.render/files/shaders/texture.fs";
-#elif PLATFORM_IOS
-std::string XTexture::sVertexFilePath = "/sdcard/Android/data/com.demo.render/files/shaders/texture.vs";
-std::string XTexture::sFragmentFilePath = "/sdcard/Android/data/com.demo.render/files/shaders/texture.fs";
-#endif
+//#if PLATFORM_MAC
+//std::string XTexture::sVertexFilePath = "/Users/andy/Workspace/Oogh/XRender/Resources/shaders/texture.vs";
+//std::string XTexture::sFragmentFilePath = "/Users/andy/Workspace/Oogh/XRender/Resources/shaders/texture.fs";
+//#elif PLATFORM_ANDROID
+//std::string XTexture::sVertexFilePath = "/sdcard/Android/data/com.demo.render/files/shaders/texture.vs";
+//std::string XTexture::sFragmentFilePath = "/sdcard/Android/data/com.demo.render/files/shaders/texture.fs";
+//#elif PLATFORM_IOS
+//std::string XTexture::sVertexFilePath = "/sdcard/Android/data/com.demo.render/files/shaders/texture.vs";
+//std::string XTexture::sFragmentFilePath = "/sdcard/Android/data/com.demo.render/files/shaders/texture.fs";
+//#endif
 
 XTexture::XTexture(int id, int width, int height): mId(id), mWidth(width), mHeight(height), mPixels(nullptr), mDrawable(false) {
 
@@ -33,7 +34,9 @@ bool XTexture::drawable() const {
 }
 
 void XTexture::create() {
-    mShader = std::make_unique<XShader>(sVertexFilePath, sFragmentFilePath);
+    std::string vertexPath = XMediaCore::getInstance().getShaderPath() + "/texture.vs";
+    std::string fragmentPath = XMediaCore::getInstance().getShaderPath() + "/texture.fs";
+    mShader = std::make_unique<XShader>(vertexPath, fragmentPath);
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);

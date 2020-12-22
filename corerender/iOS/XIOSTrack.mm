@@ -11,7 +11,7 @@
 
 @interface XIOSTrack()
 {
-    XTrack* _track;
+    std::shared_ptr<XTrack> _track;
 }
 @end
 
@@ -20,16 +20,38 @@
 #pragma mark - Life Cycle
 - (instancetype)init {
     if (self = [super init]) {
-        [self setup];
+        _track = std::make_shared<XTrack>();
     }
     return self;
 }
 
 - (void)dealloc {
-    
+    if (_track) {
+        _track.reset();
+    }
 }
 
 #pragma mark - Public
+- (void)setFilename:(NSString*)filename {
+    _track->setFilename(filename.UTF8String);
+}
+
+- (void)setDelay:(long)delay {
+    _track->setDelay(delay);
+}
+
+- (void)setClipStartTime:(long)startTime {
+    _track->setClipStartTime(startTime);
+}
+
+- (void)setClipEndTime:(long)endTime {
+    _track->setClipEndTime(endTime);
+}
+
+- (std::shared_ptr<XTrack>)getNativeTrack {
+    return _track;
+}
+
 - (void)prepare {
     
 }

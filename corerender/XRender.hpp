@@ -10,12 +10,13 @@
 #include <mutex>
 #include <list>
 #include "XGLHeader.hpp"
+#include "XRenderObserver.hpp"
 
 class XFFProducer;
 class XTexture;
 class XImage;
 
-class XRender {
+class XRender : public XRenderObserver {
     using OnProgressChangeCallback = std::function<void(long current, long duration)>;
 public:
     XRender();
@@ -28,10 +29,11 @@ public:
 
     void onDrawFrame();
 
-    void update(const std::vector<std::shared_ptr<XImage>>& images);
-    
     void stop();
-
+    
+public:
+    void update(const std::vector<std::shared_ptr<XImage>>& images) override;
+    
 private:
     int mTextureWidth;
     int mTextureHeight;

@@ -20,8 +20,8 @@ void XPlayer::setTimeline(std::shared_ptr<XTimeline>&& timeline) {
     mTimeline = timeline;
 }
 
-void XPlayer::attachObserverView(std::shared_ptr<XViewObserver>&& observer) {
-    mViewObserver = observer;
+void XPlayer::attachObserverRender(std::shared_ptr<XRenderObserver> observer) {
+    mRenderObserver = observer;
 }
 
 int XPlayer::start() {
@@ -78,8 +78,8 @@ void XPlayer::videoWorkThread(void* opaque) {
         }
 
         auto images = player->mTimeline->getImage(player->mTimeline->getClock());
-        if (player->mViewObserver) {
-            player->mViewObserver->update(images);
+        if (player->mRenderObserver) {
+            player->mRenderObserver->update(images);
         }
     }
 

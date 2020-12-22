@@ -6,11 +6,12 @@
 #include "XMacView.hpp"
 #include "XTimeline.hpp"
 #include "XTrack.hpp"
+#include "XMediaCore.hpp"
 #include <iostream>
 
-#include <thread>
-
 int main(int argc, char* argv[]) {
+
+    XMediaCore::getInstance().setShaderPath("/Users/andy/Workspace/Oogh/XRender/Resources/shaders");
 
     auto timeline = std::make_shared<XTimeline>();
     auto track0 = std::make_shared<XTrack>();
@@ -26,7 +27,7 @@ int main(int argc, char* argv[]) {
     player->start();
     
     auto view = std::make_shared<XMacView>(800, 600);
-    player->attachObserverView(view);
+    player->attachObserverRender(view->getRender());
     view->create();
 
     return 0;

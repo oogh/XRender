@@ -7,6 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A1045ECF258CADB7006C3712 /* douyin_700x1240.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = A1045EC4258CADB7006C3712 /* douyin_700x1240.mp4 */; };
+		A1045ED0258CADB7006C3712 /* jieqian_720x1280.rgba in Resources */ = {isa = PBXBuildFile; fileRef = A1045EC5258CADB7006C3712 /* jieqian_720x1280.rgba */; };
+		A1045ED1258CADB7006C3712 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = A1045EC6258CADB7006C3712 /* README.md */; };
+		A1045ED8258CADB7006C3712 /* jieqian_720x1280.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = A1045ECE258CADB7006C3712 /* jieqian_720x1280.mp4 */; };
+		A1045EE3258CB0BF006C3712 /* texture.fs in Resources */ = {isa = PBXBuildFile; fileRef = A1045EDD258CB0BF006C3712 /* texture.fs */; };
+		A1045EE4258CB0BF006C3712 /* triangle.fs in Resources */ = {isa = PBXBuildFile; fileRef = A1045EDE258CB0BF006C3712 /* triangle.fs */; };
+		A1045EE5258CB0BF006C3712 /* rectangle.fs in Resources */ = {isa = PBXBuildFile; fileRef = A1045EDF258CB0BF006C3712 /* rectangle.fs */; };
+		A1045EE6258CB0BF006C3712 /* triangle.vs in Resources */ = {isa = PBXBuildFile; fileRef = A1045EE0258CB0BF006C3712 /* triangle.vs */; };
+		A1045EE7258CB0BF006C3712 /* rectangle.vs in Resources */ = {isa = PBXBuildFile; fileRef = A1045EE1258CB0BF006C3712 /* rectangle.vs */; };
+		A1045EE8258CB0BF006C3712 /* texture.vs in Resources */ = {isa = PBXBuildFile; fileRef = A1045EE2258CB0BF006C3712 /* texture.vs */; };
 		A1E626ED258CA9A40084D0EE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E626EC258CA9A40084D0EE /* AppDelegate.m */; };
 		A1E626F0258CA9A40084D0EE /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E626EF258CA9A40084D0EE /* SceneDelegate.m */; };
 		A1E626F3258CA9A40084D0EE /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E626F2258CA9A40084D0EE /* ViewController.m */; };
@@ -20,6 +30,16 @@
 /* Begin PBXFileReference section */
 		150F92D08EEAC63842687AB2 /* Pods-XRender.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XRender.release.xcconfig"; path = "Target Support Files/Pods-XRender/Pods-XRender.release.xcconfig"; sourceTree = "<group>"; };
 		2986BB27BA692AC4757D159A /* libPods-XRender.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-XRender.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1045EC4258CADB7006C3712 /* douyin_700x1240.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = douyin_700x1240.mp4; sourceTree = "<group>"; };
+		A1045EC5258CADB7006C3712 /* jieqian_720x1280.rgba */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = jieqian_720x1280.rgba; sourceTree = "<group>"; };
+		A1045EC6258CADB7006C3712 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		A1045ECE258CADB7006C3712 /* jieqian_720x1280.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = jieqian_720x1280.mp4; sourceTree = "<group>"; };
+		A1045EDD258CB0BF006C3712 /* texture.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = texture.fs; sourceTree = "<group>"; };
+		A1045EDE258CB0BF006C3712 /* triangle.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = triangle.fs; sourceTree = "<group>"; };
+		A1045EDF258CB0BF006C3712 /* rectangle.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = rectangle.fs; sourceTree = "<group>"; };
+		A1045EE0258CB0BF006C3712 /* triangle.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = triangle.vs; sourceTree = "<group>"; };
+		A1045EE1258CB0BF006C3712 /* rectangle.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = rectangle.vs; sourceTree = "<group>"; };
+		A1045EE2258CB0BF006C3712 /* texture.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = texture.vs; sourceTree = "<group>"; };
 		A1E626E8258CA9A40084D0EE /* XRender.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XRender.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1E626EB258CA9A40084D0EE /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		A1E626EC258CA9A40084D0EE /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -55,6 +75,32 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		A1045EC3258CADB7006C3712 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A1045EDC258CB0BF006C3712 /* shaders */,
+				A1045EC4258CADB7006C3712 /* douyin_700x1240.mp4 */,
+				A1045EC5258CADB7006C3712 /* jieqian_720x1280.rgba */,
+				A1045EC6258CADB7006C3712 /* README.md */,
+				A1045ECE258CADB7006C3712 /* jieqian_720x1280.mp4 */,
+			);
+			name = Resources;
+			path = ../../../../Resources;
+			sourceTree = "<group>";
+		};
+		A1045EDC258CB0BF006C3712 /* shaders */ = {
+			isa = PBXGroup;
+			children = (
+				A1045EDD258CB0BF006C3712 /* texture.fs */,
+				A1045EDE258CB0BF006C3712 /* triangle.fs */,
+				A1045EDF258CB0BF006C3712 /* rectangle.fs */,
+				A1045EE0258CB0BF006C3712 /* triangle.vs */,
+				A1045EE1258CB0BF006C3712 /* rectangle.vs */,
+				A1045EE2258CB0BF006C3712 /* texture.vs */,
+			);
+			path = shaders;
+			sourceTree = "<group>";
+		};
 		A1E626DF258CA9A40084D0EE = {
 			isa = PBXGroup;
 			children = (
@@ -76,6 +122,7 @@
 		A1E626EA258CA9A40084D0EE /* XRender */ = {
 			isa = PBXGroup;
 			children = (
+				A1045EC3258CADB7006C3712 /* Resources */,
 				A1E626EB258CA9A40084D0EE /* AppDelegate.h */,
 				A1E626EC258CA9A40084D0EE /* AppDelegate.m */,
 				A1E626EE258CA9A40084D0EE /* SceneDelegate.h */,
@@ -157,9 +204,19 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1045EE7258CB0BF006C3712 /* rectangle.vs in Resources */,
+				A1045EE5258CB0BF006C3712 /* rectangle.fs in Resources */,
+				A1045ED1258CADB7006C3712 /* README.md in Resources */,
+				A1045ED8258CADB7006C3712 /* jieqian_720x1280.mp4 in Resources */,
+				A1045EE3258CB0BF006C3712 /* texture.fs in Resources */,
 				A1E626FB258CA9A50084D0EE /* LaunchScreen.storyboard in Resources */,
+				A1045EE6258CB0BF006C3712 /* triangle.vs in Resources */,
 				A1E626F8258CA9A50084D0EE /* Assets.xcassets in Resources */,
 				A1E626F6258CA9A40084D0EE /* Main.storyboard in Resources */,
+				A1045ECF258CADB7006C3712 /* douyin_700x1240.mp4 in Resources */,
+				A1045ED0258CADB7006C3712 /* jieqian_720x1280.rgba in Resources */,
+				A1045EE8258CB0BF006C3712 /* texture.vs in Resources */,
+				A1045EE4258CB0BF006C3712 /* triangle.fs in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

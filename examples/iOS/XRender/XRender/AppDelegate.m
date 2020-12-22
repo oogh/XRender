@@ -2,7 +2,8 @@
 //  AppDelegate.m
 //  XRender
 //
-//  Created by Andy on 2020/12/18.
+//  Created by Oogh on 2020/4/9.
+//  Copyright © 2020 oogh. All rights reserved.
 //
 
 #import "AppDelegate.h"

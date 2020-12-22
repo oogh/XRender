@@ -17,7 +17,7 @@
     EAGLContext* _glContext;
     GLuint _frameBuffer;
     GLuint _renderBuffer;
-    XRender* _render;
+    std::shared_ptr<XRender> _render;
     CADisplayLink* _displayLink;
 }
 @end
@@ -53,13 +53,6 @@
 }
 
 #pragma mark - Public
-- (void)setInput:(NSString*)filename {
-//    _render->setInput(filename.UTF8String);
-}
-
-- (void)prepare:(long)timestamp {
-//    _render->prepare(timestamp);
-}
 
 - (void)start {
     if (!_displayLink) {
@@ -88,7 +81,6 @@
         [_displayLink invalidate];
         _displayLink = nil;
     }
-    _render->stop();
 }
 
 #pragma mark - Private
@@ -126,7 +118,7 @@
                               GL_RENDERBUFFER, _renderBuffer);
 
     // 5. setup native render
-    _render = new XRender();
+    _render = std::make_shared<XRender>();
     _render->onSurfaceCreated();
     CGFloat scale = [UIScreen mainScreen].scale;
     _render->onSurfaceChanged([self bounds].size.width * scale, [self bounds].size.height * scale);

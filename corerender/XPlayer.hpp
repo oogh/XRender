@@ -9,7 +9,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
-#include "XViewObserver.hpp"
+#include "XRenderObserver.hpp"
 
 class XRender;
 class XSounder;
@@ -24,7 +24,7 @@ public:
 
     void setTimeline(std::shared_ptr<XTimeline>&& timeline);
 
-    void attachObserverView(std::shared_ptr<XViewObserver>&& observer);
+    void attachObserverRender(std::shared_ptr<XRenderObserver> observer);
 
     int start();
 
@@ -44,7 +44,7 @@ private:
     std::condition_variable mContinueVideoWorkCond;
 
     bool mAborted;
-    std::shared_ptr<XViewObserver> mViewObserver;
+    std::shared_ptr<XRenderObserver> mRenderObserver;
 };
 
 #endif //XRENDER_XPLAYER_HPP

@@ -1,13 +1,13 @@
 //
-//  XView.h
+//  XIOSView.hpp
 //  XRender
 //
 //  Created by Oogh on 2020/04/17.
 //  Copyright © 2020 Oogh. All rights reserved.
 //
 
-#ifndef XView_h
-#define XView_h
+#ifndef XIOSView_hpp
+#define XIOSView_hpp
 
 #import <UIKit/UIKit.h>
 
@@ -16,10 +16,6 @@ typedef void (^OnProgressChangeCallback)(long current, long duration);
 @interface XIOSView : UIView
 
 @property (nonatomic, copy) OnProgressChangeCallback progressChangeCallback;
-
-- (void)setInput:(NSString*)filename;
-
-- (void)prepare:(long)timestamp;
 
 - (void)start;
 
@@ -31,4 +27,4 @@ typedef void (^OnProgressChangeCallback)(long current, long duration);
 
 @end
 
-#endif /* XView_h */
+#endif /* XIOSView_hpp */

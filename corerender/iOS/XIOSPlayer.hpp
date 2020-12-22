@@ -11,7 +11,11 @@
 
 #import <Foundation/Foundation.h>
 
+@class XIOSTimeline;
+
 @interface XIOSPlayer : NSObject
+
+- (void)setTimeline:(XIOSTimeline*)timeline;
 
 - (void)prepare;
 

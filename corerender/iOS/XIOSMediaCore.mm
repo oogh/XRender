@@ -7,6 +7,7 @@
 //
 
 #import "XIOSMediaCore.hpp"
+#include "XMediaCore.hpp"
 
 static InitParams sParams;
 
@@ -16,10 +17,15 @@ static InitParams sParams;
 
 + (void)setup:(InitParams)params {
     sParams = params;
+    XMediaCore::getInstance().setShaderPath(params.shaderPath.UTF8String);
 }
 
 + (NSString*)getResPath {
     return sParams.resPath;
+}
+
++ (NSString*)getShaderPath {
+    return sParams.shaderPath;
 }
 
 @end
