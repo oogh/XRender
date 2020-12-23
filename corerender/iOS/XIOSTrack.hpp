@@ -23,16 +23,6 @@
 
 - (void)setClipEndTime:(long)endTime;
 
-- (void)prepare;
-
-- (void)start;
-
-- (void)seekTo:(long)targetPos;
-
-- (void)pause;
-
-- (void)stop;
-
 @end
 
 #endif /* XIOSTrack_hpp */

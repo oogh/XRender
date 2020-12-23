@@ -17,16 +17,6 @@
 
 - (void)addTrack:(XIOSTrack*)track;
 
-- (void)prepare;
-
-- (void)start;
-
-- (void)seekTo:(long)targetPos;
-
-- (void)pause;
-
-- (void)stop;
-
 @end
 
 #endif /* XIOSTimeline_hpp */

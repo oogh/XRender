@@ -8,6 +8,9 @@
 
 #import "XIOSPlayer.hpp"
 #import "XIOSTimeline.hpp"
+#import "XIOSTimelineInternal.hpp"
+#import "XIOSView.hpp"
+#import "XIOSViewInternal.hpp"
 #include "XPlayer.hpp"
 
 @interface XIOSPlayer()
@@ -37,12 +40,18 @@
     _player->setTimeline([timeline getNativeTimeline]);
 }
 
+- (void)setDisplayView:(XIOSView*)view {
+    _player->attachObserverRender([view getNativeRender]);
+}
+
 - (void)prepare {
     
 }
 
 - (void)start {
-    
+    if (_player) {
+        _player->start();
+    }
 }
 
 - (void)seekTo:(long)targetPos {

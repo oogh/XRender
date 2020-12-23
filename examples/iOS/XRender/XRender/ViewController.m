@@ -10,16 +10,19 @@
 #import "XIOSView.hpp"
 #import "XIOSMediaCore.hpp"
 #import "XIOSTimeline.hpp"
+#import "XIOSTrack.hpp"
+#import "XIOSPlayer.hpp"
 
 @interface ViewController ()
 @property (weak, nonatomic) IBOutlet XIOSView *displayView;
 @property (weak, nonatomic) IBOutlet UISlider *slider;
 @property (weak, nonatomic) IBOutlet UITextField *currentTextField;
 @property (weak, nonatomic) IBOutlet UITextField *durationTextField;
-
 @end
 
-@implementation ViewController
+@implementation ViewController {
+    XIOSPlayer* _player;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -59,6 +62,10 @@
     XIOSTimeline* timeline = [[XIOSTimeline alloc] init];
     [timeline addTrack:track];
     
+    _player = [[XIOSPlayer alloc] init];
+    [_player setTimeline:timeline];
+    [_player setDisplayView:self.displayView];
+    [_player start];
     
 }
 

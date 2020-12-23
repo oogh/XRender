@@ -7,9 +7,10 @@
 //
 
 #import "XIOSTimeline.hpp"
+#import "XIOSTimelineInternal.hpp"
+#import "XIOSTrackInternal.hpp"
 #import "XIOSTrack.hpp"
 #include "XTimeline.hpp"
-
 
 @interface XIOSTimeline()
 {
@@ -38,32 +39,6 @@
 
 - (std::shared_ptr<XTimeline>)getNativeTimeline {
     return _timeline;
-}
-
-- (void)prepare {
-    
-}
-
-- (void)start {
-    
-}
-
-- (void)seekTo:(long)targetPos {
-    
-}
-
-- (void)pause {
-    
-}
-
-- (void)stop {
-    
-}
-
-#pragma mark - Private
-
-- (void)setup {
-    
 }
 
 @end

@@ -7,6 +7,7 @@
 //
 
 #import "XIOSTrack.hpp"
+#import "XIOSTrackInternal.hpp"
 #include "XTrack.hpp"
 
 @interface XIOSTrack()
@@ -50,31 +51,6 @@
 
 - (std::shared_ptr<XTrack>)getNativeTrack {
     return _track;
-}
-
-- (void)prepare {
-    
-}
-
-- (void)start {
-    
-}
-
-- (void)seekTo:(long)targetPos {
-    
-}
-
-- (void)pause {
-    
-}
-
-- (void)stop {
-    
-}
-
-#pragma mark - Private
-- (void)setup {
-    
 }
 
 @end

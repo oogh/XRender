@@ -7,6 +7,7 @@
 //
 
 #import "XIOSView.hpp"
+#import "XIOSViewInternal.hpp"
 #include "XGLHeader.hpp"
 #include "XRender.hpp"
 #import "XWeakProxy.hpp"
@@ -81,6 +82,10 @@
         [_displayLink invalidate];
         _displayLink = nil;
     }
+}
+
+- (std::shared_ptr<XRender>)getNativeRender {
+    return _render;
 }
 
 #pragma mark - Private

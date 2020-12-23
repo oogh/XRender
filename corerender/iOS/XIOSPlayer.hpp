@@ -12,10 +12,15 @@
 #import <Foundation/Foundation.h>
 
 @class XIOSTimeline;
+@class XIOSView;
 
 @interface XIOSPlayer : NSObject
 
+- (instancetype)init;
+
 - (void)setTimeline:(XIOSTimeline*)timeline;
+
+- (void)setDisplayView:(XIOSView*)view;
 
 - (void)prepare;
 
