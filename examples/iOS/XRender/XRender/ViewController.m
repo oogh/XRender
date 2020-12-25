@@ -63,10 +63,10 @@
     [timeline addTrack:track];
     
     _player = [[XIOSPlayer alloc] init];
-    [_player setTimeline:timeline];
     [_player setDisplayView:self.displayView];
-    [_player start];
     
+    [_player setTimeline:timeline];
+    [_player start];
 }
 
 - (IBAction)onSetInputClick:(UIButton *)sender {

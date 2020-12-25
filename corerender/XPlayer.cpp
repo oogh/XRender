@@ -13,7 +13,15 @@ XPlayer::XPlayer() {
 }
 
 XPlayer::~XPlayer() {
-
+    if (mAudioTid) {
+        mAudioTid->join();
+        mAudioTid.reset();
+    }
+    
+    if (mVideoTid) {
+        mVideoTid->join();
+        mAudioTid.reset();
+    }
 }
 
 void XPlayer::setTimeline(std::shared_ptr<XTimeline>&& timeline) {

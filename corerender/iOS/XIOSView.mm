@@ -62,7 +62,6 @@
         [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
     }
     _displayLink.paused = NO;
-//    _render->start();
 }
 
 - (void)seekTo:(long)targetPos {
@@ -99,7 +98,7 @@
     
     // 2. setup context
     if (!_glContext) {
-        _glContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+        _glContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
     }
     NSAssert(_glContext && [EAGLContext setCurrentContext:_glContext], @"[XView] EAGLContext error!");
     
@@ -137,6 +136,8 @@
                                                        selector:@selector(drawFrame)];
         [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
     }
+    
+    [self start];
 }
 
 - (void)setupCallback {

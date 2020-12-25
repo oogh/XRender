@@ -2,6 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -131,9 +132,8 @@
                                     </stackView>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstItem="0pO-hb-KJ1" firstAttribute="top" secondItem="epq-KD-rwB" secondAttribute="bottom" constant="24" id="KO1-Xr-I4m"/>
-                                    <constraint firstAttribute="trailing" secondItem="0pO-hb-KJ1" secondAttribute="trailing" constant="24" id="TZy-9g-X0Q"/>
-                                    <constraint firstItem="0pO-hb-KJ1" firstAttribute="leading" secondItem="XUK-U9-Txo" secondAttribute="leading" constant="24" id="f4X-pT-Ziy"/>
+                                    <constraint firstAttribute="trailing" secondItem="0pO-hb-KJ1" secondAttribute="trailing" id="TZy-9g-X0Q"/>
+                                    <constraint firstItem="0pO-hb-KJ1" firstAttribute="leading" secondItem="XUK-U9-Txo" secondAttribute="leading" id="f4X-pT-Ziy"/>
                                 </constraints>
                             </stackView>
                         </subviews>
@@ -159,6 +159,9 @@
         </scene>
     </scenes>
     <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
