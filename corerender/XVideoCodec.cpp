@@ -34,17 +34,14 @@ int XVideoCodec::open() {
         return AVERROR(EINVAL);
     }
 
-    AVFormatContext* ic = avformat_alloc_context();
-    if (!ic) {
-        return AVERROR(ENOMEM);
-    }
-    mFormatCtx = std::unique_ptr<AVFormatContext, InputFormatDeleter>(ic);
+    AVFormatContext* ic = nullptr;
 
     int ret = avformat_open_input(&ic, mFilename.data(), nullptr, nullptr);
     if (ret < 0) {
         LOGE("[XVideoCodec] avformat_open_input failed: %s\n", av_err2str(ret));
         return ret;
     }
+    mFormatCtx = std::unique_ptr<AVFormatContext, InputFormatDeleter>(ic);
 
     ret = avformat_find_stream_info(ic, nullptr);
     if (ret < 0) {
