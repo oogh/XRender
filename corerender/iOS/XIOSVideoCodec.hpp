@@ -9,7 +9,8 @@
 #ifndef XIOSVideoCodec_hpp
 #define XIOSVideoCodec_hpp
 
-#import <AVFoundation/AVFoundation.h>
+@class AVAssetReader;
+@class AVAssetReaderTrackOutput;
 
 #include <memory>
 #include <string>

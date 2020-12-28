@@ -6,6 +6,7 @@
 //  Copyright © 2020 Oogh. All rights reserved.
 //
 
+#import <AVFoundation/AVFoundation.h>
 #include "XIOSVideoCodec.hpp"
 #include "XLogger.hpp"
 #include "XImage.hpp"
