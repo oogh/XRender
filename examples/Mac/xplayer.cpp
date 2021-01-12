@@ -10,7 +10,6 @@
 #include <iostream>
 
 int main(int argc, char* argv[]) {
-
     XMediaCore::getInstance().setShaderPath("/Users/andy/Workspace/Oogh/XRender/Resources/shaders");
 
     auto timeline = std::make_shared<XTimeline>();
@@ -20,12 +19,12 @@ int main(int argc, char* argv[]) {
     track0->setClipStartTime(0);
     track0->setClipEndTime(10000);
     timeline->addTrack(track0);
-    
+
     auto player = std::make_shared<XPlayer>();
-    
+
     player->setTimeline(std::move(timeline));
     player->start();
-    
+
     auto view = std::make_shared<XMacView>(800, 600);
     player->attachObserverRender(view->getRender());
     view->create();

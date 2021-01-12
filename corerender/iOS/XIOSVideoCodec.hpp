@@ -6,36 +6,25 @@
 //  Copyright © 2020 Oogh. All rights reserved.
 //
 
-#ifndef XIOSVideoCodec_hpp
-#define XIOSVideoCodec_hpp
+#ifndef XIOSVIDEOCODEC_HPP
+#define XIOSVIDEOCODEC_HPP
 
-@class AVAssetReader;
-@class AVAssetReaderTrackOutput;
+#include "XVideoCodec.hpp"
 
-#include <memory>
-#include <string>
-
-struct XImage;
-
-class XIOSVideoCodec {
+class XIOSVideoCodec : public XVideoCodec {
 public:
     XIOSVideoCodec();
     
-    ~XIOSVideoCodec();
+    ~XIOSVideoCodec() override;
     
-    void setFilename(const std::string& filename);
+    void setFilename(const std::string& filename) override;
     
-    std::shared_ptr<XImage> getImage(long clock);
-    
-private:
-    int open();
-    
-    void close();
+    std::shared_ptr<XImage> getImage(long clock) override;
     
 private:
-    std::string mFilename;
-    AVAssetReader* mReader;
-    AVAssetReaderTrackOutput* mVideoReaderOutput;
+    int open() override;
+    
+    int close() override;
 };
 
-#endif /* XIOSVideoCodec_hpp */
+#endif //XIOSVIDEOCODEC_HPP

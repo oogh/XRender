@@ -1,5 +1,9 @@
 //
-// Created by Andy on 2020/11/4.
+//  XPlayer.hpp
+//  XRender
+//
+//  Created by Oogh on 2020/11/4.
+//  Copyright © 2020 Oogh. All rights reserved.
 //
 
 #ifndef XRENDER_XPLAYER_HPP
@@ -27,6 +31,8 @@ public:
     void attachObserverRender(std::shared_ptr<XRenderObserver> observer);
 
     int start();
+    
+    int stop();
 
 private:
     void audioWorkThread(void *opaque);

@@ -29,6 +29,9 @@ void XRender::update(const std::vector<std::shared_ptr<XImage>>& images) {
     std::lock_guard<std::mutex> lock(mMutex);
     for (auto& image: images) {
         auto iter = std::find_if(mTextureList.begin(), mTextureList.end(), [image](const std::shared_ptr<XTexture>& texture) {
+            if (image == nullptr) {
+                return false;
+            }
             return image->textureId == texture->getId();
         });
 
@@ -36,10 +39,19 @@ void XRender::update(const std::vector<std::shared_ptr<XImage>>& images) {
         if (iter != mTextureList.end()) {
             texture = *iter;
         } else {
-            texture = std::make_shared<XTexture>(image->textureId, image->width, image->height);
-            mTextureList.emplace_back(texture);
+            if (image) {
+                texture = std::make_shared<XTexture>(image->textureId, image->width, image->height);
+                mTextureList.emplace_back(texture);
+            }
         }
-        texture->setPixels(image->pixels[0], image->width, image->height);
+        
+        if (image && image->pixels[0]) { // RGB系列
+            texture->setPixels(image->pixels[0], image->linesize[0] / 4, image->height);
+        } else if (image && image->pixels[3]) { // CMSampleBufferRef
+            // CMSampleBufferRef -> Texture
+            
+        }
+        
     }
     mContinueRefreshCond.notify_one();
 }

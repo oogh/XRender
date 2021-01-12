@@ -63,7 +63,9 @@
 }
 
 - (void)stop {
-    
+    if (_player) {
+        _player->stop();
+    }
 }
 
 #pragma mark - Private

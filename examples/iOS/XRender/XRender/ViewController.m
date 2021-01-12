@@ -24,8 +24,15 @@
     XIOSPlayer* _player;
 }
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
+    
     self.slider.value = 0;
     self.currentTextField.placeholder = @"0";
     self.durationTextField.placeholder = @"0";
@@ -51,13 +58,25 @@
     };
 }
 
+- (void)didEnterBackground {
+    if (_player) {
+        [_player stop];
+    }
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    if (_player) {
+        [_player stop];
+    }
+}
+
 - (IBAction)onOncePressClick:(UIButton *)sender {
-    NSString *filename = [[NSBundle mainBundle] pathForResource:@"douyin_700x1240" ofType:@"mp4"];
+    NSString *filename = [[NSBundle mainBundle] pathForResource:@"output" ofType:@"mp4"];
     XIOSTrack* track = [[XIOSTrack alloc] init];
     [track setFilename:filename];
     [track setDelay:0];
     [track setClipStartTime:0];
-    [track setClipEndTime:15000];
+    [track setClipEndTime:54000];
     
     XIOSTimeline* timeline = [[XIOSTimeline alloc] init];
     [timeline addTrack:track];

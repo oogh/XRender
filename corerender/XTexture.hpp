@@ -2,8 +2,8 @@
 // Created by Oogh on 2020/11/1.
 //
 
-#ifndef XRENDER_XTEXTURE_HPP
-#define XRENDER_XTEXTURE_HPP
+#ifndef XTEXTURE_HPP
+#define XTEXTURE_HPP
 
 #include "XShader.hpp"
 
@@ -43,4 +43,4 @@ private:
 };
 
 
-#endif //XRENDER_XTEXTURE_HPP
+#endif // XTEXTURE_HPP

@@ -11,5 +11,9 @@ uniform sampler2D ourTexture;
 
 void main()
 {
-    FragColor = texture(ourTexture, vec2(TexCoord.x, 1.0 - TexCoord.y));
+    // RGBA -> RGBA
+//    FragColor = texture(ourTexture, vec2(TexCoord.x, 1.0 - TexCoord.y));
+    
+    // BGRA -> RGBA
+    FragColor.rgba = texture(ourTexture, vec2(TexCoord.x, 1.0 - TexCoord.y)).bgra;
 }

@@ -1,5 +1,9 @@
 //
-// Created by Andy on 2020/11/4.
+//  XPlayer.cpp
+//  XRender
+//
+//  Created by Oogh on 2020/11/4.
+//  Copyright © 2020 Oogh. All rights reserved.
 //
 
 #include "XPlayer.hpp"
@@ -63,7 +67,7 @@ void XPlayer::audioWorkThread(void* opaque) {
 
         auto sample = player->mTimeline->getSample(4096);
         player->mSounder->updateAudio(sample->data, sample->length);
-        LOGE("[XPlayer] andy sample->length: %d\n", sample->length);
+//        LOGE("[XPlayer] andy sample->length: %d\n", sample->length);
     }
 
     player->mSounder->stop();
@@ -74,7 +78,7 @@ void XPlayer::videoWorkThread(void* opaque) {
     XThreadUtils::configThreadName("videoWorkThread");
     LOGD("[XPlayer] videoWorkThread ++++\n");
     auto player = reinterpret_cast<XPlayer*>(opaque);
-
+    long lastClock = -1;
     for (;;) {
         if (player->mAborted) {
             break;
@@ -84,13 +88,30 @@ void XPlayer::videoWorkThread(void* opaque) {
             std::unique_lock<std::mutex> lock(player->mMutex);
             player->mContinueVideoWorkCond.wait(lock);
         }
-
-        auto images = player->mTimeline->getImage(player->mTimeline->getClock());
-        if (player->mRenderObserver) {
-            player->mRenderObserver->update(images);
+        
+        long clock = player->mTimeline->getClock();
+        if (clock != lastClock) {
+            auto images = player->mTimeline->getImage(clock);
+            if (player->mRenderObserver) {
+                player->mRenderObserver->update(images);
+            }
         }
+        lastClock = clock;
     }
 
     LOGD("[XPlayer] videoWorkThread ----\n");
+}
+
+int XPlayer::stop() {
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mAborted = true;
+    }
+    
+    if (mAudioTid) {
+        mAudioTid->join();
+        mAudioTid.reset();
+    }
+    return 0;
 }
 

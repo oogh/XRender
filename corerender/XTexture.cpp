@@ -7,17 +7,6 @@
 #include "XPlatform.hpp"
 #include "XMediaCore.hpp"
 
-//#if PLATFORM_MAC
-//std::string XTexture::sVertexFilePath = "/Users/andy/Workspace/Oogh/XRender/Resources/shaders/texture.vs";
-//std::string XTexture::sFragmentFilePath = "/Users/andy/Workspace/Oogh/XRender/Resources/shaders/texture.fs";
-//#elif PLATFORM_ANDROID
-//std::string XTexture::sVertexFilePath = "/sdcard/Android/data/com.demo.render/files/shaders/texture.vs";
-//std::string XTexture::sFragmentFilePath = "/sdcard/Android/data/com.demo.render/files/shaders/texture.fs";
-//#elif PLATFORM_IOS
-//std::string XTexture::sVertexFilePath = "/sdcard/Android/data/com.demo.render/files/shaders/texture.vs";
-//std::string XTexture::sFragmentFilePath = "/sdcard/Android/data/com.demo.render/files/shaders/texture.fs";
-//#endif
-
 XTexture::XTexture(int id, int width, int height): mId(id), mWidth(width), mHeight(height), mPixels(nullptr), mDrawable(false) {
 
 }
@@ -100,7 +89,7 @@ void XTexture::setPixels(uint8_t* pixels, int width, int height) {
         mHeight = height;
     }
     
-    size_t size = width * height * 4;
+    size_t size = static_cast<size_t>(width * height * 4);
     if (!mPixels) {
         mPixels = reinterpret_cast<uint8_t*>(malloc(size));
     }
