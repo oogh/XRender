@@ -7,12 +7,11 @@
 
 #include <memory>
 #include "XGLHeader.hpp"
-#include "XViewObserver.hpp"
+#include "XRender.hpp"
 
-class XRender;
 class XImage;
 
-class XMacView : public XViewObserver {
+class XMacView {
 public:
     XMacView(int width, int height);
 
@@ -21,9 +20,6 @@ public:
     std::shared_ptr<XRender> getRender();
 
     void create();
-
-public:
-    void update(std::vector<std::shared_ptr<XImage>> images) override;
 
 protected:
     void onSurfaceCreated(GLFWwindow* window);

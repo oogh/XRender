@@ -6,23 +6,24 @@
 //  Copyright © 2020 Oogh. All rights reserved.
 //
 
-#import "XView.hpp"
+#import "XIOSView.hpp"
+#import "XIOSViewInternal.hpp"
 #include "XGLHeader.hpp"
 #include "XRender.hpp"
 #import "XWeakProxy.hpp"
 
-@interface XView()
+@interface XIOSView()
 {
     CAEAGLLayer* _glLayer;
     EAGLContext* _glContext;
     GLuint _frameBuffer;
     GLuint _renderBuffer;
-    XRender* _render;
+    std::shared_ptr<XRender> _render;
     CADisplayLink* _displayLink;
 }
 @end
 
-@implementation XView
+@implementation XIOSView
 
 #pragma mark - Life Cycle
 - (instancetype)initWithCoder:(NSCoder *)coder {
@@ -53,13 +54,6 @@
 }
 
 #pragma mark - Public
-- (void)setInput:(NSString*)filename {
-//    _render->setInput(filename.UTF8String);
-}
-
-- (void)prepare:(long)timestamp {
-//    _render->prepare(timestamp);
-}
 
 - (void)start {
     if (!_displayLink) {
@@ -68,7 +62,6 @@
         [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
     }
     _displayLink.paused = NO;
-    _render->start();
 }
 
 - (void)seekTo:(long)targetPos {
@@ -88,7 +81,10 @@
         [_displayLink invalidate];
         _displayLink = nil;
     }
-    _render->stop();
+}
+
+- (std::shared_ptr<XRender>)getNativeRender {
+    return _render;
 }
 
 #pragma mark - Private
@@ -102,7 +98,7 @@
     
     // 2. setup context
     if (!_glContext) {
-        _glContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+        _glContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
     }
     NSAssert(_glContext && [EAGLContext setCurrentContext:_glContext], @"[XView] EAGLContext error!");
     
@@ -126,7 +122,7 @@
                               GL_RENDERBUFFER, _renderBuffer);
 
     // 5. setup native render
-    _render = new XRender();
+    _render = std::make_shared<XRender>();
     _render->onSurfaceCreated();
     CGFloat scale = [UIScreen mainScreen].scale;
     _render->onSurfaceChanged([self bounds].size.width * scale, [self bounds].size.height * scale);
@@ -140,6 +136,8 @@
                                                        selector:@selector(drawFrame)];
         [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
     }
+    
+    [self start];
 }
 
 - (void)setupCallback {

@@ -1,5 +1,5 @@
 //
-// Created by Andy on 2020/11/4.
+// Created by Oogh on 2020/11/4.
 //
 
 #include "XTimeline.hpp"
@@ -21,7 +21,7 @@ int XTimeline::addTrack(std::shared_ptr<XTrack> track) {
     track->setTimeline(shared_from_this());
     mTrackList.emplace_back(track);
     updateDuration();
-    return mTrackList.size();
+    return static_cast<int>(mTrackList.size());
 }
 
 int XTimeline::removeTrack(int id) {
@@ -65,7 +65,7 @@ std::shared_ptr<XSample> XTimeline::getSample(int length) {
 long XTimeline::getClock() {
     std::lock_guard<std::mutex> lock(mMutex);
     long clock = static_cast<long>(mUsedSample * 1.0 / 44100 / 2 / 2 * 1000);
-    LOGD("[XTimeline] clock: %ld\n", clock);
+//    LOGD("[XTimeline] current play clock: %ld\n", clock);
     return clock;
 }
 

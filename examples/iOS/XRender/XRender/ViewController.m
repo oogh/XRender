@@ -7,28 +7,40 @@
 //
 
 #import "ViewController.h"
-#import "XView.hpp"
+#import "XIOSView.hpp"
 #import "XIOSMediaCore.hpp"
+#import "XIOSTimeline.hpp"
+#import "XIOSTrack.hpp"
+#import "XIOSPlayer.hpp"
 
 @interface ViewController ()
-@property (weak, nonatomic) IBOutlet XView *displayView;
+@property (weak, nonatomic) IBOutlet XIOSView *displayView;
 @property (weak, nonatomic) IBOutlet UISlider *slider;
 @property (weak, nonatomic) IBOutlet UITextField *currentTextField;
 @property (weak, nonatomic) IBOutlet UITextField *durationTextField;
-
 @end
 
-@implementation ViewController
+@implementation ViewController {
+    XIOSPlayer* _player;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
+    
     self.slider.value = 0;
     self.currentTextField.placeholder = @"0";
     self.durationTextField.placeholder = @"0";
     
+    NSString* resourcePath = [[NSBundle mainBundle] resourcePath];
     InitParams params = {
-        .resPath = @"",
-        .shaderPath = @""
+        .resPath = resourcePath,
+        .shaderPath = resourcePath
     };
     
     [XIOSMediaCore setup:params];
@@ -46,15 +58,39 @@
     };
 }
 
+- (void)didEnterBackground {
+    if (_player) {
+        [_player stop];
+    }
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    if (_player) {
+        [_player stop];
+    }
+}
+
 - (IBAction)onOncePressClick:(UIButton *)sender {
-        NSString *filename = [[NSBundle mainBundle] pathForResource:@"douyin_700x1240" ofType:@"mp4"];
-        [self.displayView setInput:filename];
-        [self.displayView start];
+    NSString *filename = [[NSBundle mainBundle] pathForResource:@"output" ofType:@"mp4"];
+    XIOSTrack* track = [[XIOSTrack alloc] init];
+    [track setFilename:filename];
+    [track setDelay:0];
+    [track setClipStartTime:0];
+    [track setClipEndTime:54000];
+    
+    XIOSTimeline* timeline = [[XIOSTimeline alloc] init];
+    [timeline addTrack:track];
+    
+    _player = [[XIOSPlayer alloc] init];
+    [_player setDisplayView:self.displayView];
+    
+    [_player setTimeline:timeline];
+    [_player start];
 }
 
 - (IBAction)onSetInputClick:(UIButton *)sender {
     NSString *filename = [[NSBundle mainBundle] pathForResource:@"douyin_700x1240" ofType:@"mp4"];
-        [self.displayView setInput:filename];
+//    [self.displayView setInput:filename];
 }
 
 

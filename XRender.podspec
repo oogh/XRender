@@ -25,7 +25,7 @@ Pod::Spec.new do |spec|
     corerender.source_files  = "corerender/**/*.{h,hpp,cpp}"
     corerender.exclude_files = "corerender/Android", "corerender/Mac"
     corerender.public_header_files = "corerender/**/*.{h,hpp}"
-    corerender.frameworks = "GLKit", "VideoToolBox", "CoreMedia", "OpenGLES"
+    corerender.frameworks = "GLKit", "VideoToolBox", "CoreMedia", "OpenGLES", "OpenAL", "AVFoundation"
     corerender.libraries = "c++", "iconv"
     
     corerender.subspec 'iOS' do |iOS|

@@ -9,8 +9,8 @@
 
 class XImage;
 
-struct XViewObserver {
-    virtual void update(std::vector<std::shared_ptr<XImage>> images) = 0;
+struct XRenderObserver {
+    virtual void update(const std::vector<std::shared_ptr<XImage>>& images) = 0;
 };
 
 #endif // XVIEWOBSERVER_HPP

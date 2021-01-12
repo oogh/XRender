@@ -1,5 +1,5 @@
 //
-// Created by Andy on 2020/11/4.
+// Created by Oogh on 2020/11/4.
 //
 
 #ifndef XRENDER_XTIMELINE_HPP

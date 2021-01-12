@@ -7,11 +7,15 @@
 //
 
 #import "XIOSPlayer.hpp"
+#import "XIOSTimeline.hpp"
+#import "XIOSTimelineInternal.hpp"
+#import "XIOSView.hpp"
+#import "XIOSViewInternal.hpp"
 #include "XPlayer.hpp"
 
 @interface XIOSPlayer()
 {
-    XPlayer* _player;
+    std::shared_ptr<XPlayer> _player;
 }
 @end
 
@@ -20,22 +24,34 @@
 #pragma mark - Life Cycle
 - (instancetype)init {
     if (self = [super init]) {
-        [self setup];
+        _player = std::make_shared<XPlayer>();
     }
     return self;
 }
 
 - (void)dealloc {
-    
+    if (_player) {
+        _player.reset();
+    }
 }
 
 #pragma mark - Public
+- (void)setTimeline:(XIOSTimeline *)timeline {
+    _player->setTimeline([timeline getNativeTimeline]);
+}
+
+- (void)setDisplayView:(XIOSView*)view {
+    _player->attachObserverRender([view getNativeRender]);
+}
+
 - (void)prepare {
     
 }
 
 - (void)start {
-    
+    if (_player) {
+        _player->start();
+    }
 }
 
 - (void)seekTo:(long)targetPos {
@@ -47,7 +63,9 @@
 }
 
 - (void)stop {
-    
+    if (_player) {
+        _player->stop();
+    }
 }
 
 #pragma mark - Private

@@ -12,15 +12,13 @@
 #import <Foundation/Foundation.h>
 
 struct InitParams {
-    NSString* resPath = @"";
-    NSString* shaderPath = @"";
+    NSString* resPath;
+    NSString* shaderPath;
 };
 
 typedef struct InitParams InitParams;
 
 @interface XIOSMediaCore : NSObject
-
-//@property (nonatomic, assign, class) mInitParams;
 
 + (void)setup:(InitParams)params;
 

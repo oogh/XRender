@@ -4,10 +4,9 @@
 
 #include "XMacView.hpp"
 #include "XLogger.hpp"
-#include "XRender.hpp"
 
 XMacView::XMacView(int width, int height)
-        : mWidth(width), mHeight(height) {
+: mWidth(width), mHeight(height), mRender(std::make_shared<XRender>()) {
 }
 
 XMacView::~XMacView() {
@@ -37,8 +36,6 @@ void XMacView::create() {
         glfwTerminate();
         return;
     }
-
-    mRender = std::make_shared<XRender>();
 
     onSurfaceCreated(window);
 
@@ -70,10 +67,4 @@ void XMacView::onSurfaceSizeChanged(GLFWwindow* window, int width, int height) {
 
 void XMacView::onDrawFrame(GLFWwindow* window) {
     mRender->onDrawFrame();
-}
-
-void XMacView::update(std::vector<std::shared_ptr<XImage>> images) {
-    if (mRender) {
-        mRender->update(images);
-    }
 }

@@ -1,15 +1,18 @@
 //
-// Created by Andy on 2020/11/4.
+// Created by Oogh on 2020/11/4.
 //
 
 #ifndef XRENDER_XTRACK_HPP
 #define XRENDER_XTRACK_HPP
 
 #include <string>
-#include "XVideoCodec.hpp"
-#include "XAudioCodec.hpp"
+
+#include "XSample.hpp"
+#include "XImage.hpp"
 
 class XTimeline;
+class XVideoCodec;
+class XAudioCodec;
 
 class XTrack {
 public:

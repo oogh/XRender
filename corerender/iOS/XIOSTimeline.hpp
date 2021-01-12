@@ -11,17 +11,11 @@
 
 #import <Foundation/Foundation.h>
 
+@class XIOSTrack;
+
 @interface XIOSTimeline : NSObject
 
-- (void)prepare;
-
-- (void)start;
-
-- (void)seekTo:(long)targetPos;
-
-- (void)pause;
-
-- (void)stop;
+- (void)addTrack:(XIOSTrack*)track;
 
 @end
 

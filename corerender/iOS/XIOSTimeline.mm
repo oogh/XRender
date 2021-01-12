@@ -1,26 +1,29 @@
 //
-//  XIOSPlayer.mm
+//  XIOSTimeline.mm
 //  XRender
 //
 //  Created by Oogh on 2020/12/18.
 //  Copyright © 2020 Oogh. All rights reserved.
 //
 
-#import "XIOSPlayer.hpp"
-#include "XPlayer.hpp"
+#import "XIOSTimeline.hpp"
+#import "XIOSTimelineInternal.hpp"
+#import "XIOSTrackInternal.hpp"
+#import "XIOSTrack.hpp"
+#include "XTimeline.hpp"
 
-@interface XIOSPlayer()
+@interface XIOSTimeline()
 {
-    XPlayer* _player;
+    std::shared_ptr<XTimeline> _timeline;
 }
 @end
 
-@implementation XIOSPlayer
+@implementation XIOSTimeline
 
 #pragma mark - Life Cycle
 - (instancetype)init {
     if (self = [super init]) {
-        [self setup];
+        _timeline = std::make_shared<XTimeline>();
     }
     return self;
 }
@@ -30,30 +33,12 @@
 }
 
 #pragma mark - Public
-- (void)prepare {
-    
+- (void)addTrack:(XIOSTrack*)track {
+    _timeline->addTrack([track getNativeTrack]);
 }
 
-- (void)start {
-    
-}
-
-- (void)seekTo:(long)targetPos {
-    
-}
-
-- (void)pause {
-    
-}
-
-- (void)stop {
-    
-}
-
-#pragma mark - Private
-
-- (void)setup {
-    
+- (std::shared_ptr<XTimeline>)getNativeTimeline {
+    return _timeline;
 }
 
 @end

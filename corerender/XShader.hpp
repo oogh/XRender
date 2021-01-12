@@ -2,8 +2,8 @@
 // Created by Oogh on 2020/3/19.
 //
 
-#ifndef ANDROIDDEMO_XSHADER_H
-#define ANDROIDDEMO_XSHADER_H
+#ifndef XSHADER_H
+#define XSHADER_H
 
 #include <string>
 #include "XGLHeader.hpp"
@@ -30,4 +30,4 @@ private:
 
 };
 
-#endif //ANDROIDDEMO_XSHADER_H
+#endif // XSHADER_H

@@ -10,7 +10,6 @@
 #define XEXPORTER_XIMAGE_H
 
 #include <memory>
-#include "XFFHeader.hpp"
 
 enum ImageType {
     IMG_TYPE_UNKNOWN = -1,
@@ -20,6 +19,20 @@ enum ImageType {
 };
 
 struct XImage {
+    XImage();
+
+    ~XImage();
+    
+    XImage(const XImage& that);
+    
+    XImage& operator=(const XImage& that);
+    
+    XImage(XImage&& that);
+    
+    XImage& operator=(XImage&& that);
+
+    void free();
+    
     uint8_t* pixels[4] = {nullptr};
 
     int linesize[4] = {0};
@@ -35,28 +48,6 @@ struct XImage {
     int format = -1;
 
     int textureId = -1;
-
-    XImage(): width(0), height(0), pts(-1), duration(-1) {
-    }
-
-    ~XImage() {
-        free();
-    }
-
-    void free() {
-        this->width = 0;
-        this->height = 0;
-        this->pts = -1;
-        this->duration = -1;
-        if (this->pixels[0] != nullptr) {
-            av_freep(&this->pixels[0]);
-            av_freep(&this->pixels);
-        }
-
-        for (int i = 0; i < 4; ++i) {
-            this->linesize[i] = 0;
-        }
-    }
 };
 
 #endif //XEXPORTER_XIMAGE_H
