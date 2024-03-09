@@ -19,8 +19,14 @@ public:
     XRender();
 
     ~XRender();
+
+    void setInput(std::string path);
+
+    void prepare(int64_t timestamp);
     
     void start();
+
+    void pause();
 
     void updatePixel(uint8_t* pixel, int width, int height);
     

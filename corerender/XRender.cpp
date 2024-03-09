@@ -24,7 +24,19 @@ XRender::~XRender() {
     mRefreshTid.reset();
 }
 
+void XRender::setInput(std::string path) {
+
+}
+
+void XRender::prepare(int64_t timestamp) {
+
+}
+
 void XRender::start() {
+
+}
+
+void XRender::pause() {
 
 }
 

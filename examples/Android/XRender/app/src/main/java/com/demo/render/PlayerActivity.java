@@ -26,9 +26,9 @@ public class PlayerActivity extends AppCompatActivity {
         mDisplayView = findViewById(R.id.xv_display);
 
         findViewById(R.id.btn_once_press).setOnClickListener(v -> {
-            // "/sdcard/Android/data/com.demo.render/files/jieqian_720x1280.yuv"
+            // "/sdcard/Android/data/com.demo.render/files/xinwenlianbo.mp4"
             String path = getPrivateExternalFilesDir(this, "");
-            mDisplayView.setInput(path + "douyin_700x1240.mp4");
+            mDisplayView.setInput(path + "xinwenlianbo.mp4");
             mDisplayView.start();
         });
 
