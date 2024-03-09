@@ -1,29 +1,39 @@
 //
-// Created by Andy on 2020/11/4.
+//  XPlayer.cpp
+//  XRender
+//
+//  Created by Oogh on 2020/11/4.
+//  Copyright © 2020 Oogh. All rights reserved.
 //
 
 #include "XPlayer.hpp"
-#include "XRender.hpp"
 #include "XSounder.hpp"
 #include "XTimeline.hpp"
 #include "XThreadUtils.hpp"
 #include "XLogger.hpp"
 
 XPlayer::XPlayer() {
-    mRender = std::make_shared<XRender>();
     mSounder = std::make_unique<XSounder>();
 }
 
 XPlayer::~XPlayer() {
-
+    if (mAudioTid) {
+        mAudioTid->join();
+        mAudioTid.reset();
+    }
+    
+    if (mVideoTid) {
+        mVideoTid->join();
+        mAudioTid.reset();
+    }
 }
 
-void XPlayer::setTimeline(std::shared_ptr<XTimeline> timeline) {
+void XPlayer::setTimeline(std::shared_ptr<XTimeline>&& timeline) {
     mTimeline = timeline;
 }
 
-void XPlayer::setRender(std::shared_ptr<XRender> render) {
-    mRender = render;
+void XPlayer::attachObserverRender(std::shared_ptr<XRenderObserver> observer) {
+    mRenderObserver = observer;
 }
 
 int XPlayer::start() {
@@ -57,7 +67,7 @@ void XPlayer::audioWorkThread(void* opaque) {
 
         auto sample = player->mTimeline->getSample(4096);
         player->mSounder->updateAudio(sample->data, sample->length);
-
+//        LOGE("[XPlayer] andy sample->length: %d\n", sample->length);
     }
 
     player->mSounder->stop();
@@ -68,9 +78,7 @@ void XPlayer::videoWorkThread(void* opaque) {
     XThreadUtils::configThreadName("videoWorkThread");
     LOGD("[XPlayer] videoWorkThread ++++\n");
     auto player = reinterpret_cast<XPlayer*>(opaque);
-
-    player->mRender->start();
-
+    long lastClock = -1;
     for (;;) {
         if (player->mAborted) {
             break;
@@ -80,12 +88,30 @@ void XPlayer::videoWorkThread(void* opaque) {
             std::unique_lock<std::mutex> lock(player->mMutex);
             player->mContinueVideoWorkCond.wait(lock);
         }
-
-        auto image = player->mTimeline->getImage(player->mTimeline->getClock());
-        player->mRender->updatePixel(image->pixels[0], image->width, image->height);
+        
+        long clock = player->mTimeline->getClock();
+        if (clock != lastClock) {
+            auto images = player->mTimeline->getImage(clock);
+            if (player->mRenderObserver) {
+                player->mRenderObserver->update(images);
+            }
+        }
+        lastClock = clock;
     }
 
-    player->mRender->stop();
     LOGD("[XPlayer] videoWorkThread ----\n");
+}
+
+int XPlayer::stop() {
+    {
+        std::lock_guard<std::mutex> lock(mMutex);
+        mAborted = true;
+    }
+    
+    if (mAudioTid) {
+        mAudioTid->join();
+        mAudioTid.reset();
+    }
+    return 0;
 }
 

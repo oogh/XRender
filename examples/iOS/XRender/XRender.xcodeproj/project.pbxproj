@@ -7,129 +7,157 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		546279D3244AE56000054A08 /* jieqian_720x1280.rgba in Resources */ = {isa = PBXBuildFile; fileRef = 546279D2244AE56000054A08 /* jieqian_720x1280.rgba */; };
-		78A509A7C37148AC312D9D7E /* libPods-XRender.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D728692FFDEAADE9538088B4 /* libPods-XRender.a */; };
-		A19457F424A89A4C00387918 /* douyin_700x1240.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = A19457F324A89A4C00387918 /* douyin_700x1240.mp4 */; };
-		A1B80F93243EC5440042705D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B80F92243EC5440042705D /* AppDelegate.m */; };
-		A1B80F96243EC5440042705D /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B80F95243EC5440042705D /* SceneDelegate.m */; };
-		A1B80F99243EC5440042705D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B80F98243EC5440042705D /* ViewController.m */; };
-		A1B80F9C243EC5440042705D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A1B80F9A243EC5440042705D /* Main.storyboard */; };
-		A1B80F9E243EC5460042705D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1B80F9D243EC5460042705D /* Assets.xcassets */; };
-		A1B80FA1243EC5460042705D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A1B80F9F243EC5460042705D /* LaunchScreen.storyboard */; };
-		A1B80FA4243EC5460042705D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B80FA3243EC5460042705D /* main.m */; };
-		A1C3323624A336A700B75B72 /* jieqian_720x1280.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = A1C3323524A336A700B75B72 /* jieqian_720x1280.mp4 */; };
+		A1045ECF258CADB7006C3712 /* douyin_700x1240.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = A1045EC4258CADB7006C3712 /* douyin_700x1240.mp4 */; };
+		A1045ED0258CADB7006C3712 /* jieqian_720x1280.rgba in Resources */ = {isa = PBXBuildFile; fileRef = A1045EC5258CADB7006C3712 /* jieqian_720x1280.rgba */; };
+		A1045ED1258CADB7006C3712 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = A1045EC6258CADB7006C3712 /* README.md */; };
+		A1045ED8258CADB7006C3712 /* jieqian_720x1280.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = A1045ECE258CADB7006C3712 /* jieqian_720x1280.mp4 */; };
+		A1045EE3258CB0BF006C3712 /* texture.fs in Resources */ = {isa = PBXBuildFile; fileRef = A1045EDD258CB0BF006C3712 /* texture.fs */; };
+		A1045EE4258CB0BF006C3712 /* triangle.fs in Resources */ = {isa = PBXBuildFile; fileRef = A1045EDE258CB0BF006C3712 /* triangle.fs */; };
+		A1045EE5258CB0BF006C3712 /* rectangle.fs in Resources */ = {isa = PBXBuildFile; fileRef = A1045EDF258CB0BF006C3712 /* rectangle.fs */; };
+		A1045EE6258CB0BF006C3712 /* triangle.vs in Resources */ = {isa = PBXBuildFile; fileRef = A1045EE0258CB0BF006C3712 /* triangle.vs */; };
+		A1045EE7258CB0BF006C3712 /* rectangle.vs in Resources */ = {isa = PBXBuildFile; fileRef = A1045EE1258CB0BF006C3712 /* rectangle.vs */; };
+		A1045EE8258CB0BF006C3712 /* texture.vs in Resources */ = {isa = PBXBuildFile; fileRef = A1045EE2258CB0BF006C3712 /* texture.vs */; };
+		A1E626ED258CA9A40084D0EE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E626EC258CA9A40084D0EE /* AppDelegate.m */; };
+		A1E626F0258CA9A40084D0EE /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E626EF258CA9A40084D0EE /* SceneDelegate.m */; };
+		A1E626F3258CA9A40084D0EE /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E626F2258CA9A40084D0EE /* ViewController.m */; };
+		A1E626F6258CA9A40084D0EE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A1E626F4258CA9A40084D0EE /* Main.storyboard */; };
+		A1E626F8258CA9A50084D0EE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1E626F7258CA9A50084D0EE /* Assets.xcassets */; };
+		A1E626FB258CA9A50084D0EE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A1E626F9258CA9A50084D0EE /* LaunchScreen.storyboard */; };
+		A1E626FE258CA9A50084D0EE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A1E626FD258CA9A50084D0EE /* main.m */; };
+		E786013574C50F359A69659F /* libPods-XRender.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2986BB27BA692AC4757D159A /* libPods-XRender.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		546279D2244AE56000054A08 /* jieqian_720x1280.rgba */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = jieqian_720x1280.rgba; path = ../../../../Resources/jieqian_720x1280.rgba; sourceTree = "<group>"; };
-		A19457F324A89A4C00387918 /* douyin_700x1240.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = douyin_700x1240.mp4; path = ../../../../Resources/douyin_700x1240.mp4; sourceTree = "<group>"; };
-		A1B80F8E243EC5440042705D /* XRender.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XRender.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A1B80F91243EC5440042705D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		A1B80F92243EC5440042705D /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		A1B80F94243EC5440042705D /* SceneDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SceneDelegate.h; sourceTree = "<group>"; };
-		A1B80F95243EC5440042705D /* SceneDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SceneDelegate.m; sourceTree = "<group>"; };
-		A1B80F97243EC5440042705D /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		A1B80F98243EC5440042705D /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		A1B80F9B243EC5440042705D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		A1B80F9D243EC5460042705D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A1B80FA0243EC5460042705D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		A1B80FA2243EC5460042705D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A1B80FA3243EC5460042705D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		A1C3323524A336A700B75B72 /* jieqian_720x1280.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = jieqian_720x1280.mp4; path = ../../../../Resources/jieqian_720x1280.mp4; sourceTree = "<group>"; };
-		AF12E9C4655CE79889DBC249 /* Pods-XRender.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XRender.release.xcconfig"; path = "Target Support Files/Pods-XRender/Pods-XRender.release.xcconfig"; sourceTree = "<group>"; };
-		C3A88173315AA88098B9D0E9 /* Pods-XRender.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XRender.debug.xcconfig"; path = "Target Support Files/Pods-XRender/Pods-XRender.debug.xcconfig"; sourceTree = "<group>"; };
-		D728692FFDEAADE9538088B4 /* libPods-XRender.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-XRender.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		150F92D08EEAC63842687AB2 /* Pods-XRender.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XRender.release.xcconfig"; path = "Target Support Files/Pods-XRender/Pods-XRender.release.xcconfig"; sourceTree = "<group>"; };
+		2986BB27BA692AC4757D159A /* libPods-XRender.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-XRender.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1045EC4258CADB7006C3712 /* douyin_700x1240.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = douyin_700x1240.mp4; sourceTree = "<group>"; };
+		A1045EC5258CADB7006C3712 /* jieqian_720x1280.rgba */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = jieqian_720x1280.rgba; sourceTree = "<group>"; };
+		A1045EC6258CADB7006C3712 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		A1045ECE258CADB7006C3712 /* jieqian_720x1280.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = jieqian_720x1280.mp4; sourceTree = "<group>"; };
+		A1045EDD258CB0BF006C3712 /* texture.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = texture.fs; sourceTree = "<group>"; };
+		A1045EDE258CB0BF006C3712 /* triangle.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = triangle.fs; sourceTree = "<group>"; };
+		A1045EDF258CB0BF006C3712 /* rectangle.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = rectangle.fs; sourceTree = "<group>"; };
+		A1045EE0258CB0BF006C3712 /* triangle.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = triangle.vs; sourceTree = "<group>"; };
+		A1045EE1258CB0BF006C3712 /* rectangle.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = rectangle.vs; sourceTree = "<group>"; };
+		A1045EE2258CB0BF006C3712 /* texture.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = texture.vs; sourceTree = "<group>"; };
+		A1E626E8258CA9A40084D0EE /* XRender.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = XRender.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1E626EB258CA9A40084D0EE /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		A1E626EC258CA9A40084D0EE /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		A1E626EE258CA9A40084D0EE /* SceneDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SceneDelegate.h; sourceTree = "<group>"; };
+		A1E626EF258CA9A40084D0EE /* SceneDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SceneDelegate.m; sourceTree = "<group>"; };
+		A1E626F1258CA9A40084D0EE /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		A1E626F2258CA9A40084D0EE /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		A1E626F5258CA9A40084D0EE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		A1E626F7258CA9A50084D0EE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A1E626FA258CA9A50084D0EE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		A1E626FC258CA9A50084D0EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A1E626FD258CA9A50084D0EE /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		CF0FA64E405658880FFAF899 /* Pods-XRender.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XRender.debug.xcconfig"; path = "Target Support Files/Pods-XRender/Pods-XRender.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		A1B80F8B243EC5440042705D /* Frameworks */ = {
+		A1E626E5258CA9A40084D0EE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				78A509A7C37148AC312D9D7E /* libPods-XRender.a in Frameworks */,
+				E786013574C50F359A69659F /* libPods-XRender.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0C446573274C0736C893F9AA /* Frameworks */ = {
+		9B2C3EFAB1F5B70AC84B2FD1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				D728692FFDEAADE9538088B4 /* libPods-XRender.a */,
+				2986BB27BA692AC4757D159A /* libPods-XRender.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		54CE26BC243F5EAB00CE518C /* Resources */ = {
+		A1045EC3258CADB7006C3712 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				A19457F324A89A4C00387918 /* douyin_700x1240.mp4 */,
-				A1C3323524A336A700B75B72 /* jieqian_720x1280.mp4 */,
-				546279D2244AE56000054A08 /* jieqian_720x1280.rgba */,
-				A1B3AAC82513542F00AFFAC7 /* image.png */,
-				A1B3AACA2513565100AFFAC7 /* money1.png */,
+				A1045EDC258CB0BF006C3712 /* shaders */,
+				A1045EC4258CADB7006C3712 /* douyin_700x1240.mp4 */,
+				A1045EC5258CADB7006C3712 /* jieqian_720x1280.rgba */,
+				A1045EC6258CADB7006C3712 /* README.md */,
+				A1045ECE258CADB7006C3712 /* jieqian_720x1280.mp4 */,
 			);
-			path = Resources;
+			name = Resources;
+			path = ../../../../Resources;
 			sourceTree = "<group>";
 		};
-		8BCDAB11A31CD5563300CF5D /* Pods */ = {
+		A1045EDC258CB0BF006C3712 /* shaders */ = {
 			isa = PBXGroup;
 			children = (
-				C3A88173315AA88098B9D0E9 /* Pods-XRender.debug.xcconfig */,
-				AF12E9C4655CE79889DBC249 /* Pods-XRender.release.xcconfig */,
+				A1045EDD258CB0BF006C3712 /* texture.fs */,
+				A1045EDE258CB0BF006C3712 /* triangle.fs */,
+				A1045EDF258CB0BF006C3712 /* rectangle.fs */,
+				A1045EE0258CB0BF006C3712 /* triangle.vs */,
+				A1045EE1258CB0BF006C3712 /* rectangle.vs */,
+				A1045EE2258CB0BF006C3712 /* texture.vs */,
 			);
-			path = Pods;
+			path = shaders;
 			sourceTree = "<group>";
 		};
-		A1B80F85243EC5440042705D = {
+		A1E626DF258CA9A40084D0EE = {
 			isa = PBXGroup;
 			children = (
-				54CE26BC243F5EAB00CE518C /* Resources */,
-				A1B80F90243EC5440042705D /* XRender */,
-				A1B80F8F243EC5440042705D /* Products */,
-				8BCDAB11A31CD5563300CF5D /* Pods */,
-				0C446573274C0736C893F9AA /* Frameworks */,
+				A1E626EA258CA9A40084D0EE /* XRender */,
+				A1E626E9258CA9A40084D0EE /* Products */,
+				E584E73734C20289ED835F8D /* Pods */,
+				9B2C3EFAB1F5B70AC84B2FD1 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
-		A1B80F8F243EC5440042705D /* Products */ = {
+		A1E626E9258CA9A40084D0EE /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A1B80F8E243EC5440042705D /* XRender.app */,
+				A1E626E8258CA9A40084D0EE /* XRender.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A1B80F90243EC5440042705D /* XRender */ = {
+		A1E626EA258CA9A40084D0EE /* XRender */ = {
 			isa = PBXGroup;
 			children = (
-				A1B80F91243EC5440042705D /* AppDelegate.h */,
-				A1B80F92243EC5440042705D /* AppDelegate.m */,
-				A1B80F94243EC5440042705D /* SceneDelegate.h */,
-				A1B80F95243EC5440042705D /* SceneDelegate.m */,
-				A1B80F97243EC5440042705D /* ViewController.h */,
-				A1B80F98243EC5440042705D /* ViewController.m */,
-				A1B80F9A243EC5440042705D /* Main.storyboard */,
-				A1B80F9D243EC5460042705D /* Assets.xcassets */,
-				A1B80F9F243EC5460042705D /* LaunchScreen.storyboard */,
-				A1B80FA2243EC5460042705D /* Info.plist */,
-				A1B80FA3243EC5460042705D /* main.m */,
+				A1045EC3258CADB7006C3712 /* Resources */,
+				A1E626EB258CA9A40084D0EE /* AppDelegate.h */,
+				A1E626EC258CA9A40084D0EE /* AppDelegate.m */,
+				A1E626EE258CA9A40084D0EE /* SceneDelegate.h */,
+				A1E626EF258CA9A40084D0EE /* SceneDelegate.m */,
+				A1E626F1258CA9A40084D0EE /* ViewController.h */,
+				A1E626F2258CA9A40084D0EE /* ViewController.m */,
+				A1E626F4258CA9A40084D0EE /* Main.storyboard */,
+				A1E626F7258CA9A50084D0EE /* Assets.xcassets */,
+				A1E626F9258CA9A50084D0EE /* LaunchScreen.storyboard */,
+				A1E626FC258CA9A50084D0EE /* Info.plist */,
+				A1E626FD258CA9A50084D0EE /* main.m */,
 			);
 			path = XRender;
+			sourceTree = "<group>";
+		};
+		E584E73734C20289ED835F8D /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				CF0FA64E405658880FFAF899 /* Pods-XRender.debug.xcconfig */,
+				150F92D08EEAC63842687AB2 /* Pods-XRender.release.xcconfig */,
+			);
+			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A1B80F8D243EC5440042705D /* XRender */ = {
+		A1E626E7258CA9A40084D0EE /* XRender */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A1B80FA7243EC5460042705D /* Build configuration list for PBXNativeTarget "XRender" */;
+			buildConfigurationList = A1E62701258CA9A50084D0EE /* Build configuration list for PBXNativeTarget "XRender" */;
 			buildPhases = (
-				614FF0622CF11CB2EA91B6FE /* [CP] Check Pods Manifest.lock */,
-				A1B80F8A243EC5440042705D /* Sources */,
-				A1B80F8B243EC5440042705D /* Frameworks */,
-				A1B80F8C243EC5440042705D /* Resources */,
+				443EC1EBD579FCD0DB288037 /* [CP] Check Pods Manifest.lock */,
+				A1E626E4258CA9A40084D0EE /* Sources */,
+				A1E626E5258CA9A40084D0EE /* Frameworks */,
+				A1E626E6258CA9A40084D0EE /* Resources */,
 			);
 			buildRules = (
 			);
@@ -137,24 +165,23 @@
 			);
 			name = XRender;
 			productName = XRender;
-			productReference = A1B80F8E243EC5440042705D /* XRender.app */;
+			productReference = A1E626E8258CA9A40084D0EE /* XRender.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		A1B80F86243EC5440042705D /* Project object */ = {
+		A1E626E0258CA9A40084D0EE /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1130;
-				ORGANIZATIONNAME = oogh;
+				LastUpgradeCheck = 1220;
 				TargetAttributes = {
-					A1B80F8D243EC5440042705D = {
-						CreatedOnToolsVersion = 11.3;
+					A1E626E7258CA9A40084D0EE = {
+						CreatedOnToolsVersion = 12.2;
 					};
 				};
 			};
-			buildConfigurationList = A1B80F89243EC5440042705D /* Build configuration list for PBXProject "XRender" */;
+			buildConfigurationList = A1E626E3258CA9A40084D0EE /* Build configuration list for PBXProject "XRender" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -162,36 +189,41 @@
 				en,
 				Base,
 			);
-			mainGroup = A1B80F85243EC5440042705D;
-			productRefGroup = A1B80F8F243EC5440042705D /* Products */;
+			mainGroup = A1E626DF258CA9A40084D0EE;
+			productRefGroup = A1E626E9258CA9A40084D0EE /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A1B80F8D243EC5440042705D /* XRender */,
+				A1E626E7258CA9A40084D0EE /* XRender */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		A1B80F8C243EC5440042705D /* Resources */ = {
+		A1E626E6258CA9A40084D0EE /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1B80FA1243EC5460042705D /* LaunchScreen.storyboard in Resources */,
-				A19457F424A89A4C00387918 /* douyin_700x1240.mp4 in Resources */,
-				A1B80F9E243EC5460042705D /* Assets.xcassets in Resources */,
-				A1B80F9C243EC5440042705D /* Main.storyboard in Resources */,
-				A1B3AAC92513542F00AFFAC7 /* image.png in Resources */,
-				A1C3323624A336A700B75B72 /* jieqian_720x1280.mp4 in Resources */,
-				A1B3AACB2513565100AFFAC7 /* money1.png in Resources */,
-				546279D3244AE56000054A08 /* jieqian_720x1280.rgba in Resources */,
+				A1045EE7258CB0BF006C3712 /* rectangle.vs in Resources */,
+				A1045EE5258CB0BF006C3712 /* rectangle.fs in Resources */,
+				A1045ED1258CADB7006C3712 /* README.md in Resources */,
+				A1045ED8258CADB7006C3712 /* jieqian_720x1280.mp4 in Resources */,
+				A1045EE3258CB0BF006C3712 /* texture.fs in Resources */,
+				A1E626FB258CA9A50084D0EE /* LaunchScreen.storyboard in Resources */,
+				A1045EE6258CB0BF006C3712 /* triangle.vs in Resources */,
+				A1E626F8258CA9A50084D0EE /* Assets.xcassets in Resources */,
+				A1E626F6258CA9A40084D0EE /* Main.storyboard in Resources */,
+				A1045ECF258CADB7006C3712 /* douyin_700x1240.mp4 in Resources */,
+				A1045ED0258CADB7006C3712 /* jieqian_720x1280.rgba in Resources */,
+				A1045EE8258CB0BF006C3712 /* texture.vs in Resources */,
+				A1045EE4258CB0BF006C3712 /* triangle.fs in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		614FF0622CF11CB2EA91B6FE /* [CP] Check Pods Manifest.lock */ = {
+		443EC1EBD579FCD0DB288037 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -216,32 +248,32 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		A1B80F8A243EC5440042705D /* Sources */ = {
+		A1E626E4258CA9A40084D0EE /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1B80F99243EC5440042705D /* ViewController.m in Sources */,
-				A1B80F93243EC5440042705D /* AppDelegate.m in Sources */,
-				A1B80FA4243EC5460042705D /* main.m in Sources */,
-				A1B80F96243EC5440042705D /* SceneDelegate.m in Sources */,
+				A1E626F3258CA9A40084D0EE /* ViewController.m in Sources */,
+				A1E626ED258CA9A40084D0EE /* AppDelegate.m in Sources */,
+				A1E626FE258CA9A50084D0EE /* main.m in Sources */,
+				A1E626F0258CA9A40084D0EE /* SceneDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		A1B80F9A243EC5440042705D /* Main.storyboard */ = {
+		A1E626F4258CA9A40084D0EE /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				A1B80F9B243EC5440042705D /* Base */,
+				A1E626F5258CA9A40084D0EE /* Base */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
-		A1B80F9F243EC5460042705D /* LaunchScreen.storyboard */ = {
+		A1E626F9258CA9A50084D0EE /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				A1B80FA0243EC5460042705D /* Base */,
+				A1E626FA258CA9A50084D0EE /* Base */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
@@ -249,7 +281,7 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		A1B80FA5243EC5460042705D /* Debug */ = {
+		A1E626FF258CA9A50084D0EE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -275,6 +307,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -299,7 +332,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -307,7 +340,7 @@
 			};
 			name = Debug;
 		};
-		A1B80FA6243EC5460042705D /* Release */ = {
+		A1E62700258CA9A50084D0EE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -333,6 +366,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -351,7 +385,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -359,51 +393,44 @@
 			};
 			name = Release;
 		};
-		A1B80FA8243EC5460042705D /* Debug */ = {
+		A1E62702258CA9A50084D0EE /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C3A88173315AA88098B9D0E9 /* Pods-XRender.debug.xcconfig */;
+			baseConfigurationReference = CF0FA64E405658880FFAF899 /* Pods-XRender.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				COMPRESS_PNG_FILES = NO;
 				DEVELOPMENT_TEAM = R25N9JGHQ4;
-				HEADER_SEARCH_PATHS = (
-					"\"$(PODS_TARGET_SRCROOT)/3rdparty/x264/iOS/include\"",
-					"$(inherited)",
-					"\"${PODS_ROOT}/Headers/Public\"",
-					"\"${PODS_ROOT}/Headers/Public/XRender\"",
-					"\"$(PODS_TARGET_SRCROOT)/3rdparty/fdkaac/iOS/include\"",
-					"\"$(PODS_TARGET_SRCROOT)/3rdparty/ffmpeg/iOS/include\"",
-					"\"$(PODS_TARGET_SRCROOT)/3rdparty/lame/iOS/include\"",
-				);
 				INFOPLIST_FILE = XRender/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = me.oogh.XRender;
+				PRODUCT_BUNDLE_IDENTIFIER = com.oogh.XRender;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRIP_PNG_TEXT = NO;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		A1B80FA9243EC5460042705D /* Release */ = {
+		A1E62703258CA9A50084D0EE /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = AF12E9C4655CE79889DBC249 /* Pods-XRender.release.xcconfig */;
+			baseConfigurationReference = 150F92D08EEAC63842687AB2 /* Pods-XRender.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				COMPRESS_PNG_FILES = NO;
 				DEVELOPMENT_TEAM = R25N9JGHQ4;
 				INFOPLIST_FILE = XRender/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = me.oogh.XRender;
+				PRODUCT_BUNDLE_IDENTIFIER = com.oogh.XRender;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRIP_PNG_TEXT = NO;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -411,25 +438,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A1B80F89243EC5440042705D /* Build configuration list for PBXProject "XRender" */ = {
+		A1E626E3258CA9A40084D0EE /* Build configuration list for PBXProject "XRender" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A1B80FA5243EC5460042705D /* Debug */,
-				A1B80FA6243EC5460042705D /* Release */,
+				A1E626FF258CA9A50084D0EE /* Debug */,
+				A1E62700258CA9A50084D0EE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A1B80FA7243EC5460042705D /* Build configuration list for PBXNativeTarget "XRender" */ = {
+		A1E62701258CA9A50084D0EE /* Build configuration list for PBXNativeTarget "XRender" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A1B80FA8243EC5460042705D /* Debug */,
-				A1B80FA9243EC5460042705D /* Release */,
+				A1E62702258CA9A50084D0EE /* Debug */,
+				A1E62703258CA9A50084D0EE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = A1B80F86243EC5440042705D /* Project object */;
+	rootObject = A1E626E0258CA9A40084D0EE /* Project object */;
 }

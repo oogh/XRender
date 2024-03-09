@@ -1,22 +1,27 @@
 //
-// Created by Andy on 2020/11/4.
+// Created by Oogh on 2020/11/4.
 //
 
 #include "XTrack.hpp"
+#include "XPlatform.hpp"
 #include "XTimeline.hpp"
+#include "XAudioCodec.hpp"
+#include "XFFmpegVideoCodec.hpp"
+#include "XIOSVideoCodec.hpp"
 
 int XTrack::ID_GENERATOR = 0;
 
 XTrack::XTrack() : mId(ID_GENERATOR++), mDelay(0), mClipStartTime(0), mClipEndTime(0) {
     mAudioCodec = std::make_unique<XAudioCodec>();
-    mVideoCodec = std::make_unique<XVideoCodec>();
+//    mVideoCodec = std::make_unique<XFFmpegVideoCodec>();
+    mVideoCodec = std::make_unique<XIOSVideoCodec>();
 }
 
 XTrack::~XTrack() {
 
 }
 
-void XTrack::setTimeline(std::shared_ptr<XTimeline> timeline) {
+void XTrack::setTimeline(const std::shared_ptr<XTimeline>& timeline) {
     mTimeline = timeline;
 }
 
@@ -74,7 +79,11 @@ long XTrack::getClipDuration() const {
 
 std::shared_ptr<XImage> XTrack::getImage(long clock) {
     if (mVideoCodec && (mDelay <= clock && clock <= mDelay + getClipDuration())) {
-        return mVideoCodec->getImage(clock - mDelay);
+        auto result =  mVideoCodec->getImage(clock - mDelay);
+        if (result) {
+            result->textureId = mId;
+        }
+        return result;
     }
     return nullptr;
 }

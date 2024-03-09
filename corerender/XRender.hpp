@@ -8,12 +8,15 @@
 #include <memory>
 #include <string>
 #include <mutex>
+#include <list>
 #include "XGLHeader.hpp"
+#include "XRenderObserver.hpp"
 
 class XFFProducer;
 class XTexture;
+class XImage;
 
-class XRender {
+class XRender : public XRenderObserver {
     using OnProgressChangeCallback = std::function<void(long current, long duration)>;
 public:
     XRender();
@@ -29,15 +32,18 @@ public:
     void pause();
 
     void updatePixel(uint8_t* pixel, int width, int height);
-    
+
     void onSurfaceCreated();
 
     void onSurfaceChanged(int width, int height);
 
     void onDrawFrame();
-    
-    void stop();
 
+    void stop();
+    
+public:
+    void update(const std::vector<std::shared_ptr<XImage>>& images) override;
+    
 private:
     int mTextureWidth;
     int mTextureHeight;
@@ -57,7 +63,6 @@ private:
     
     OnProgressChangeCallback mProgressChangeCallback;
 
-    std::unique_ptr<XTexture> mTexture;
-    
+    std::list<std::shared_ptr<XTexture>> mTextureList;
 };
 #endif //ANDROIDDEMO_XRENDER_H

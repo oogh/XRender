@@ -24,7 +24,6 @@ aux_source_directory(${DIR_MIDDLE_MAC} SRC_MIDDLE)
 if (APPLE)
     add_definitions("-DMAC")
     set(LibraryName "XRender")
-    set(DIR_DEMO_MAC ${DIR_EXSAMPLE}/Mac/XRender)
 
     # FFmpeg
     find_path(AVFORMAT_INCLUDE_DIR libavformat/avformat.h)
@@ -112,13 +111,6 @@ if (APPLE)
             "-framework OpenAL"
             "-framework OpenGL"
             "-framework VideoToolbox")
-
-    # 生成可执行文件
-    add_executable(gl_render ${SRC_MEDIA} ${DIR_DEMO_MAC}/gl_render.cpp)
-    target_link_libraries(gl_render ${LibraryName})
-
-    add_executable(xplayer ${SRC_MEDIA} ${DIR_DEMO_MAC}/xplayer.cpp)
-    target_link_libraries(xplayer ${LibraryName})
 
 #### （Android 平台） ###############################################################################
 elseif (ANDROID)

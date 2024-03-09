@@ -1,12 +1,19 @@
-#version 300 es
+#version 300 core
+
+precision lowp float;
+
 out vec4 FragColor;
 
+in vec3 ourColor;
 in vec2 TexCoord;
-out vec2 realTexCoord;
 
-uniform sampler2D texture1;
+uniform sampler2D ourTexture;
 
-void main() {
-    realTexCoord = vec2(TexCoord.x, 1.0 - TexCoord.y);
-	FragColor = texture(texture1, realTexCoord);
+void main()
+{
+    // RGBA -> RGBA
+//    FragColor = texture(ourTexture, vec2(TexCoord.x, 1.0 - TexCoord.y));
+    
+    // BGRA -> RGBA
+    FragColor.rgba = texture(ourTexture, vec2(TexCoord.x, 1.0 - TexCoord.y)).bgra;
 }

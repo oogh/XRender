@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context=".PlayerActivity">
 
-    <com.core.render.XView
+    <com.core.render.XMacView
         android:id="@+id/xv_display"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

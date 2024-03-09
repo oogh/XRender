@@ -6,13 +6,21 @@ import android.os.Environment;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.core.render.XView;
+import com.core.render.XPlayer;
+import com.core.render.XMacView;
+import com.core.render.XTimeline;
+import com.core.render.XTrack;
 
 import java.io.File;
+import java.util.Timer;
+
+// "/sdcard/Android/data/com.demo.render/files/jieqian_720x1280.yuv"
 
 public class PlayerActivity extends AppCompatActivity {
 
-    private XView mDisplayView;
+    private XMacView mDisplayView;
+    private XPlayer mPlayer;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,32 +28,40 @@ public class PlayerActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_player);
         initView();
+
+        mPlayer = new XPlayer();
+        mPlayer.setSurface(mDisplayView);
     }
 
     private void initView() {
         mDisplayView = findViewById(R.id.xv_display);
 
         findViewById(R.id.btn_once_press).setOnClickListener(v -> {
-            // "/sdcard/Android/data/com.demo.render/files/xinwenlianbo.mp4"
-            String path = getPrivateExternalFilesDir(this, "");
-            mDisplayView.setInput(path + "xinwenlianbo.mp4");
-            mDisplayView.start();
+            String path = getPrivateExternalFilesDir(this, "") + "douyin_700x1240.mp4";
+            XTrack track = new XTrack();
+            track.setFilename(path);
+            track.setDelay(0);
+            track.setClipStartTime(0);
+            track.setClipEndTime(10000);
+
+            XTimeline timeline = new XTimeline();
+            timeline.addTrack(track);
+
+            mPlayer.setTimeline(timeline);
+            mPlayer.prepare();
+            mPlayer.start();
         });
 
         findViewById(R.id.btn_prepare).setOnClickListener(v -> {
-            mDisplayView.prepare(0);
         });
 
         findViewById(R.id.btn_start).setOnClickListener(v -> {
-            mDisplayView.start();
         });
 
         findViewById(R.id.btn_pause).setOnClickListener(v -> {
-            mDisplayView.pause();
         });
 
         findViewById(R.id.btn_stop).setOnClickListener(v -> {
-            mDisplayView.stop();
         });
 
         findViewById(R.id.btn_add_input).setOnClickListener(v -> {

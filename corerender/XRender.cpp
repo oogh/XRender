@@ -40,16 +40,39 @@ void XRender::pause() {
 
 }
 
-void XRender::updatePixel(uint8_t* pixel, int width, int height) {
+void XRender::update(const std::vector<std::shared_ptr<XImage>>& images) {
     std::lock_guard<std::mutex> lock(mMutex);
-    if (mTexture) {
-        mTexture->setPixels(pixel, width, height);
+    for (auto& image: images) {
+        auto iter = std::find_if(mTextureList.begin(), mTextureList.end(), [image](const std::shared_ptr<XTexture>& texture) {
+            if (image == nullptr) {
+                return false;
+            }
+            return image->textureId == texture->getId();
+        });
+
+        std::shared_ptr<XTexture> texture;
+        if (iter != mTextureList.end()) {
+            texture = *iter;
+        } else {
+            if (image) {
+                texture = std::make_shared<XTexture>(image->textureId, image->width, image->height);
+                mTextureList.emplace_back(texture);
+            }
+        }
+        
+        if (image && image->pixels[0]) { // RGB系列
+            texture->setPixels(image->pixels[0], image->linesize[0] / 4, image->height);
+        } else if (image && image->pixels[3]) { // CMSampleBufferRef
+            // CMSampleBufferRef -> Texture
+            
+        }
+        
     }
     mContinueRefreshCond.notify_one();
 }
 
 void XRender::onSurfaceCreated() {
-    mTexture = std::make_unique<XTexture>();
+
 }
 
 void XRender::onSurfaceChanged(int width, int height) {
@@ -61,7 +84,12 @@ void XRender::onSurfaceChanged(int width, int height) {
 }
 
 void XRender::onDrawFrame() {
-    mTexture->draw();
+    std::for_each(mTextureList.begin(), mTextureList.end(), [](std::shared_ptr<XTexture>& texture) {
+        if (!texture->drawable()) {
+            texture->create();
+        }
+        texture->draw();
+    });
 }
 
 void XRender::stop() {

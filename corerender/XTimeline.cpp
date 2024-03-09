@@ -1,5 +1,5 @@
 //
-// Created by Andy on 2020/11/4.
+// Created by Oogh on 2020/11/4.
 //
 
 #include "XTimeline.hpp"
@@ -21,7 +21,7 @@ int XTimeline::addTrack(std::shared_ptr<XTrack> track) {
     track->setTimeline(shared_from_this());
     mTrackList.emplace_back(track);
     updateDuration();
-    return mTrackList.size();
+    return static_cast<int>(mTrackList.size());
 }
 
 int XTimeline::removeTrack(int id) {
@@ -34,12 +34,16 @@ int XTimeline::removeTrack(int id) {
     return mTrackList.size();
 }
 
-std::shared_ptr<XImage> XTimeline::getImage(long clock) {
-    std::shared_ptr<XImage> image;
+std::vector<std::shared_ptr<XImage>> XTimeline::getImage(long clock) {
+    std::vector<std::shared_ptr<XImage>> images;
+    images.reserve(mTrackList.size());
+
     for (auto& track: mTrackList) {
-        image = track->getImage(clock);
+        auto image = track->getImage(clock);
+        images.emplace_back(std::move(image));
     }
-    return image;
+
+    return images;
 }
 
 std::shared_ptr<XSample> XTimeline::getSample(int length) {
@@ -61,12 +65,11 @@ std::shared_ptr<XSample> XTimeline::getSample(int length) {
 long XTimeline::getClock() {
     std::lock_guard<std::mutex> lock(mMutex);
     long clock = static_cast<long>(mUsedSample * 1.0 / 44100 / 2 / 2 * 1000);
-    LOGD("[XTimeline] clock: %ld\n", clock);
+//    LOGD("[XTimeline] current play clock: %ld\n", clock);
     return clock;
 }
 
 bool XTimeline::isCompleted() {
-    std::lock_guard<std::mutex> lock(mMutex);
     return getClock() >= mDuration;
 }
 

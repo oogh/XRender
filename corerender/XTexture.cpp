@@ -4,17 +4,28 @@
 
 #include "XTexture.hpp"
 #include "XImageUitls.hpp"
+#include "XPlatform.hpp"
+#include "XMediaCore.hpp"
 
-#if __APPLE__
-std::string XTexture::sVertexFilePath = "/Users/andy/Workspace/Oogh/XRender/Resources/shaders/texture.vs";
-std::string XTexture::sFragmentFilePath = "/Users/andy/Workspace/Oogh/XRender/Resources/shaders/texture.fs";
-#elif __ANDROID__
-std::string XTexture::sVertexFilePath = "/sdcard/Android/data/com.demo.render/files/shaders/texture.vs";
-std::string XTexture::sFragmentFilePath = "/sdcard/Android/data/com.demo.render/files/shaders/texture.fs";
-#endif
+XTexture::XTexture(int id, int width, int height): mId(id), mWidth(width), mHeight(height), mPixels(nullptr), mDrawable(false) {
 
-XTexture::XTexture(): mWidth(0), mHeight(0), mPixels(nullptr) {
-    mShader = std::make_unique<XShader>(sVertexFilePath, sFragmentFilePath);
+}
+
+XTexture::~XTexture() {
+    if (mPixels) {
+        free(mPixels);
+        mPixels = nullptr;
+    }
+}
+
+bool XTexture::drawable() const {
+    return mDrawable;
+}
+
+void XTexture::create() {
+    std::string vertexPath = XMediaCore::getInstance().getShaderPath() + "/texture.vs";
+    std::string fragmentPath = XMediaCore::getInstance().getShaderPath() + "/texture.fs";
+    mShader = std::make_unique<XShader>(vertexPath, fragmentPath);
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -56,13 +67,12 @@ XTexture::XTexture(): mWidth(0), mHeight(0), mPixels(nullptr) {
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    mDrawable = true;
 }
 
-XTexture::~XTexture() {
-    if (mPixels) {
-        free(mPixels);
-        mPixels = nullptr;
-    }
+int XTexture::getId() const {
+    return mId;
 }
 
 void XTexture::setPixels(uint8_t* pixels, int width, int height) {
@@ -79,7 +89,7 @@ void XTexture::setPixels(uint8_t* pixels, int width, int height) {
         mHeight = height;
     }
     
-    size_t size = width * height * 4;
+    size_t size = static_cast<size_t>(width * height * 4);
     if (!mPixels) {
         mPixels = reinterpret_cast<uint8_t*>(malloc(size));
     }

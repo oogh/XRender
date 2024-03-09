@@ -1,5 +1,9 @@
 //
-// Created by Andy on 2020/11/4.
+//  XPlayer.hpp
+//  XRender
+//
+//  Created by Oogh on 2020/11/4.
+//  Copyright © 2020 Oogh. All rights reserved.
 //
 
 #ifndef XRENDER_XPLAYER_HPP
@@ -9,6 +13,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include "XRenderObserver.hpp"
 
 class XRender;
 class XSounder;
@@ -21,11 +26,13 @@ public:
 
     ~XPlayer();
 
-    void setTimeline(std::shared_ptr<XTimeline> timeline);
+    void setTimeline(std::shared_ptr<XTimeline>&& timeline);
 
-    void setRender(std::shared_ptr<XRender> render);
+    void attachObserverRender(std::shared_ptr<XRenderObserver> observer);
 
     int start();
+    
+    int stop();
 
 private:
     void audioWorkThread(void *opaque);
@@ -33,7 +40,6 @@ private:
     void videoWorkThread(void *opaque);
 
 private:
-    std::shared_ptr<XRender> mRender;
     std::unique_ptr<XSounder> mSounder;
     std::shared_ptr<XTimeline> mTimeline;
 
@@ -44,7 +50,7 @@ private:
     std::condition_variable mContinueVideoWorkCond;
 
     bool mAborted;
-
+    std::shared_ptr<XRenderObserver> mRenderObserver;
 };
 
 #endif //XRENDER_XPLAYER_HPP

@@ -11,7 +11,7 @@
     #include <GLES3/gl3.h>
     #include <GLES3/gl3ext.h>
 #elif PLATFORM_IOS
-    #import <OpenGLES/ES2/gl.h>
+    #import <OpenGLES/ES3/gl.h>
 #elif PLATFORM_MAC
     #include <GLFW/glfw3.h>
     #include <glad/glad.h>
